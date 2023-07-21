@@ -1,0 +1,22 @@
+import { Module } from '@nestjs/common';
+import { RetiroService } from './retiro.service';
+import { RetiroController } from './retiro.controller';
+import { ConfigModule } from '@nestjs/config';
+import { MongooseModule } from '@nestjs/mongoose';
+import { Retiro, RetiroSchema } from './entities/retiro.entity';
+
+@Module({
+  imports: [
+    ConfigModule,
+    MongooseModule.forFeature([
+      {
+        name: Retiro.name,
+        schema: RetiroSchema
+      }
+    ])
+  ],
+  controllers: [RetiroController],
+  providers: [RetiroService],
+  exports: [RetiroService, MongooseModule]
+})
+export class RetiroModule {}
