@@ -2,8 +2,9 @@ import { Body, Controller, Post, Param, Get, Query, Patch } from '@nestjs/common
 import { AuthService } from './auth.service';
 import { LoginDto, UpdateUserDto, CreateUserDto } from './dto';
 import { GlobalParams } from 'src/common/dto/global-params.dto';
-import { Auth } from './decorators';
+import { Auth, GetUser } from './decorators';
 import { ValidRoles } from './interfaces';
+import { User } from './entities/user.entity';
 
 @Controller('auth')
 export class AuthController {
@@ -31,6 +32,14 @@ export class AuthController {
     @Query() globalParams: GlobalParams
   ) {
     return this.authService.findAll(globalParams)
+  }
+
+  @Auth()
+  @Get("revalidar")
+  async checkStatus(
+    @GetUser() user: User
+  ) {
+    return this.authService.checkStatus(user)
   }
 
   @Auth()

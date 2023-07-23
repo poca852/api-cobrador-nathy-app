@@ -47,6 +47,9 @@ export class AuthService {
             path: "rol",
             select: "rol"
          })
+         .populate({
+            path: "ruta"
+         })
 
       if(!user){
          throw new UnauthorizedException("Datos Incorrectos");
@@ -62,6 +65,15 @@ export class AuthService {
          user: rest,
          token: this.getJwtToken({id: user._id.toString()})
       }
+   }
+
+   async checkStatus(user: User): Promise<LoginResponse> {
+
+      return {
+         user,
+         token: this.getJwtToken(user._id)
+      }
+
    }
 
    async findAll(globalParams: GlobalParams) {
