@@ -7,12 +7,15 @@ export class CreateUserDto {
    username: string;
 
    @IsString()
+   @MinLength(3)
+   nombre: string;
+
+   @IsString()
    @MinLength(4)
    password: string;
 
    @IsMongoId()
-   @IsOptional()
-   rol?: string;
+   rol: string;
 
    @IsMongoId({
       each: true
