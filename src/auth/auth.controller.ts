@@ -1,10 +1,9 @@
 import { Body, Controller, Post, Param, Get, Query, Patch } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CreateUserDto, LoginDto } from './dto';
+import { LoginDto, UpdateUserDto, CreateUserDto } from './dto';
 import { GlobalParams } from 'src/common/dto/global-params.dto';
 import { Auth } from './decorators';
 import { ValidRoles } from './interfaces';
-import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -37,10 +36,9 @@ export class AuthController {
   @Auth()
   @Get("user/:termino")
   async findOne(
-    @Query() globalParams: GlobalParams,
     @Param("termino") termino: string
   ) {
-    return this.authService.findOne(termino, globalParams)
+    return this.authService.findOne(termino)
   }
 
   @Auth(ValidRoles.admin, ValidRoles.superAdmin)
