@@ -7,54 +7,54 @@ export class CreateRutaDto {
 
    @IsNumber()
    @IsOptional()
-   clientes?: number;
+   clientes?: number = 0;
   
    @IsNumber()
    @IsOptional()
-   clientes_activos?: number;
+   clientes_activos?: number = 0; 
   
    @IsNumber()
    @IsOptional()
-   gastos?: number;
+   gastos?: number = 0;
    
    @IsNumber()
    @IsOptional()
-   inversiones?: number;
+   inversiones?: number = 0;
   
    @IsNumber()
    @IsOptional()
-   retiros?: number;
+   retiros?: number = 0;
+  
+   @IsString()
+   ciudad: string;
   
    @IsNumber()
    @IsOptional()
-   ciudad?: string;
+   cartera?: number = 0;
   
    @IsNumber()
    @IsOptional()
-   cartera?: number
+   total_cobrado?: number = 0;
   
    @IsNumber()
    @IsOptional()
-   total_cobrado?: number;
-  
-   @IsNumber()
-   @IsOptional()
-   total_prestado?: number;
+   total_prestado?: number = 0;
   
    @IsBoolean()
    @IsOptional()
-   status?: boolean;
+   status?: boolean = false;
   
    @IsString()
    @IsOptional()
    ultimo_cierre?: string;
   
    @IsString()
+   @IsOptional()
    ultima_apertura?: string;
   
    @IsBoolean()
    @IsOptional()
-   ingresar_gastos_cobrador?: boolean;
+   ingresar_gastos_cobrador?: boolean = true;
   
    @IsMongoId()
    @IsOptional()
@@ -67,6 +67,9 @@ export class CreateRutaDto {
    @IsNumber()
    @IsOptional()
    turno?: number = 1;
+
+   @IsMongoId()
+   userId: string;
   
    /*@Prop({ 
       type: mongoose.Schema.Types.ObjectId, 
