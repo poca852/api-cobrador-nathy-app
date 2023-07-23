@@ -1,32 +1,50 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { RutaService } from './ruta.service';
 import { CreateRutaDto } from './dto/create-ruta.dto';
 import { UpdateRutaDto } from './dto/update-ruta.dto';
-import { Auth } from 'src/auth/decorators';
+import { Auth, GetUser } from 'src/auth/decorators';
 import { ValidRoles } from 'src/auth/interfaces';
 import { ParseMongoIdPipe } from '../common/pipes/parse-mongo-id.pipe';
+import { User } from '../auth/entities/user.entity';
+import { GlobalParams } from '../common/dto/global-params.dto';
+
+// rutas 
+// post / crear una ruta  -- ya 
+// get / obtener rutas o ruta
+// get /:idRuta optener una ruta por un id
+// put /:idRuta actualizar
+// put /add-empleado/:idRuta
+// put /close/:idruta
+// put /admin/close/:id
+// put /close/:idRuta
+// put /add-ruta-admin/:idRuta
+// delete /delete/:idruta
 
 @Auth()
 @Controller('ruta')
 export class RutaController {
   constructor(private readonly rutaService: RutaService) {}
 
+  @Auth(ValidRoles.admin, ValidRoles.superAdmin)
   @Post()
   create(@Body() createRutaDto: CreateRutaDto) {
     return this.rutaService.create(createRutaDto);
   }
 
+  @Auth(ValidRoles.admin, ValidRoles.superAdmin)
   @Get()
-  async findAll() {
-    return this.rutaService.findAll();
+  async findAll(
+    @GetUser() user: User
+  ) {
+    return this.rutaService.findAll(user);
   }
 
 
-  @Get(':termino')
+  @Get(':id')
   async findOne(
-    @Param('termino') termino: string
+    @Param('id', ParseMongoIdPipe) id: string
   ) {
-    return this.rutaService.findOne(termino);
+    return this.rutaService.findOne(id);
   }
 
   @Patch(':id')
@@ -35,6 +53,14 @@ export class RutaController {
     @Body() updateRutaDto: UpdateRutaDto
   ) {
     return this.rutaService.update(id, updateRutaDto);
+  }
+
+  @Delete(":id")
+  async remove(
+    @Param("id", ParseMongoIdPipe) id: string,
+    @Query() globalParams: GlobalParams
+  ) {
+    return this.rutaService.delete(id, globalParams);
   }
 
 }
