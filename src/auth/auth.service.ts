@@ -66,11 +66,9 @@ export class AuthService {
 
    async findAll(globalParams: GlobalParams) {
 
-      const { ruta } = globalParams;
+      // const { ruta } = globalParams;
 
-      return await this.userModel.find({
-         $or: [{ruta}]
-      })
+      return await this.userModel.find()
          .populate({
             path: "rol",
             select: "rol"
@@ -79,11 +77,9 @@ export class AuthService {
 
    }
 
-   async findOne(termino: string, globalParams: GlobalParams) {
+   async findOne(termino: string) {
 
       let user: User;
-      const { ruta } = globalParams;
-
 
       if(isValidObjectId(termino)){
          user = await this.userModel.findById(termino)
@@ -91,6 +87,7 @@ export class AuthService {
                path: "rol",
                select: "rol"
             })
+            .populate("rutas")
             .select("-password")
       }
 
@@ -98,7 +95,6 @@ export class AuthService {
          const regex = new RegExp(termino.trim().toUpperCase(), "i");
          user = await this.userModel.findOne({
             $or: [{nombre: regex}, {username: regex}],
-            $and: [{ruta: ruta}]
          })
             .populate({
                path: "rol",
