@@ -1,10 +1,18 @@
-import { IsMongoId, IsOptional } from "class-validator";
+import { IsMongoId, IsOptional, IsString } from "class-validator";
 import { Ruta } from '../../ruta/entities/ruta.entity';
 
 export class GlobalParams {
 
    @IsMongoId()
    @IsOptional()
-   ruta?: Ruta;
+   ruta?: string;
+
+   @IsMongoId()
+   @IsOptional()
+   userId?: string;
+
+   @IsString()
+   @IsOptional()
+   fecha?: string;
 
 }
