@@ -30,7 +30,8 @@ export class JWTStrategy extends PassportStrategy(Strategy){
       .populate({
         path: "rol",
         select: "rol"
-      });
+      })
+      .populate("ruta")
 
     if(!user)
       throw new UnauthorizedException('Token no valid');
