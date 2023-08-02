@@ -4,10 +4,12 @@ import { ListGastoController } from './list-gasto.controller';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ListGasto, ListGastoSchema } from './entities/list-gasto.entity';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   imports: [
     ConfigModule,
+    AuthModule,
     MongooseModule.forFeature([
       {
         name: ListGasto.name,

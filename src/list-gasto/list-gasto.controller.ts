@@ -2,33 +2,30 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { ListGastoService } from './list-gasto.service';
 import { CreateListGastoDto } from './dto/create-list-gasto.dto';
 import { UpdateListGastoDto } from './dto/update-list-gasto.dto';
+import { Auth } from 'src/auth/decorators';
+import { ParseMongoIdPipe } from 'src/common/pipes/parse-mongo-id.pipe';
 
+@Auth()
 @Controller('list-gasto')
 export class ListGastoController {
   constructor(private readonly listGastoService: ListGastoService) {}
 
   @Post()
-  create(@Body() createListGastoDto: CreateListGastoDto) {
+  async create(
+    @Body() createListGastoDto: CreateListGastoDto
+  ) {
     return this.listGastoService.create(createListGastoDto);
   }
 
   @Get()
-  findAll() {
+  async findAll() {
     return this.listGastoService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.listGastoService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateListGastoDto: UpdateListGastoDto) {
-    return this.listGastoService.update(+id, updateListGastoDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.listGastoService.remove(+id);
+  async findOne(
+    @Param('id', ParseMongoIdPipe) id: string
+  ) {
+    return this.listGastoService.findOne(id);
   }
 }

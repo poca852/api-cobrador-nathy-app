@@ -1,26 +1,50 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { CreateListGastoDto } from './dto/create-list-gasto.dto';
 import { UpdateListGastoDto } from './dto/update-list-gasto.dto';
+import { Model } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
+import { ListGasto } from './entities/list-gasto.entity';
 
 @Injectable()
 export class ListGastoService {
-  create(createListGastoDto: CreateListGastoDto) {
-    return 'This action adds a new listGasto';
+
+  private logger = new Logger("ListGastoService")
+
+  constructor(
+    @InjectModel(ListGasto.name)
+    private ListGastoMode: Model<ListGasto>
+  ) {}
+
+  async create(createListGastoDto: CreateListGastoDto): Promise<ListGasto> {
+    try {
+      
+      const gasto = await this.ListGastoMode.create(createListGastoDto);
+
+      return gasto
+
+    } catch (error) {
+      this.handleExceptions(error)
+    }
   }
 
-  findAll() {
-    return `This action returns all listGasto`;
+  async findAll(): Promise<ListGasto[]> {
+    return this.ListGastoMode.find()
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} listGasto`;
+  async findOne(id: string): Promise<ListGasto> {
+    
+    const gasto = await this.ListGastoMode.findById(id);
+
+    if(!gasto) throw new NotFoundException("No se encontro ese gasto");
+
+    return gasto;
+
   }
 
-  update(id: number, updateListGastoDto: UpdateListGastoDto) {
-    return `This action updates a #${id} listGasto`;
-  }
+  private handleExceptions(error: any) {
+    if(error.code === 11000) throw new BadRequestException("Ya existe este gasto")
 
-  remove(id: number) {
-    return `This action removes a #${id} listGasto`;
+    this.logger.error(error)
+    throw new InternalServerErrorException("Por favor revisa los logs")
   }
 }
