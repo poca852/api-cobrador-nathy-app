@@ -68,10 +68,9 @@ export class AuthService {
    }
 
    async checkStatus(user: User): Promise<LoginResponse> {
-
       return {
          user,
-         token: this.getJwtToken(user._id)
+         token: this.getJwtToken({id: user._id})
       }
 
    }
