@@ -1,9 +1,9 @@
 import { Injectable, NotFoundException, Logger, BadRequestException, InternalServerErrorException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
 import { CreateRutaDto } from './dto/create-ruta.dto';
 import { UpdateRutaDto } from './dto/update-ruta.dto';
-import { InjectModel } from '@nestjs/mongoose';
 import { Ruta } from './entities/ruta.entity';
-import { Model, isValidObjectId } from 'mongoose';
+import { Model } from 'mongoose';
 import { AuthService } from '../auth/auth.service';
 import { User } from '../auth/entities/user.entity';
 import { Credito } from '../credito/entities/credito.entity';
@@ -75,7 +75,9 @@ export class RutaService {
 
   async findOne(id: string): Promise<Ruta> {
     
-    const ruta = await this.rutaModel.findById(id);
+    const ruta = await this.rutaModel.findById(id)
+      .populate("ultima_caja")
+      .populate("caja_actual")
 
     if(!ruta){
       throw new NotFoundException(`No existe una ruta con el id ${id}`);
@@ -112,18 +114,14 @@ export class RutaService {
     return true;
   }
 
-  async closeRuta(id: string, fecha: string) {
+  async closeRuta(id: string, { fecha }: GlobalParams): Promise<boolean> {
 
     const ruta = await this.findOne(id);
-    const caja = await this.cajaModel.findOne({
-      ruta: ruta._id,
-      fecha: fecha.trim()
-    });
 
     await ruta.updateOne({
       status: false,
       ultimo_cierre: fecha.trim(),
-      ultima_caja: caja._id,
+      ultima_caja: ruta.caja_actual,
       turno: 1
     }, {new: true});
 
@@ -133,25 +131,26 @@ export class RutaService {
 
   }
 
-  async openRuta(id: string, fecha: string): Promise<boolean> {
+  async openRuta(id: string, globalParams: GlobalParams): Promise<boolean> {
 
-    const ruta = await this.findOne(id);
-    const ultimCaja = await this.cajaModel.findById(ruta.ultima_caja);
+    const { fecha } = globalParams;
+
+    const ruta: Ruta = await this.findOne(id);
 
     let caja;
 
-    if(!ultimCaja) {
+    if(!ruta.ultima_caja) {
       caja = await this.cajaModel.create({
-        fecha: fecha.trim(),
+        fecha: fecha,
         ruta: id
       })
     }
 
-    if(ultimCaja){
+    if(ruta.ultima_caja){
       // pendiente generar el actualizar caja
       caja = await this.cajaModel.create({
-        base: ultimCaja.caja_final,
-        caja_final: ultimCaja.caja_final,
+        base: ruta.ultima_caja.caja_final,
+        caja_final: ruta.caja_actual.caja_final,
         ruta: id,
         fecha: fecha.trim()
       })

@@ -63,4 +63,20 @@ export class RutaController {
     return this.rutaService.delete(id, globalParams);
   }
 
+  @Patch("open/:id")
+  async openRuta(
+    @Param("id", ParseMongoIdPipe) id: string,
+    @Query() globalParams: GlobalParams
+  ) {
+    return this.rutaService.openRuta(id, globalParams)
+  }
+
+  @Patch("close/:id")
+  async closeRuta(
+    @Param("id", ParseMongoIdPipe) id: string,
+    @Query() globalParams: GlobalParams
+  ) {
+    return this.rutaService.closeRuta(id, globalParams)
+  }
+
 }
