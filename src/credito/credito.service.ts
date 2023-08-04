@@ -10,6 +10,7 @@ import { CajaService } from '../caja/caja.service';
 import { isTrue } from 'src/common/helpers/isTrue';
 import { Pago } from '../pago/entities/pago.entity';
 import { ClienteService } from '../cliente/cliente.service';
+import { Ruta } from '../ruta/entities/ruta.entity';
 
 @Injectable()
 export class CreditoService {
@@ -94,7 +95,7 @@ export class CreditoService {
     return `This action removes a #${id} credito`;
   }
 
-  public async agregarPago(credito: Credito, pago: Pago){
+  public async agregarPago(credito: Credito, pago: Pago, ruta: Ruta){
 
     this.verificarSiElPagoEsMayor(credito, pago.valor);
 
@@ -112,9 +113,13 @@ export class CreditoService {
 
     credito.saldo = saldo,
     credito.abonos = abonos;
+    credito.turno = ruta.turno;
     credito.ultimo_pago = pago.fecha.split(" ")[0];
 
+    ruta.turno += 1;
+
     await credito.save();
+    await ruta.save()
 
     await this.verificarSiTermino(credito);
 

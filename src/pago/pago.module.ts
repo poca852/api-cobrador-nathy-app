@@ -8,12 +8,14 @@ import { AuthModule } from 'src/auth/auth.module';
 import { Credito, CreditoSchema } from '../credito/entities/credito.entity';
 import { Cliente, ClienteSchema } from 'src/cliente/entities/cliente.entity';
 import { CreditoModule } from '../credito/credito.module';
+import { RutaModule } from '../ruta/ruta.module';
 
 @Module({
   imports: [
     ConfigModule,
     AuthModule,
     CreditoModule,
+    RutaModule,
     MongooseModule.forFeature([
       {
         name: Pago.name,

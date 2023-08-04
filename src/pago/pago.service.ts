@@ -8,6 +8,7 @@ import { Credito } from '../credito/entities/credito.entity';
 import { Cliente } from 'src/cliente/entities/cliente.entity';
 import { CreditoService } from '../credito/credito.service';
 import { GlobalParams } from 'src/common/dto/global-params.dto';
+import { RutaService } from '../ruta/ruta.service';
 
 @Injectable()
 export class PagoService {
@@ -24,16 +25,19 @@ export class PagoService {
     @InjectModel(Cliente.name)
     private clienteModel: Model<Cliente>,
 
-    private readonly creditoService: CreditoService
+    private readonly creditoService: CreditoService,
+    private readonly rutaService: RutaService
   ) {}
 
   async create(createPagoDto: CreatePagoDto): Promise<Pago> {
 
-    const credito = await this.creditoService.findOne(createPagoDto.credito)
+    const credito = await this.creditoService.findOne(createPagoDto.credito);
+
+    const ruta = await this.rutaService.findOne(createPagoDto.ruta);
     
     const pago = new this.pagoModel(createPagoDto);
 
-    await this.creditoService.agregarPago(credito, pago);
+    await this.creditoService.agregarPago(credito, pago, ruta);
 
     return pago;
 
