@@ -1,30 +1,39 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { PagoService } from './pago.service';
 import { CreatePagoDto } from './dto/create-pago.dto';
 import { UpdatePagoDto } from './dto/update-pago.dto';
+import { Auth } from 'src/auth/decorators';
+import { ParseMongoIdPipe } from 'src/common/pipes/parse-mongo-id.pipe';
+import { GlobalParams } from '../common/dto/global-params.dto';
 
+@Auth()
 @Controller('pago')
 export class PagoController {
   constructor(private readonly pagoService: PagoService) {}
 
   @Post()
-  create(@Body() createPagoDto: CreatePagoDto) {
+  async create(@Body() createPagoDto: CreatePagoDto) {
     return this.pagoService.create(createPagoDto);
   }
 
   @Get()
-  findAll() {
-    return this.pagoService.findAll();
+  async findAll(
+    @Query() globalParams: GlobalParams
+  ) {
+    return this.pagoService.findAll(globalParams);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.pagoService.findOne(+id);
+  async findOne(@Param('id', ParseMongoIdPipe) id: string) {
+    return this.pagoService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePagoDto: UpdatePagoDto) {
-    return this.pagoService.update(+id, updatePagoDto);
+  async update(
+    @Param('id', ParseMongoIdPipe) id: string, 
+    @Body() updatePagoDto: UpdatePagoDto
+  ) {
+    return this.pagoService.update(id, updatePagoDto);
   }
 
   @Delete(':id')

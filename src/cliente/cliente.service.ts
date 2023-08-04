@@ -1,26 +1,102 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { CreateClienteDto } from './dto/create-cliente.dto';
 import { UpdateClienteDto } from './dto/update-cliente.dto';
+import { InjectModel } from '@nestjs/mongoose';
+import { Cliente } from './entities/cliente.entity';
+import { Model, isValidObjectId } from 'mongoose';
+import { GlobalParams } from '../common/dto/global-params.dto';
+import { isTrue } from 'src/common/helpers/isTrue';
 
 @Injectable()
 export class ClienteService {
-  create(createClienteDto: CreateClienteDto) {
-    return 'This action adds a new cliente';
+
+  private logger = new Logger("ClienteService");
+
+  constructor(
+    @InjectModel(Cliente.name)
+    private clienteModel: Model<Cliente>
+  ){}
+
+  async create(createClienteDto: CreateClienteDto): Promise<Cliente> {
+
+    const verificarSiExisteclientePorDpi = await this.clienteModel.findOne({
+      dpi: createClienteDto.dpi.trim(),
+      ruta: createClienteDto.ruta
+    });
+
+    if(verificarSiExisteclientePorDpi) {
+      throw new BadRequestException(`Ya existe el cliente ${verificarSiExisteclientePorDpi.alias} en la ruta`);
+    }
+
+    try {
+
+      return await this.clienteModel.create(createClienteDto);
+
+    } catch (error) {
+      this.handleExceptions(error)
+    }
+
   }
 
-  findAll() {
-    return `This action returns all cliente`;
+  async findAll({status = "true", ruta}: GlobalParams): Promise<Cliente[]> {
+    
+    const clientes = await this.clienteModel.find({
+      ruta,
+      status: isTrue(status)
+    })
+    .populate({
+      path: "creditos"
+    })
+
+
+    return clientes;
+
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} cliente`;
+  async findOne(termino: string) {
+    
+    const cliente = await this.clienteModel.findById(termino)
+      .populate({
+        path: "creditos",
+        populate: {
+          path: "pagos"
+        }
+      })
+
+    if(!cliente) throw new NotFoundException("No existe el cliente");
+
+    return cliente;
+
   }
 
-  update(id: number, updateClienteDto: UpdateClienteDto) {
-    return `This action updates a #${id} cliente`;
+  async update(id: string, updateClienteDto: UpdateClienteDto) {
+    
+    const cliente = await this.findOne(id);
+
+    try {
+
+      await cliente.updateOne(updateClienteDto, {new: true});
+
+      return true;
+
+    } catch (error) {
+
+      this.handleExceptions(error)
+
+    }
+
   }
 
   remove(id: number) {
     return `This action removes a #${id} cliente`;
+  }
+
+  private handleExceptions(error: any) {
+    if(error.code === 11000){
+      throw new BadRequestException("Ya existe este cliente")
+    }
+
+    this.logger.error(error);
+    throw new InternalServerErrorException("Por favor revisa los logs")
   }
 }

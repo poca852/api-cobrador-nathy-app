@@ -4,7 +4,7 @@ import { Ruta } from '../../ruta/entities/ruta.entity';
 
 @Schema()
 export class Caja {
-
+   
    @Prop({
       type: String,
       required: true,

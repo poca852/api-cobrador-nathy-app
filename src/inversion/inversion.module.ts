@@ -4,10 +4,12 @@ import { InversionController } from './inversion.controller';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Inversion, InversionSchema } from './entities/inversion.entity';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   imports: [
     ConfigModule,
+    AuthModule,
     MongooseModule.forFeature([
       {
         name: Inversion.name,

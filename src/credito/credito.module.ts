@@ -4,14 +4,25 @@ import { CreditoController } from './credito.controller';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Credito, CreditoSchema } from './entities/credito.entity';
+import { Cliente, ClienteSchema } from '../cliente/entities/cliente.entity';
+import { CajaModule } from '../caja/caja.module';
+import { AuthModule } from '../auth/auth.module';
+import { ClienteModule } from '../cliente/cliente.module';
 
 @Module({
   imports: [
+    AuthModule,
     ConfigModule,
+    CajaModule,
+    ClienteModule,
     MongooseModule.forFeature([
       {
         name: Credito.name,
         schema: CreditoSchema
+      },
+      {
+        name: Cliente.name,
+        schema: ClienteSchema
       }
     ])
   ],

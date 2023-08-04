@@ -1,8 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { CajaService } from './caja.service';
 import { CreateCajaDto } from './dto/create-caja.dto';
 import { UpdateCajaDto } from './dto/update-caja.dto';
+import { Auth } from 'src/auth/decorators';
+import { ParseMongoIdPipe } from 'src/common/pipes/parse-mongo-id.pipe';
+import { GlobalParams } from '../common/dto/global-params.dto';
 
+@Auth()
 @Controller('caja')
 export class CajaController {
   constructor(private readonly cajaService: CajaService) {}
@@ -17,9 +21,11 @@ export class CajaController {
     return this.cajaService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.cajaService.findOne(+id);
+  @Get(":id")
+  async findOne(
+    @Param("id", ParseMongoIdPipe) id: string,
+  ) {
+    return this.cajaService.findOne(id);
   }
 
   @Patch(':id')

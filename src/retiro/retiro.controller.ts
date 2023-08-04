@@ -2,13 +2,17 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { RetiroService } from './retiro.service';
 import { CreateRetiroDto } from './dto/create-retiro.dto';
 import { UpdateRetiroDto } from './dto/update-retiro.dto';
+import { Auth } from 'src/auth/decorators';
 
+@Auth()
 @Controller('retiro')
 export class RetiroController {
   constructor(private readonly retiroService: RetiroService) {}
 
   @Post()
-  create(@Body() createRetiroDto: CreateRetiroDto) {
+  async create(
+    @Body() createRetiroDto: CreateRetiroDto
+  ) {
     return this.retiroService.create(createRetiroDto);
   }
 

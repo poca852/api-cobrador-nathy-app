@@ -4,10 +4,16 @@ import { GastoController } from './gasto.controller';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Gasto, GastoSchema } from './entities/gasto.entity';
+import { AuthModule } from 'src/auth/auth.module';
+import { CajaModule } from 'src/caja/caja.module';
+import { RutaModule } from '../ruta/ruta.module';
 
 @Module({
   imports: [
     ConfigModule,
+    AuthModule,
+    CajaModule,
+    RutaModule,
     MongooseModule.forFeature([
       {
         name: Gasto.name,

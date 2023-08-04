@@ -4,10 +4,12 @@ import { RetiroController } from './retiro.controller';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Retiro, RetiroSchema } from './entities/retiro.entity';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   imports: [
     ConfigModule,
+    AuthModule,
     MongooseModule.forFeature([
       {
         name: Retiro.name,

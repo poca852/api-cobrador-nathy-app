@@ -1,14 +1,19 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { GastoService } from './gasto.service';
 import { CreateGastoDto } from './dto/create-gasto.dto';
 import { UpdateGastoDto } from './dto/update-gasto.dto';
+import { Auth } from 'src/auth/decorators';
+import { GlobalParams } from 'src/common/dto/global-params.dto';
 
+@Auth()
 @Controller('gasto')
 export class GastoController {
   constructor(private readonly gastoService: GastoService) {}
 
   @Post()
-  create(@Body() createGastoDto: CreateGastoDto) {
+  async create(
+    @Body() createGastoDto: CreateGastoDto
+  ) {
     return this.gastoService.create(createGastoDto);
   }
 

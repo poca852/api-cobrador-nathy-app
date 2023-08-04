@@ -8,6 +8,10 @@ export class GlobalParams {
 
    @IsMongoId()
    @IsOptional()
+   caja?: string;
+
+   @IsMongoId()
+   @IsOptional()
    userId?: string;
 
    @IsString()

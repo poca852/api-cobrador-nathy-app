@@ -14,10 +14,12 @@ export class CreateCreditoDto {
    valor_credito: number;
    
    @IsNumber()
-   interes: number;
+   @IsOptional()
+   interes?: number;
 
    @IsNumber()
-   total_cuotas: number
+   @IsOptional()
+   total_cuotas?: number
 
    @IsNumber()
    total_pagar: number;
@@ -30,7 +32,8 @@ export class CreateCreditoDto {
    saldo: number; 
 
    @IsNumber()
-   valor_cuota: number;
+   @IsOptional()
+   valor_cuota?: number;
 
    @IsString()
    fecha_inicio: string;
@@ -43,7 +46,7 @@ export class CreateCreditoDto {
    
    @IsString()
    @IsOptional()
-   ultimo_pago?: string = "";
+   ultimo_pago?: string;
 
    @IsString()
    @IsOptional()
@@ -52,4 +55,8 @@ export class CreateCreditoDto {
    @IsNumber()
    @IsOptional()
    turno?: number; 
+
+   @IsOptional()
+   @IsBoolean()
+   esAutomatico?: boolean;
 }

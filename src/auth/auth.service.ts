@@ -58,6 +58,12 @@ export class AuthService {
       if(!bcrypt.compareSync(password, user.password)){
          throw new UnauthorizedException("Datos Incorrectos")
       }
+      
+      if(user.ruta){
+         if(!user.ruta.status){
+            throw new UnauthorizedException("Ruta cerrada hable con su administrador")
+         }
+      }
 
       const { password:_, ...rest } = user.toJSON();
 

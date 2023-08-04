@@ -1,11 +1,30 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { CreateInversionDto } from './dto/create-inversion.dto';
 import { UpdateInversionDto } from './dto/update-inversion.dto';
+import { InjectModel } from '@nestjs/mongoose';
+import { Inversion } from './entities/inversion.entity';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class InversionService {
-  create(createInversionDto: CreateInversionDto) {
-    return 'This action adds a new inversion';
+
+  private logger = new Logger("InversionService");
+
+  constructor(
+    @InjectModel(Inversion.name)
+    private readonly inversionModel: Model<Inversion>
+  ){}
+
+  async create(createInversionDto: CreateInversionDto) {
+    try {
+      
+      return this.inversionModel.create(createInversionDto);
+
+    } catch (error) {
+
+      this.handleExceptions(error)
+
+    }
   }
 
   findAll() {
@@ -22,5 +41,10 @@ export class InversionService {
 
   remove(id: number) {
     return `This action removes a #${id} inversion`;
+  }
+
+  private handleExceptions(error: any) {
+    this.logger.error(error);
+    throw new InternalServerErrorException("Por favor revisa los logs")
   }
 }

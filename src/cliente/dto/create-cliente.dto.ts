@@ -1,6 +1,10 @@
 import { IsArray, IsBoolean, IsMongoId, IsOptional, IsString, MinLength } from "class-validator";
 
 export class CreateClienteDto {
+
+   @IsString()
+   @IsOptional()
+   _id?: string;
    
    @IsBoolean()
    @IsOptional()

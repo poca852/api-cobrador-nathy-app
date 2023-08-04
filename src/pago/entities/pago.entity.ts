@@ -1,11 +1,11 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose"
 import { Cliente } from '../../cliente/entities/cliente.entity';
-import mongoose from "mongoose";
+import mongoose, {Document} from "mongoose";
 import { Credito } from '../../credito/entities/credito.entity';
 import { Ruta } from '../../ruta/entities/ruta.entity';
 
 @Schema()
-export class Pago {
+export class Pago extends Document {
    @Prop({
       type: String
    })

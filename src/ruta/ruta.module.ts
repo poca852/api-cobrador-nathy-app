@@ -11,10 +11,12 @@ import { Cliente, ClienteSchema } from '../cliente/entities/cliente.entity';
 import { Inversion, InversionSchema } from '../inversion/entities/inversion.entity';
 import { Retiro, RetiroSchema } from '../retiro/entities/retiro.entity';
 import { Caja, CajaSchema } from '../caja/entities/caja.entity';
+import { CajaModule } from '../caja/caja.module';
 
 @Module({
   imports: [
     ConfigModule,
+    CajaModule,
     MongooseModule.forFeature([
       {
         name: Ruta.name,

@@ -1,9 +1,10 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose"
 import { Ruta } from '../../ruta/entities/ruta.entity';
-import mongoose from "mongoose";
+import mongoose, {Document} from "mongoose";
+import { Credito } from "src/credito/entities/credito.entity";
 
 @Schema()
-export class Cliente {
+export class Cliente extends Document {
    @Prop({
       type: Boolean,
       default: false
@@ -77,13 +78,13 @@ export class Cliente {
    })
    ruta: Ruta 
 
-   /*@Prop({
+   @Prop({
       type: [{
          type: mongoose.Schema.Types.ObjectId,
          ref: "Credito"
       }]
    })
-   creditos: Credito[] */ 
+   creditos: Credito[]
 }
 
 export const ClienteSchema = SchemaFactory.createForClass(Cliente)

@@ -13,6 +13,7 @@ import { Gasto } from '../gasto/entities/gasto.entity';
 import { Retiro } from '../retiro/entities/retiro.entity';
 import { GlobalParams } from '../common/dto/global-params.dto';
 import { Caja } from '../caja/entities/caja.entity';
+import { CajaService } from '../caja/caja.service';
 
 @Injectable()
 export class RutaService {
@@ -41,7 +42,8 @@ export class RutaService {
     @InjectModel(Caja.name)
     private readonly cajaModel: Model<Caja>,
 
-    private readonly authService: AuthService
+    private readonly authService: AuthService,
+    private readonly cajaService: CajaService
   ){}
 
   async create(createRutaDto: CreateRutaDto) {
@@ -114,7 +116,7 @@ export class RutaService {
     return true;
   }
 
-  async closeRuta(id: string, { fecha }: GlobalParams): Promise<boolean> {
+  async closeRuta(id: string, { fecha, caja }: GlobalParams): Promise<boolean> {
 
     const ruta = await this.findOne(id);
 
@@ -124,8 +126,8 @@ export class RutaService {
       ultima_caja: ruta.caja_actual,
       turno: 1
     }, {new: true});
-
-    await this.actualizarRuta(ruta);
+    
+    await this.cajaService.actualizarCaja(caja) 
 
     return true;
 
@@ -147,13 +149,27 @@ export class RutaService {
     }
 
     if(ruta.ultima_caja){
-      // pendiente generar el actualizar caja
+      
+      let creditosDeLaRuta = await this.creditoModel.find({
+        ruta: ruta._id,
+        status: true
+      })
+
+      let pretendido: number = 0;
+
+      creditosDeLaRuta.forEach(credito => {
+        pretendido += credito.valor_cuota;
+      })
+
       caja = await this.cajaModel.create({
         base: ruta.ultima_caja.caja_final,
         caja_final: ruta.caja_actual.caja_final,
         ruta: id,
+        pretendido,
         fecha: fecha.trim()
       })
+
+      await this.cajaService.actualizarCaja(caja._id)
     }
 
     await ruta.updateOne({
