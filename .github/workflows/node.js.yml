@@ -27,4 +27,4 @@ jobs:
       - name: Copy env to projectFolder
         run: cp /home/poca/env/.env .
       - run: npm run build --if-present
-      - run: pwd
+      - run: pm2 reload 0
