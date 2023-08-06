@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -8,10 +8,12 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { User, UserSchema } from './entities/user.entity';
 import { JWTStrategy } from './strategies/jwt.strategy';
+import { RutaModule } from '../ruta/ruta.module';
 
 @Module({
   imports: [
     ConfigModule,
+    forwardRef(() => RutaModule),
     MongooseModule.forFeature([
       {
         name: User.name,

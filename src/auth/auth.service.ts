@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException, Logger, BadRequestException, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, Logger, BadRequestException, InternalServerErrorException, NotFoundException, forwardRef, Inject } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, isValidObjectId } from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
@@ -10,6 +10,7 @@ import { JwtPayload } from './interfaces';
 import { LoginResponse } from './interfaces/login-response.interface';
 import { GlobalParams } from '../common/dto/global-params.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { RutaService } from '../ruta/ruta.service';
 
 @Injectable()
 export class AuthService {
@@ -19,7 +20,10 @@ export class AuthService {
    constructor(
       @InjectModel(User.name)
       private readonly userModel: Model<User>,
-      private readonly jwtService: JwtService
+      private readonly jwtService: JwtService,
+
+      @Inject(forwardRef(() => RutaService))
+      private readonly rutaService: RutaService
    ){}
 
    async create(createUserDto: CreateUserDto): Promise<User> {

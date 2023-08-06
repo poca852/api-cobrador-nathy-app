@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { RutaService } from './ruta.service';
 import { RutaController } from './ruta.controller';
 import { ConfigModule } from '@nestjs/config';
@@ -16,7 +16,8 @@ import { CajaModule } from '../caja/caja.module';
 @Module({
   imports: [
     ConfigModule,
-    CajaModule,
+    forwardRef(() => CajaModule),
+    forwardRef(() => AuthModule),
     MongooseModule.forFeature([
       {
         name: Ruta.name,
@@ -47,7 +48,6 @@ import { CajaModule } from '../caja/caja.module';
         schema: CajaSchema
       }
     ]),
-    AuthModule
   ],
   controllers: [RutaController],
   providers: [RutaService],

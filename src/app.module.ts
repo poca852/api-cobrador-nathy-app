@@ -13,6 +13,7 @@ import { GastoModule } from './gasto/gasto.module';
 import { InversionModule } from './inversion/inversion.module';
 import { PagoModule } from './pago/pago.module';
 import { RetiroModule } from './retiro/retiro.module';
+import { PruebasModule } from './pruebas/pruebas.module';
 
 @Module({
   imports: [
@@ -29,7 +30,8 @@ import { RetiroModule } from './retiro/retiro.module';
     GastoModule,
     InversionModule,
     PagoModule,
-    RetiroModule
+    RetiroModule,
+    PruebasModule
   ],
   controllers: [],
   providers: [],

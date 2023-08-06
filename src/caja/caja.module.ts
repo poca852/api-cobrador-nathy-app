@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { CajaService } from './caja.service';
 import { CajaController } from './caja.controller';
 import { ConfigModule } from '@nestjs/config';
@@ -15,7 +15,7 @@ import { AuthModule } from 'src/auth/auth.module';
 @Module({
   imports: [
     ConfigModule,
-    AuthModule,
+    forwardRef(() => AuthModule),
     MongooseModule.forFeature([
       {
         name: Caja.name,

@@ -1,4 +1,4 @@
-import { Injectable, Logger, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, InternalServerErrorException, NotFoundException, forwardRef, Inject } from '@nestjs/common';
 import { CreateCajaDto } from './dto/create-caja.dto';
 import { UpdateCajaDto } from './dto/update-caja.dto';
 import { Model } from 'mongoose';
@@ -12,6 +12,7 @@ import { Inversion } from '../inversion/entities/inversion.entity';
 import { Pago } from '../pago/entities/pago.entity';
 import { CampoActualizarDeCaja } from './interfaces/campo-actualizar-caja.enum';
 import { GlobalParams } from 'src/common/dto/global-params.dto';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class CajaService {
@@ -36,6 +37,9 @@ export class CajaService {
 
     @InjectModel(Credito.name)
     private readonly creditoModel: Model<Credito>,
+
+    @Inject(forwardRef(() => AuthService))
+    private readonly authService: AuthService
   ) { }
 
   create(createCajaDto: CreateCajaDto) {
