@@ -12,6 +12,7 @@ import { Inversion } from '../inversion/entities/inversion.entity';
 import { Pago } from '../pago/entities/pago.entity';
 import { CampoActualizarDeCaja } from './interfaces/campo-actualizar-caja.enum';
 import { GlobalParams } from 'src/common/dto/global-params.dto';
+import { User } from 'src/auth/entities/user.entity';
 
 @Injectable()
 export class CajaService {
@@ -42,8 +43,24 @@ export class CajaService {
     return 'This action adds a new caja';
   }
 
-  findAll() {
-    return `This action returns all caja`;
+  async findAll(user: User, fecha: string, ) {
+    
+    let listaDePromsesasDeCajas = [];
+
+    user.rutas.forEach((ruta) => {
+      listaDePromsesasDeCajas.push(
+        this.cajaModel.findOne({ruta, fecha})
+          .populate({
+            path: "ruta",
+            select: "nombre"
+          })
+      )
+    })
+
+    const cajas = await Promise.all(listaDePromsesasDeCajas);
+
+    return cajas;
+
   }
 
   async findOne(id: string) {

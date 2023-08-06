@@ -2,9 +2,10 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestj
 import { CajaService } from './caja.service';
 import { CreateCajaDto } from './dto/create-caja.dto';
 import { UpdateCajaDto } from './dto/update-caja.dto';
-import { Auth } from 'src/auth/decorators';
+import { Auth, GetUser } from 'src/auth/decorators';
 import { ParseMongoIdPipe } from 'src/common/pipes/parse-mongo-id.pipe';
 import { GlobalParams } from '../common/dto/global-params.dto';
+import { User } from '../auth/entities/user.entity';
 
 @Auth()
 @Controller('caja')
@@ -17,8 +18,12 @@ export class CajaController {
   }
 
   @Get()
-  findAll() {
-    return this.cajaService.findAll();
+  async findAll(
+    @GetUser() user: User,
+    @Query() globalparams: GlobalParams
+  ) {
+    const { fecha } = globalparams;
+    return this.cajaService.findAll(user, fecha);
   }
 
   @Get(":id")
