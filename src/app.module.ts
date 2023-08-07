@@ -13,11 +13,16 @@ import { GastoModule } from './gasto/gasto.module';
 import { InversionModule } from './inversion/inversion.module';
 import { PagoModule } from './pago/pago.module';
 import { RetiroModule } from './retiro/retiro.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
     MongooseModule.forRoot(process.env.MONGO_URI),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname,"..",'public'),
+    }),
     AuthModule,
     RolModule,
     RutaModule,
