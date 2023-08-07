@@ -81,16 +81,20 @@ export class AuthService {
 
    }
 
-   async findAll(globalParams: GlobalParams) {
+   async findAll(user: User) {
+ 
+      let empleados = [];
 
-      // const { ruta } = globalParams;
+      for (const ruta of user.rutas) {
+         let consulta = await this.userModel.find({ ruta: ruta._id })
+           .populate('ruta', ['nombre'])
+           .populate('rol', ['rol'])
+   
+         empleados.push(...consulta)
+       }
 
-      return await this.userModel.find()
-         .populate({
-            path: "rol",
-            select: "rol"
-         })
-         .select("-password")
+
+      return empleados;
 
    }
 

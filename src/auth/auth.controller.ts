@@ -29,9 +29,9 @@ export class AuthController {
   @Auth()
   @Get("users")
   async findAll(
-    @Query() globalParams: GlobalParams
+    @GetUser() user: User
   ) {
-    return this.authService.findAll(globalParams)
+    return this.authService.findAll(user)
   }
 
   @Auth()

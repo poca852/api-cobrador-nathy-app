@@ -4,10 +4,12 @@ import { RolController } from './rol.controller';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Rol, RolSchema } from './entities/rol.entity';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   imports: [
     ConfigModule,
+    AuthModule,
     MongooseModule.forFeature([
       {
         name: Rol.name,
