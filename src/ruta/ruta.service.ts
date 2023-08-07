@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, Logger, BadRequestException, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, NotFoundException, Logger, BadRequestException, InternalServerErrorException, forwardRef, Inject } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { CreateRutaDto } from './dto/create-ruta.dto';
 import { UpdateRutaDto } from './dto/update-ruta.dto';
@@ -42,7 +42,10 @@ export class RutaService {
     @InjectModel(Caja.name)
     private readonly cajaModel: Model<Caja>,
 
+    @Inject(forwardRef(() => AuthService))
     private readonly authService: AuthService,
+
+    @Inject(forwardRef(() => CajaService))
     private readonly cajaService: CajaService
   ){}
 
@@ -177,6 +180,16 @@ export class RutaService {
     })
 
     return true;
+  }
+
+  async verificarSiCerroRuta(id: string): Promise<boolean>{
+    const ruta = await this.findOne(id);
+
+    if(ruta.ultima_apertura === ruta.ultima_caja.fecha){
+      return true;
+    }
+
+    return false;
   }
 
   private handleExceptions(error: any) {
