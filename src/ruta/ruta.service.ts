@@ -46,18 +46,16 @@ export class RutaService {
     private readonly cajaService: CajaService
   ){}
 
-  async create(createRutaDto: CreateRutaDto) {
+  async create(createRutaDto: CreateRutaDto, user: User) {
     
-    const { userId, ...data } = createRutaDto;
-
-    const user = await this.authService.findOne(userId);
+    const admin = await this.authService.findOne(user._id);
 
     try {
 
-      const ruta = await this.rutaModel.create(data); 
+      const ruta = await this.rutaModel.create(createRutaDto); 
 
-      user.rutas.push(ruta._id);
-      await user.save();
+      admin.rutas.push(ruta._id);
+      await admin.save();
 
       return ruta;
 

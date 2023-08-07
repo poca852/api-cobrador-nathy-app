@@ -27,8 +27,11 @@ export class RutaController {
 
   @Auth(ValidRoles.admin, ValidRoles.superAdmin)
   @Post()
-  create(@Body() createRutaDto: CreateRutaDto) {
-    return this.rutaService.create(createRutaDto);
+  async create(
+    @Body() createRutaDto: CreateRutaDto,
+    @GetUser() user: User
+  ) {
+    return this.rutaService.create(createRutaDto, user);
   }
 
   @Auth(ValidRoles.admin, ValidRoles.superAdmin)

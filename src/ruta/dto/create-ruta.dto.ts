@@ -67,9 +67,6 @@ export class CreateRutaDto {
    @IsNumber()
    @IsOptional()
    turno?: number = 1;
-
-   @IsMongoId()
-   userId: string;
   
    /*@Prop({ 
       type: mongoose.Schema.Types.ObjectId, 
