@@ -1,3 +1,4 @@
+import { Type } from "class-transformer";
 import { IsBoolean, IsEnum, IsIn, IsMongoId, IsOptional, IsString, Validate } from "class-validator";
 
 export class GlobalParams {
@@ -17,6 +18,14 @@ export class GlobalParams {
    @IsString()
    @IsOptional()
    fecha?: string;
+
+   @Type(() => Number)
+   @IsOptional()
+   fechaInicio?: number;
+
+   @Type(() => Number)
+   @IsOptional()
+   fechaFin?: number;
 
    @IsString()
    @IsOptional()
