@@ -2,9 +2,8 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestj
 import { GastoService } from './gasto.service';
 import { CreateGastoDto } from './dto/create-gasto.dto';
 import { UpdateGastoDto } from './dto/update-gasto.dto';
-import { Auth, GetUser } from 'src/auth/decorators';
+import { Auth } from 'src/auth/decorators';
 import { GlobalParams } from 'src/common/dto/global-params.dto';
-import { User } from 'src/auth/entities/user.entity';
 
 @Auth()
 @Controller('gasto')
@@ -20,10 +19,16 @@ export class GastoController {
 
   @Get()
   async findAll(
-    @GetUser() user: User,
     @Query() globalParams: GlobalParams
   ) {
-    return this.gastoService.findAll(user, globalParams);
+    return this.gastoService.findAll(globalParams);
+  }
+
+  @Get("get-by-date")
+  async findByDate(
+    @Query() globalParams: GlobalParams
+  ) {
+    return this.gastoService.findByDate(globalParams);
   }
 
   @Get(':id')

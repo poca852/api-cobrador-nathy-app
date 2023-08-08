@@ -1,12 +1,14 @@
-import { IsMongoId, IsNumber, IsOptional, IsString } from "class-validator";
+import { IsMongoId, IsNumber, IsOptional, IsString, Validate } from "class-validator";
+import { IsDateStringConstraint } from "../helpers/isDate";
 
 export class CreateGastoDto {
 
    @IsMongoId()
    gasto: string;
 
-   @IsString()
-   fecha: string; 
+   @Validate(IsDateStringConstraint)
+   @IsOptional()
+   fecha?: string; 
    
    @IsNumber()
    valor: number; 

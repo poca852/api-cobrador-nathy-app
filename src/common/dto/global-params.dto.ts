@@ -19,13 +19,13 @@ export class GlobalParams {
    @IsOptional()
    fecha?: string;
 
-   @Type(() => Number)
+   @IsString()
    @IsOptional()
-   fechaInicio?: number;
+   fechaInicio?: string;
 
-   @Type(() => Number)
+   @IsString()
    @IsOptional()
-   fechaFin?: number;
+   fechaFin?: string;
 
    @IsString()
    @IsOptional()

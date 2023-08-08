@@ -7,6 +7,7 @@ import { Model } from 'mongoose';
 import { GlobalParams } from 'src/common/dto/global-params.dto';
 import { CajaService } from 'src/caja/caja.service';
 import { RutaService } from '../ruta/ruta.service';
+import { User } from '../auth/entities/user.entity';
 
 @Injectable()
 export class GastoService {
@@ -34,8 +35,32 @@ export class GastoService {
     } 
   }
 
-  findAll() {
-    return `This action returns all gasto`;
+  async findByDate(globalParams: GlobalParams) {
+    
+    const fechaInicio = new Date(globalParams.fechaInicio);
+    const fechaFin = new Date(globalParams.fechaFin);
+
+    const gastos = await this.gastoModel.find({
+      ruta: globalParams.ruta,
+      fecha: {
+        $gte: fechaInicio,
+        $lte: fechaFin
+      }
+    })
+      .populate({
+        path: "gasto",
+        select: "gasto"
+      })
+
+    return gastos.map(gasto => ({
+      ...gasto.toJSON(),
+      gasto: gasto.gasto.gasto
+    }))
+
+  }
+
+  async findAll({ruta}: GlobalParams): Promise<Gasto[]> {  
+    return await this.gastoModel.find({ ruta });
   }
 
   findOne(id: number) {

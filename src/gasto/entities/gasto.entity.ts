@@ -14,10 +14,11 @@ export class Gasto {
    gasto: ListGasto;
 
    @Prop({
-      type: String,
+      type: Date,
+      default: Date.now,
       required: true
    })
-   fecha: string; 
+   fecha: Date; 
    
    @Prop({
       type: Number,
