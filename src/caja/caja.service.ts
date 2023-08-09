@@ -14,6 +14,7 @@ import { CampoActualizarDeCaja } from './interfaces/campo-actualizar-caja.enum';
 import { GlobalParams } from 'src/common/dto/global-params.dto';
 import { User } from 'src/auth/entities/user.entity';
 import { AuthService } from '../auth/auth.service';
+import moment from 'moment';
 
 @Injectable()
 export class CajaService {
@@ -88,6 +89,17 @@ export class CajaService {
       
     if(!caja) throw new NotFoundException("No existe la caja");
 
+
+    // TODO: ESTO es provicional mientras actualizo el modelo de caja
+    let splitFecha = caja.fecha.split(" ");
+    let nuevaFecha = `${splitFecha[2]}, ${splitFecha[1]}, ${splitFecha[0]}`;
+
+    let fechaInicio = new Date(nuevaFecha)
+    fechaInicio.setHours(0, 0, 0, 0);
+
+    let fechaFin = new Date(nuevaFecha);
+    fechaFin.setHours(23, 59, 59, 999);
+
     const [ todosLosCreditosDeLaRuta, 
             creditosRenovadosHoy, 
             pagosDelDiaDeHoy, 
@@ -101,7 +113,13 @@ export class CajaService {
       this.pagoModel.find({ ruta: caja.ruta, fecha: new RegExp(caja.fecha, 'i') })
         .populate("credito"),
       this.inversionModel.find({ ruta: caja.ruta, fecha: caja.fecha }),
-      this.gastoModel.find({ ruta: caja.ruta, fecha: caja.fecha }),
+      this.gastoModel.find({
+        ruta: caja.ruta,
+        $and: [
+          { fecha: { $gte: fechaInicio } },
+          { fecha: { $lt: fechaFin } }
+        ]
+      }),
       this.retiroModel.find({ ruta: caja.ruta, fecha: caja.fecha }),
       this.pagoModel.countDocuments({ ruta: caja.ruta, fecha: new RegExp(caja.fecha, 'i') })
     ]);
