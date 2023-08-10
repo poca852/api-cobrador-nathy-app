@@ -91,7 +91,7 @@ export class CajaService {
 
 
     // TODO: ESTO es provicional mientras actualizo el modelo de caja
-    let splitFecha = caja.fecha.split(" ");
+    let splitFecha = caja.fecha.split("/");
     let nuevaFecha = `${splitFecha[2]}, ${splitFecha[1]}, ${splitFecha[0]}`;
 
     let fechaInicio = new Date(nuevaFecha)
