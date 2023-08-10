@@ -40,7 +40,7 @@ export class CreditoService {
 
       const newCredito = await this.creditoModel.create(createCreditoDto);
       cliente.status = true;
-      cliente.creditos.push(newCredito);
+      cliente.creditos.unshift(newCredito);
       await cliente.save();
       
       // await this.cajaService.actualizarCaja(createCreditoDto.ruta, createCreditoDto.fecha_inicio)
