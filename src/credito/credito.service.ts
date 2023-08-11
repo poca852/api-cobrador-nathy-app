@@ -76,7 +76,7 @@ export class CreditoService {
     const credito = await this.creditoModel.findById(id)
       .populate({
         path: "cliente",
-        select: "nombre alias"
+        select: "nombre alias telefono"
       })
       .populate("pagos");
 
