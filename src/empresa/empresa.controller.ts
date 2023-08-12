@@ -2,7 +2,10 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { EmpresaService } from './empresa.service';
 import { CreateEmpresaDto } from './dto/create-empresa.dto';
 import { UpdateEmpresaDto } from './dto/update-empresa.dto';
+import { ParseMongoIdPipe } from 'src/common/pipes/parse-mongo-id.pipe';
+import { Auth } from 'src/auth/decorators';
 
+@Auth()
 @Controller('empresa')
 export class EmpresaController {
   constructor(private readonly empresaService: EmpresaService) {}
@@ -18,13 +21,18 @@ export class EmpresaController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.empresaService.findOne(+id);
+  findOne(
+    @Param('id', ParseMongoIdPipe) id: string
+  ) {
+    return this.empresaService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateEmpresaDto: UpdateEmpresaDto) {
-    return this.empresaService.update(+id, updateEmpresaDto);
+  update(
+    @Param('id', ParseMongoIdPipe) id: string, 
+    @Body() updateEmpresaDto: UpdateEmpresaDto
+  ) {
+    return this.empresaService.update(id, updateEmpresaDto);
   }
 
   @Delete(':id')
