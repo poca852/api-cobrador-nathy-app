@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, {Document} from "mongoose";
 import { Caja } from 'src/caja/entities/caja.entity';
+import { Empresa } from '../../empresa/entities/empresa.entity';
 
 @Schema()
 export class Ruta extends Document {
@@ -111,11 +112,11 @@ export class Ruta extends Document {
    })
    turno: number;
   
-   /*@Prop({ 
+   @Prop({ 
       type: mongoose.Schema.Types.ObjectId, 
       ref: 'Empresa'
    })
-   empresa: Empresa;*/
+   empresa: Empresa;
   
 }
 

@@ -3,6 +3,7 @@ import mongoose, {Document} from "mongoose";
 
 import { Rol } from "../../rol/entities/rol.entity";
 import { Ruta } from "src/ruta/entities/ruta.entity";
+import { Empresa } from "src/empresa/entities/empresa.entity";
 
 @Schema()
 export class User extends Document {
@@ -67,11 +68,11 @@ export class User extends Document {
    })
    rutas: Ruta[];
 
-   /*@Prop({
+   @Prop({
       type: mongoose.Schema.Types.ObjectId,
       ref: "Empresa"
    })
-   empresa: Empresa;*/
+   empresa: Empresa;
 
 }
 
