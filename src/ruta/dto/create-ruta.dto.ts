@@ -68,9 +68,7 @@ export class CreateRutaDto {
    @IsOptional()
    turno?: number = 1;
   
-   /*@Prop({ 
-      type: mongoose.Schema.Types.ObjectId, 
-      ref: 'Empresa'
-   })
-   empresa: Empresa;*/
+   @IsMongoId()
+   @IsOptional()
+   empresa?: string;
 }

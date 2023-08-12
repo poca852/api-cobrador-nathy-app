@@ -19,14 +19,25 @@ export class Empresa extends Document {
    haveLoginFalse: boolean;
 
    @Prop({
+      type: Number,
+      default: 19
+   })
+   dayOfPay: number;
+
+   @Prop({
       type: String,
-      required: true
+      required: true,
+      trim: true,
+      uppercase: true,
+      index: true
    })
    country: string;
 
    @Prop({
       type: String,
-      required: true
+      required: true,
+      trim: true,
+      uppercase: true
    })
    currency: string;
 

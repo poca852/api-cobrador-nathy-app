@@ -1,17 +1,19 @@
-import { IsBoolean, IsOptional, IsString, Min } from "class-validator";
+import { IsBoolean, IsNumber, IsOptional, IsString, Min } from "class-validator";
 
 export class CreateEmpresaDto {
 
    @IsString()
-   @Min(3)
    name: string;
 
    @IsBoolean()
    @IsOptional()
    haveLoginFalse?: boolean = false;
 
+   @IsNumber()
+   @IsOptional()
+   dayOfPay?: number;
+
    @IsString()
-   @Min(3)
    country: string;
 
    @IsString()
