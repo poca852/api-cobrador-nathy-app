@@ -61,10 +61,7 @@ export class CreditoService {
       status: isTrue(status),
       ruta
     })
-      .populate({
-        path: "cliente",
-        select: "nombre alias"
-      })
+      .populate("cliente")
       .populate("pagos")
       .sort({turno: 1})
 
@@ -74,10 +71,7 @@ export class CreditoService {
 
   async findOne(id: string): Promise<Credito> {
     const credito = await this.creditoModel.findById(id)
-      .populate({
-        path: "cliente",
-        select: "nombre alias telefono"
-      })
+      .populate("cliente")
       .populate("pagos");
 
     if(!credito) {
