@@ -54,6 +54,7 @@ export class AuthService {
          .populate({
             path: "ruta"
          })
+         .populate("empresa")
 
       if(!user){
          throw new UnauthorizedException("Datos Incorrectos");
