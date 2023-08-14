@@ -9,6 +9,7 @@ import { Cliente } from 'src/cliente/entities/cliente.entity';
 import { CreditoService } from '../credito/credito.service';
 import { GlobalParams } from 'src/common/dto/global-params.dto';
 import { RutaService } from '../ruta/ruta.service';
+import { PagoResponse } from './interfaces/pago-response.interface';
 
 @Injectable()
 export class PagoService {
@@ -29,7 +30,7 @@ export class PagoService {
     private readonly rutaService: RutaService
   ) {}
 
-  async create(createPagoDto: CreatePagoDto): Promise<Pago> {
+  async create(createPagoDto: CreatePagoDto): Promise<PagoResponse> {
 
     const credito = await this.creditoService.findOne(createPagoDto.credito);
 
@@ -37,9 +38,12 @@ export class PagoService {
     
     const pago = new this.pagoModel(createPagoDto);
 
-    await this.creditoService.agregarPago(credito, pago, ruta);
+    const {message} = await this.creditoService.agregarPago(credito, pago, ruta);
 
-    return pago;
+    return {
+      pago,
+      message
+    };
 
   }
 

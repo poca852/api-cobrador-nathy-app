@@ -11,6 +11,7 @@ import { isTrue } from 'src/common/helpers/isTrue';
 import { Pago } from '../pago/entities/pago.entity';
 import { ClienteService } from '../cliente/cliente.service';
 import { Ruta } from '../ruta/entities/ruta.entity';
+import { InformeCredito } from './gnerar-informe-credito';
 
 @Injectable()
 export class CreditoService {
@@ -117,7 +118,13 @@ export class CreditoService {
 
     await this.verificarSiTermino(credito);
 
-    return true;
+    const factura = new InformeCredito(credito);
+    const message = factura.getMessage();
+
+    return {
+      true: true,
+      message
+    };
 
   }
 
