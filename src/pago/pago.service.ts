@@ -38,11 +38,12 @@ export class PagoService {
     
     const pago = new this.pagoModel(createPagoDto);
 
-    const {message} = await this.creditoService.agregarPago(credito, pago, ruta);
+    const {message, urlMessage} = await this.creditoService.agregarPago(credito, pago, ruta);
 
     return {
       pago,
-      message
+      message,
+      urlMessage
     };
 
   }

@@ -119,11 +119,12 @@ export class CreditoService {
     await this.verificarSiTermino(credito);
 
     const factura = new InformeCredito(credito);
-    const message = factura.getMessage();
+    const {message, urlMessage} = factura.getMessage();
 
     return {
       true: true,
-      message
+      message,
+      urlMessage
     };
 
   }

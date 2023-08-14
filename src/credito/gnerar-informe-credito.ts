@@ -14,20 +14,32 @@ export class InformeCredito {
 
    }
 
-   getMessage(): string {
+   getMessage(): {message: string; urlMessage: string} {
 
       let txtEncoded: string =  `
-         Fecha%3a+${this.getLastPay().fecha}%0d%0a
-         Cliente%3a+${this.credito.cliente.nombre}%0d%0a
-         Documento%3a+${this.credito.cliente.dpi}%0d%0a
-         Total+a+pagar%3a+$${this.credito.total_pagar}.00%0d%0a
-         Abonos%3a+$${this.credito.abonos}.00%0d%0a
-         saldo%3a+$${this.credito.saldo}.00%0d%0a%0d%0a
-         Informacion+ultimo+pago%3a+%0d%0a%0d%0a
-         Valor%3a+$${this.getLastPay().valor}.00%0d%0a
-         Fecha%3a+${this.getLastPay().fecha}
+         *Fecha*%3a+${this.getLastPay().fecha}%0d%0a
+         *Cliente*%3a+${this.credito.cliente.alias}%0d%0a
+         *Abonos*%3a+$${this.credito.abonos}.00%0d%0a
+         *saldo*%3a+$${this.credito.saldo}.00%0d%0a%0d%0a
+         *Informacion+ultimo+pago*%3a+%0d%0a%0d%0a
+         *Valor*%3a+$${this.getLastPay().valor}.00%0d%0a
+         *Fecha*%3a+${this.getLastPay().fecha}
       `
-      return `https://wa.me/${this.credito.cliente.telefono}?text=${txtEncoded}`
+
+      let txtMessage: string = `
+         Fecha: ${this.getLastPay().fecha} 
+         Cliente: ${this.credito.cliente.alias} 
+         Abonos: ${this.credito.abonos} 
+         Saldo: ${this.credito.saldo} 
+         Informacion Ultimo Pago 
+         Valor: ${this.getLastPay().valor} 
+         Fecha: ${this.getLastPay().fecha}
+      `
+
+      return {
+         urlMessage: `https://wa.me/${this.credito.cliente.telefono}?text=${txtEncoded}`,
+         message: txtMessage
+      }
 
    }
 
