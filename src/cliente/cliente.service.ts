@@ -6,6 +6,7 @@ import { Cliente } from './entities/cliente.entity';
 import { Model, isValidObjectId } from 'mongoose';
 import { GlobalParams } from '../common/dto/global-params.dto';
 import { isTrue } from 'src/common/helpers/isTrue';
+import { User } from '../auth/entities/user.entity';
 
 @Injectable()
 export class ClienteService {
@@ -53,6 +54,15 @@ export class ClienteService {
 
   }
 
+  async findByAdmin( { ruta }: GlobalParams ): Promise<Cliente[]> {
+
+    return await this.clienteModel.find({
+      ruta,
+      state: true
+    });
+
+  }
+
   async findOne(termino: string) {
     
     const cliente = await this.clienteModel.findById(termino)
@@ -87,8 +97,11 @@ export class ClienteService {
 
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} cliente`;
+  async remove(id: string) {
+    const client = await this.findOne(id);
+    await client.updateOne({state: false}, {new: true});
+
+    return true;
   }
 
   private handleExceptions(error: any) {

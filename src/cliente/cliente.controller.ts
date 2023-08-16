@@ -25,6 +25,13 @@ export class ClienteController {
     return this.clienteService.findAll(globalParams);
   }
 
+  @Get("admin")
+  async findAllByAdmin(
+    @Query() globalParams: GlobalParams
+  ) {
+    return this.clienteService.findByAdmin(globalParams);
+  }
+
   @Get(':termino')
   async findOne(
     @Param('termino') termino: string,
@@ -41,7 +48,7 @@ export class ClienteController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.clienteService.remove(+id);
+  async remove(@Param('id', ParseMongoIdPipe) id: string) {
+    return this.clienteService.remove(id);
   }
 }
