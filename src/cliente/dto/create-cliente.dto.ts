@@ -8,12 +8,12 @@ export class CreateClienteDto {
    
    @IsBoolean()
    @IsOptional()
-   status?: boolean = false;  
+   status?: boolean;  
    
    
    @IsBoolean()
    @IsOptional()
-   state?: boolean = true; 
+   state?: boolean; 
    
    @IsString()
    @MinLength(6)

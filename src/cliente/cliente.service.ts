@@ -79,7 +79,7 @@ export class ClienteService {
 
   }
 
-  async update(id: string, updateClienteDto: UpdateClienteDto) {
+  async update(id: string, updateClienteDto: UpdateClienteDto): Promise<boolean> {
     
     const cliente = await this.findOne(id);
 
