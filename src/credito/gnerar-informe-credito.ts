@@ -22,13 +22,13 @@ export class InformeCredito {
       let cuotasPendientesParse = Number(aplicandoFixed);
 
       let txtEncoded: string =  `
-         Fecha%3a+${this.getLastPay().fecha}%0d%0a
+         Fecha%3a+${this.getLastPay().fecha.replaceAll(" ", "+")}%0d%0a
          Cliente%3a+${this.credito.cliente.alias}%0d%0a
          Abonos%3a+$${this.credito.abonos}.00%0d%0a
-         Cuotas+pendientes%3a+$${cuotasPendientesParse}+/+${this.credito.total_cuotas}.00%0d%0a%0d%0a
+         Cuotas+pendientes%3a+${cuotasPendientesParse}+/+${this.credito.total_cuotas}.00%0d%0a%0d%0a
          Informacion+ultimo+pago%3a+%0d%0a%0d%0a
          Valor%3a+$${this.getLastPay().valor}.00%0d%0a
-         Fecha%3a+${this.getLastPay().fecha}
+         Fecha%3a+${this.getLastPay().fecha.replaceAll(" ", "+")}
       `
 
       let txtMessage: string = `
