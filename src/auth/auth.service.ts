@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException, Logger, BadRequestException, InternalServerErrorException, NotFoundException, forwardRef, Inject } from '@nestjs/common';
+import { Injectable, UnauthorizedException, Logger, BadRequestException, InternalServerErrorException, NotFoundException, forwardRef, Inject, Delete } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, isValidObjectId } from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
@@ -145,10 +145,11 @@ export class AuthService {
          throw new NotFoundException(`No existe un usuario con el id ${id}`)
       }
 
-      const { password } = updateUserDto;
 
-      if(password) {
-         updateUserDto.password = bcrypt.hashSync(password, 10);
+      if(updateUserDto.password) {
+         updateUserDto.password = bcrypt.hashSync(updateUserDto.password, 10);
+      }else {
+         delete updateUserDto.password;
       }
 
       try {
