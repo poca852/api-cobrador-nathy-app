@@ -34,7 +34,9 @@ export class CreditoController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.creditoService.remove(+id);
+  remove(
+    @Param('id', ParseMongoIdPipe) id: string,
+  ) {
+    return this.creditoService.remove(id);
   }
 }
