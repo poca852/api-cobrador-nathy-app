@@ -88,10 +88,6 @@ export class CreditoService {
     const credito = await this.creditoModel.findById(id)
       .populate("cliente")
       .populate("pagos")
-      .populate({
-        path: "ruta",
-        select: "caja_actual"
-      })
 
     if (!credito) {
       throw new NotFoundException(`Credito con el id ${id} no existe`);
