@@ -36,9 +36,11 @@ export class PagoService {
 
     const ruta = await this.rutaService.findOne(createPagoDto.ruta);
     
-    const pago = new this.pagoModel(createPagoDto);
+    this.creditoService.verificarSiElPagoEsMayor(credito, createPagoDto.valor);
 
-    const {message, urlMessage} = await this.creditoService.agregarPago(credito, pago, ruta);
+    const pago = await this.pagoModel.create(createPagoDto);
+
+    const {message, urlMessage} = await this.creditoService.agregarPago(createPagoDto.credito, pago, ruta);
 
     return {
       pago,

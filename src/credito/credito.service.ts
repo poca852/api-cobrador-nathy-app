@@ -12,6 +12,7 @@ import { Pago } from '../pago/entities/pago.entity';
 import { ClienteService } from '../cliente/cliente.service';
 import { Ruta } from '../ruta/entities/ruta.entity';
 import { InformeCredito } from './gnerar-informe-credito';
+import { addDays, differenceInDays, getDay } from 'date-fns';
 
 @Injectable()
 export class CreditoService {
@@ -84,7 +85,7 @@ export class CreditoService {
 
   }
 
-  async findOne(id: string): Promise<Credito> {
+  async findOne(id: string) {
     const credito = await this.creditoModel.findById(id)
       .populate("cliente")
       .populate("pagos")
@@ -93,7 +94,10 @@ export class CreditoService {
       throw new NotFoundException(`Credito con el id ${id} no existe`);
     }
 
-    return credito;
+    return {
+      ...credito.toJSON(),
+      atraso: await this.calcularAtrasos(credito._id)
+    };
   }
 
   update(id: number, updateCreditoDto: UpdateCreditoDto) {
@@ -121,9 +125,11 @@ export class CreditoService {
 
   }
 
-  public async agregarPago(credito: Credito, pago: Pago, ruta: Ruta) {
+  public async agregarPago(idCredito: string, pago: Pago, ruta: Ruta) {
 
-    this.verificarSiElPagoEsMayor(credito, pago.valor);
+    const credito = await this.creditoModel.findById(idCredito)
+      .populate("cliente")
+      .populate("pagos")
 
     await pago.save();
 
@@ -150,7 +156,7 @@ export class CreditoService {
     await this.verificarSiTermino(credito);
 
     const factura = new InformeCredito(credito);
-    const { message, urlMessage } = factura.getMessage();
+    const { message, urlMessage } = await factura.getMessage();
 
     return {
       true: true,
@@ -214,6 +220,41 @@ export class CreditoService {
 
 
   }
+
+  public async calcularAtrasos(idCredito: string) {
+    const credito = await this.creditoModel.findById(idCredito);
+    let q = credito.fecha_inicio.split('/')
+    let newFecha = `${q[2]}-${q[1]}-${q[0]}`;
+
+    const fechaInicioCredito = new Date(newFecha);
+
+    const fechaInicioPagos = addDays(fechaInicioCredito, 1);
+    
+    const fechaActual = new Date();
+  
+    const totalDias = differenceInDays(fechaActual, fechaInicioPagos);
+  
+    let diasEfectivosPago = totalDias;
+    let fecha = fechaInicioPagos;
+    for (let i = 0; i < totalDias; i++) {
+      if (getDay(fecha) === 0) {
+        diasEfectivosPago--;
+      }
+      fecha = addDays(fecha, 1);
+    }
+  
+    const valorCuota = credito.valor_cuota;
+    const totalAbonos = credito.abonos;
+  
+    const pagosRealizados = Math.floor(totalAbonos / valorCuota);
+    const pagosRequeridos = credito.total_cuotas;
+  
+    const atrasos = Math.max(diasEfectivosPago - pagosRealizados, 0);
+    const atrasosMaximos = (pagosRequeridos - 1) * 1; // Restamos 1 para representar el día en que se dio el crédito
+  
+    return Math.min(atrasos, atrasosMaximos);
+  }
+  
 
   private hanldeExceptions(error: any) {
     this.logger.error(error);
