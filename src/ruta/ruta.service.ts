@@ -71,17 +71,30 @@ export class RutaService {
   }
 
   async findAll(user: User): Promise<Ruta[]> {
+
+    let promiseOfRutas: any[] = [];
+
+    user.rutas.forEach(ruta => {
+      promiseOfRutas.push(this.rutaModel.findById(ruta));
+    })
+
+    let rutas = await Promise.all(promiseOfRutas);
+
+    for (const ruta of rutas) {
+      this.actualizarRuta(ruta)
+    }
     
-    return (await this.authService.findOne(user._id)).rutas
+    return rutas
 
   }
 
   async findOne(id: string): Promise<Ruta> {
     
+    
     const ruta = await this.rutaModel.findById(id)
       .populate("ultima_caja")
       .populate("caja_actual")
-
+    
     if(!ruta){
       throw new NotFoundException(`No existe una ruta con el id ${id}`);
     }
@@ -94,13 +107,11 @@ export class RutaService {
 
   async update(id: string, updateRutaDto: UpdateRutaDto) {
     
-    const ruta = await this.findOne(id);
-
-    await ruta.updateOne(updateRutaDto, {new: true});
-
-    return {
-      ...ruta.toJSON(),
-      ...updateRutaDto
+    try {
+      const rutaUpdate = await this.rutaModel.findByIdAndUpdate(id, updateRutaDto, {new: true});
+      return rutaUpdate;
+    } catch (error) {
+      this.handleExceptions(error);
     }
 
   }
@@ -201,14 +212,7 @@ export class RutaService {
     throw new InternalServerErrorException("Revisar los logs")
   }
 
-  async actualizarRuta(ruta: Ruta): Promise<boolean> {
-
-    const rutaDB = await this.rutaModel.findById(ruta._id);
-
-    if(!rutaDB) {
-      throw new NotFoundException(`No existe una ruta con el id ${ruta._id}`);
-    }
-
+  async actualizarRuta(ruta: Ruta) {
     let cartera: number = 0;
     let total_cobrado: number = 0;
     let gastos: number = 0;
@@ -223,13 +227,13 @@ export class RutaService {
           allGastos,
           allRetiros,
           allInversiones ] = await Promise.all([
-      this.clienteModel.countDocuments({ruta: rutaDB._id}),
-      this.clienteModel.countDocuments({ruta: rutaDB._id, status: true}),
-      this.creditoModel.find({ruta: rutaDB._id, status: true}),
-      this.creditoModel.find({ruta: rutaDB._id}),
-      this.gastoModel.find({ruta: rutaDB._id}),
-      this.retiroModel.find({ruta: rutaDB._id}),
-      this.inversionModel.find({ruta: rutaDB._id})
+      this.clienteModel.countDocuments({ruta: ruta._id}),
+      this.clienteModel.countDocuments({ruta: ruta._id, status: true}),
+      this.creditoModel.find({ruta: ruta._id, status: true}),
+      this.creditoModel.find({ruta: ruta._id}),
+      this.gastoModel.find({ruta: ruta._id}),
+      this.retiroModel.find({ruta: ruta._id}),
+      this.inversionModel.find({ruta: ruta._id})
     ])
 
     
@@ -265,8 +269,6 @@ export class RutaService {
       clientes,
       clientes_activos,
     }, {new: true});
-
-    return true;
 
   }
 }

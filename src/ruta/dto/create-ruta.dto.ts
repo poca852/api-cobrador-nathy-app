@@ -7,42 +7,42 @@ export class CreateRutaDto {
 
    @IsNumber()
    @IsOptional()
-   clientes?: number = 0;
+   clientes?: number;
   
    @IsNumber()
    @IsOptional()
-   clientes_activos?: number = 0; 
+   clientes_activos?: number; 
   
    @IsNumber()
    @IsOptional()
-   gastos?: number = 0;
+   gastos?: number;
    
    @IsNumber()
    @IsOptional()
-   inversiones?: number = 0;
+   inversiones?: number;
   
    @IsNumber()
    @IsOptional()
-   retiros?: number = 0;
+   retiros?: number;
   
    @IsString()
    ciudad: string;
   
    @IsNumber()
    @IsOptional()
-   cartera?: number = 0;
+   cartera?: number;
   
    @IsNumber()
    @IsOptional()
-   total_cobrado?: number = 0;
+   total_cobrado?: number;
   
    @IsNumber()
    @IsOptional()
-   total_prestado?: number = 0;
+   total_prestado?: number;
   
    @IsBoolean()
    @IsOptional()
-   status?: boolean = false;
+   status?: boolean;
   
    @IsString()
    @IsOptional()
@@ -52,9 +52,9 @@ export class CreateRutaDto {
    @IsOptional()
    ultima_apertura?: string;
   
-   @IsBoolean()
-   @IsOptional()
-   ingresar_gastos_cobrador?: boolean = true;
+   // @IsBoolean()
+   // @IsOptional()
+   // ingresar_gastos_cobrador?: boolean = true;
   
    @IsMongoId()
    @IsOptional()
@@ -66,9 +66,13 @@ export class CreateRutaDto {
   
    @IsNumber()
    @IsOptional()
-   turno?: number = 1;
+   turno?: number;
   
    @IsMongoId()
    @IsOptional()
    empresa?: string;
+
+   @IsBoolean()
+   @IsOptional()
+   have_login_falso?: boolean;
 }

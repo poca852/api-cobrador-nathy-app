@@ -117,6 +117,9 @@ export class Ruta extends Document {
       ref: 'Empresa'
    })
    empresa: Empresa;
+
+   @Prop({ type: Boolean, default: true })
+   have_login_falso: boolean;
   
 }
 
