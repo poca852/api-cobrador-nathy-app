@@ -63,4 +63,7 @@ export class CreateCreditoDto {
    @IsString()
    @IsEnum(['diario', 'semanal', 'mensual'])
    frecuencia_cobro: string;
+
+   @IsBoolean()
+   se_cobran_domingos: boolean;
 }

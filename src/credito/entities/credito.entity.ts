@@ -101,6 +101,15 @@ export class Credito extends Document {
       enum: ["diario", "semanal", "mensual"]
    })
    frecuencia_cobro: string;
+
+   @Prop({
+      type: Boolean,
+      default: false
+   })
+   se_cobran_domingos: boolean;
+
+   @Prop({type: Number})
+   atraso?: number;
 }
 
 export const CreditoSchema = SchemaFactory.createForClass(Credito)
