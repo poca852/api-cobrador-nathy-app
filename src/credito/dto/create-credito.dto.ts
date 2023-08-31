@@ -1,4 +1,4 @@
-import { IsBoolean, IsDecimal, IsMongoId, IsNumber, IsOptional, IsString } from "class-validator";
+import { IsBoolean, IsDecimal, IsEnum, IsMongoId, IsNumber, IsOptional, IsString } from "class-validator";
 
 export class CreateCreditoDto {
 
@@ -59,4 +59,8 @@ export class CreateCreditoDto {
    @IsOptional()
    @IsBoolean()
    esAutomatico?: boolean;
+
+   @IsString()
+   @IsEnum(['diario', 'semanal', 'mensual'])
+   frecuencia_cobro: string;
 }

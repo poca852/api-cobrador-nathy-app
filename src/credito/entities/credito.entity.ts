@@ -94,7 +94,13 @@ export class Credito extends Document {
    @Prop({
       type: Number,
    })
-   turno: number; 
+   turno: number;
+   
+   @Prop({
+      type: String,
+      enum: ["diario", "semanal", "mensual"]
+   })
+   frecuencia_cobro: string;
 }
 
 export const CreditoSchema = SchemaFactory.createForClass(Credito)
