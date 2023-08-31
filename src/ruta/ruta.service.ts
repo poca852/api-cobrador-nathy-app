@@ -79,10 +79,6 @@ export class RutaService {
     })
 
     let rutas = await Promise.all(promiseOfRutas);
-
-    for (const ruta of rutas) {
-      this.actualizarRuta(ruta)
-    }
     
     return rutas
 
@@ -98,8 +94,6 @@ export class RutaService {
     if(!ruta){
       throw new NotFoundException(`No existe una ruta con el id ${id}`);
     }
-
-    await this.actualizarRuta(ruta);
 
     return ruta;
 
@@ -212,7 +206,10 @@ export class RutaService {
     throw new InternalServerErrorException("Revisar los logs")
   }
 
-  async actualizarRuta(ruta: Ruta) {
+  public async actualizarRuta(idRuta: any) {
+
+    const ruta = await this.rutaModel.findById(idRuta);
+
     let cartera: number = 0;
     let total_cobrado: number = 0;
     let gastos: number = 0;

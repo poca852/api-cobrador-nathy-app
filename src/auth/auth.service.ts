@@ -70,6 +70,10 @@ export class AuthService {
          }
       }
 
+      for (const ruta of user.rutas) {
+         await this.rutaService.actualizarRuta(ruta);
+      }
+
       const { password:_, ...rest } = user.toJSON();
 
       return {
