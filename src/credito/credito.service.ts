@@ -69,6 +69,10 @@ export class CreditoService {
         .populate("pagos")
         .sort({ turno: 1 })
 
+      for (const credito of creditos) {
+        credito.atraso = await this.calcularAtrasos(credito);
+      }
+
       return creditos
 
     }
@@ -80,6 +84,11 @@ export class CreditoService {
       .populate("cliente")
       .populate("pagos")
       .sort({ turno: 1 })
+
+    for (const credito of creditos) {
+      credito.atraso = await this.calcularAtrasos(credito);
+    }
+
 
     return creditos;
 
@@ -96,7 +105,7 @@ export class CreditoService {
 
     return {
       ...credito.toJSON(),
-      atraso: await this.calcularAtrasos(credito._id)
+      atraso: await this.calcularAtrasos(credito)
     };
   }
 
@@ -221,38 +230,71 @@ export class CreditoService {
 
   }
 
-  public async calcularAtrasos(idCredito: string) {
-    const credito = await this.creditoModel.findById(idCredito);
-    let q = credito.fecha_inicio.split('/')
+  public async calcularAtrasos(credito: Credito) {
+    // const credito = await this.creditoModel.findById(idCredito);
+    let q = credito.fecha_inicio.split('/');
+
     let newFecha = `${q[2]}-${q[1]}-${q[0]}`;
+
 
     const fechaInicioCredito = new Date(newFecha);
 
-    const fechaInicioPagos = addDays(fechaInicioCredito, 1);
-    
+    let fechaInicioPagos = addDays(fechaInicioCredito, 1);
+
     const fechaActual = new Date();
-  
+
     const totalDias = differenceInDays(fechaActual, fechaInicioPagos);
-  
-    let diasEfectivosPago = totalDias;
-    let fecha = fechaInicioPagos;
-    for (let i = 0; i < totalDias; i++) {
-      if (getDay(fecha) === 0) {
-        diasEfectivosPago--;
-      }
-      fecha = addDays(fecha, 1);
-    }
-  
+
+    
+    const diasEfectivosPago = this.calcularDiasEfectivosPago(fechaInicioPagos, fechaActual, credito.se_cobran_domingos);
+    
+    const intervaloPagos = this.calcularIntervaloPagos(credito.frecuencia_cobro);
+
     const valorCuota = credito.valor_cuota;
     const totalAbonos = credito.abonos;
-  
+
     const pagosRealizados = Math.floor(totalAbonos / valorCuota);
     const pagosRequeridos = credito.total_cuotas;
-  
+
     const atrasos = Math.max(diasEfectivosPago - pagosRealizados, 0);
-    const atrasosMaximos = (pagosRequeridos - 1) * 1; // Restamos 1 para representar el día en que se dio el crédito
-  
+    const atrasosMaximos = this.calcularAtrasosMaximos(pagosRequeridos, intervaloPagos);
+
     return Math.min(atrasos, atrasosMaximos);
+  }
+
+  private calcularDiasEfectivosPago(fechaInicioPagos: Date, fechaActual: Date, seCobranDomingos: boolean) {
+
+    let diasEfectivosPago = differenceInDays(fechaActual, fechaInicioPagos);
+
+    if (!seCobranDomingos) {
+
+      let fecha = fechaInicioPagos;
+
+      for (let i = 0; i <= diasEfectivosPago; i++) {
+
+        if (getDay(fecha) === 0) {
+          diasEfectivosPago--;
+        }
+        fecha = addDays(fecha, 1);
+
+
+      }
+
+    }
+  
+    return diasEfectivosPago;
+  }
+
+  private calcularIntervaloPagos(frecuenciaCobro: string): number {
+    if (frecuenciaCobro === 'semanal') {
+      return 7;
+    } else {
+      return 1;
+    }
+  }
+
+  private calcularAtrasosMaximos(pagosRequeridos: number, intervaloPagos: number): number {
+    return (pagosRequeridos - 1) * intervaloPagos;
   }
   
 
