@@ -8,6 +8,8 @@ import { Cliente, ClienteSchema } from '../cliente/entities/cliente.entity';
 import { CajaModule } from '../caja/caja.module';
 import { AuthModule } from '../auth/auth.module';
 import { ClienteModule } from '../cliente/cliente.module';
+import { RutaSchema } from 'src/ruta/entities/ruta.entity';
+import { Ruta } from '../ruta/entities/ruta.entity';
 
 @Module({
   imports: [
@@ -23,6 +25,10 @@ import { ClienteModule } from '../cliente/cliente.module';
       {
         name: Cliente.name,
         schema: ClienteSchema
+      },
+      {
+        name: Ruta.name,
+        schema: RutaSchema
       }
     ])
   ],

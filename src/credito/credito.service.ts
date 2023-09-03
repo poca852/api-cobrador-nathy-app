@@ -12,7 +12,9 @@ import { Pago } from '../pago/entities/pago.entity';
 import { ClienteService } from '../cliente/cliente.service';
 import { Ruta } from '../ruta/entities/ruta.entity';
 import { InformeCredito } from './gnerar-informe-credito';
-import { addDays, differenceInDays, getDay } from 'date-fns';
+import { calcularAtrasos } from './helpers/atrasos-credito';
+import { getSaldo } from './helpers/get-saldo-credito';
+import { getAbonos } from './helpers/get-abonos-credito';
 
 @Injectable()
 export class CreditoService {
@@ -22,6 +24,9 @@ export class CreditoService {
   constructor(
     @InjectModel(Credito.name)
     private readonly creditoModel: Model<Credito>,
+
+    @InjectModel(Ruta.name)
+    private readonly rutaModel: Model<Ruta>,
 
     @InjectModel(Cliente.name)
     private readonly clienteModel: Model<Cliente>,
@@ -70,7 +75,7 @@ export class CreditoService {
         .sort({ turno: 1 })
 
       for (const credito of creditos) {
-        credito.atraso = await this.calcularAtrasos(credito);
+        credito.atraso = await calcularAtrasos(credito);
       }
 
       return creditos
@@ -86,7 +91,7 @@ export class CreditoService {
       .sort({ turno: 1 })
 
     for (const credito of creditos) {
-      credito.atraso = await this.calcularAtrasos(credito);
+      credito.atraso = await calcularAtrasos(credito);
     }
 
 
@@ -105,7 +110,7 @@ export class CreditoService {
 
     return {
       ...credito.toJSON(),
-      atraso: await this.calcularAtrasos(credito)
+      atraso: await calcularAtrasos(credito)
     };
   }
 
@@ -134,26 +139,17 @@ export class CreditoService {
 
   }
 
-  public async agregarPago(idCredito: string, pago: Pago, ruta: Ruta) {
+  public async agregarPago(idCredito: string, pago: Pago, idRuta: string) {
 
     const credito = await this.creditoModel.findById(idCredito)
       .populate("cliente")
       .populate("pagos")
 
-    await pago.save();
+    const ruta = await this.rutaModel.findById(idRuta);
 
     credito.pagos.unshift(pago);
-
-    let abonos: number = 0;
-
-    credito.pagos.forEach(pago => {
-      abonos += pago.valor;
-    })
-
-    let saldo = credito.total_pagar - abonos;
-
-    credito.saldo = saldo,
-      credito.abonos = abonos;
+    credito.saldo = getSaldo(credito),
+    credito.abonos = getAbonos(credito);
     credito.turno = ruta.turno;
     credito.ultimo_pago = pago.fecha.split(" ")[0];
 
@@ -175,10 +171,12 @@ export class CreditoService {
 
   }
 
-  public verificarSiElPagoEsMayor(credito: Credito, valor: number): void {
+  public async verificarSiElPagoEsMayor(idCredito: string, valor: number): Promise<void> {
+
+    const credito = await this.findOne(idCredito);
 
     if (valor > credito.saldo) {
-      throw new BadRequestException(`El saldo del cliente es ${credito.saldo}`)
+      throw new BadRequestException(`El saldo del cliente es ${credito.saldo}`);
     }
 
   }
@@ -210,16 +208,8 @@ export class CreditoService {
 
     const credito = await this.findOne(idCredito);
 
-    let abonos: number = 0;
-
-    credito.pagos.forEach(pago => {
-      abonos += pago.valor;
-    })
-
-    let saldo = credito.total_pagar - abonos;
-
-    credito.saldo = saldo,
-      credito.abonos = abonos;
+    credito.saldo = getSaldo(credito);
+    credito.abonos = getAbonos(credito);
 
     await credito.save();
 
@@ -227,76 +217,7 @@ export class CreditoService {
 
     return true;
 
-
   }
-
-  public async calcularAtrasos(credito: Credito) {
-    // const credito = await this.creditoModel.findById(idCredito);
-    let q = credito.fecha_inicio.split('/');
-
-    let newFecha = `${q[2]}-${q[1]}-${q[0]}`;
-
-
-    const fechaInicioCredito = new Date(newFecha);
-
-    let fechaInicioPagos = addDays(fechaInicioCredito, 1);
-
-    const fechaActual = new Date();
-
-    const totalDias = differenceInDays(fechaActual, fechaInicioPagos);
-
-    
-    const diasEfectivosPago = this.calcularDiasEfectivosPago(fechaInicioPagos, fechaActual, credito.se_cobran_domingos);
-    
-    const intervaloPagos = this.calcularIntervaloPagos(credito.frecuencia_cobro);
-
-    const valorCuota = credito.valor_cuota;
-    const totalAbonos = credito.abonos;
-
-    const pagosRealizados = Math.floor(totalAbonos / valorCuota);
-    const pagosRequeridos = credito.total_cuotas;
-
-    const atrasos = Math.max(diasEfectivosPago - pagosRealizados, 0);
-    const atrasosMaximos = this.calcularAtrasosMaximos(pagosRequeridos, intervaloPagos);
-
-    return Math.min(atrasos, atrasosMaximos);
-  }
-
-  private calcularDiasEfectivosPago(fechaInicioPagos: Date, fechaActual: Date, seCobranDomingos: boolean) {
-
-    let diasEfectivosPago = differenceInDays(fechaActual, fechaInicioPagos);
-
-    if (!seCobranDomingos) {
-
-      let fecha = fechaInicioPagos;
-
-      for (let i = 0; i <= diasEfectivosPago; i++) {
-
-        if (getDay(fecha) === 0) {
-          diasEfectivosPago--;
-        }
-        fecha = addDays(fecha, 1);
-
-
-      }
-
-    }
-  
-    return diasEfectivosPago;
-  }
-
-  private calcularIntervaloPagos(frecuenciaCobro: string): number {
-    if (frecuenciaCobro === 'semanal') {
-      return 7;
-    } else {
-      return 1;
-    }
-  }
-
-  private calcularAtrasosMaximos(pagosRequeridos: number, intervaloPagos: number): number {
-    return (pagosRequeridos - 1) * intervaloPagos;
-  }
-  
 
   private hanldeExceptions(error: any) {
     this.logger.error(error);

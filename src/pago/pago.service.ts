@@ -1,14 +1,11 @@
-import { Injectable, Logger, BadRequestException, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, Logger, InternalServerErrorException } from '@nestjs/common';
 import { CreatePagoDto } from './dto/create-pago.dto';
 import { UpdatePagoDto } from './dto/update-pago.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Pago } from './entities/pago.entity';
 import { Model } from 'mongoose';
-import { Credito } from '../credito/entities/credito.entity';
-import { Cliente } from 'src/cliente/entities/cliente.entity';
 import { CreditoService } from '../credito/credito.service';
 import { GlobalParams } from 'src/common/dto/global-params.dto';
-import { RutaService } from '../ruta/ruta.service';
 import { PagoResponse } from './interfaces/pago-response.interface';
 
 @Injectable()
@@ -20,27 +17,16 @@ export class PagoService {
     @InjectModel(Pago.name)
     private pagoModel: Model<Pago>,
 
-    @InjectModel(Credito.name)
-    private creditoModel: Model<Credito>,
-
-    @InjectModel(Cliente.name)
-    private clienteModel: Model<Cliente>,
-
     private readonly creditoService: CreditoService,
-    private readonly rutaService: RutaService
   ) {}
 
   async create(createPagoDto: CreatePagoDto): Promise<PagoResponse> {
-
-    const credito = await this.creditoService.findOne(createPagoDto.credito);
-
-    const ruta = await this.rutaService.findOne(createPagoDto.ruta);
     
-    this.creditoService.verificarSiElPagoEsMayor(credito, createPagoDto.valor);
+    await this.creditoService.verificarSiElPagoEsMayor(createPagoDto.credito, createPagoDto.valor);
 
     const pago = await this.pagoModel.create(createPagoDto);
 
-    const {message, urlMessage} = await this.creditoService.agregarPago(createPagoDto.credito, pago, ruta);
+    const {message, urlMessage} = await this.creditoService.agregarPago(createPagoDto.credito, pago, createPagoDto.ruta);
 
     return {
       pago,
