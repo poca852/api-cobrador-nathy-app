@@ -79,13 +79,11 @@ export class PagoService {
     
     const pago = await this.findOne(id);
 
-    const credito = await this.creditoService.findOne(pago.credito._id);
-
-    this.creditoService.verificarSiElPagoEsMayorActualizando(credito, pago, updatePagoDto.valor);
+    this.creditoService.verificarSiElPagoEsMayorActualizando(pago.credito._id, pago.valor, updatePagoDto.valor);
 
     await pago.updateOne(updatePagoDto, {new: true});
 
-    await this.creditoService.rectificarCredito(credito._id);
+    await this.creditoService.rectificarCredito(pago.credito._id);
 
     return true;
     

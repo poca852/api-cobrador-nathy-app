@@ -181,12 +181,17 @@ export class CreditoService {
 
   }
 
-  public verificarSiElPagoEsMayorActualizando(credito: Credito, pago: Pago, nuevoPago: number) {
+  public async verificarSiElPagoEsMayorActualizando(idCredito: string, oldPay: number, newPay: number): Promise<boolean> {
 
-    let nuevoSaldo = credito.saldo + pago.valor;
-    if (nuevoPago > nuevoSaldo) {
-      throw new BadRequestException(`El Monto maximo que puedes ingresar es ${nuevoSaldo}`)
+    const credito = await this.creditoModel.findById(idCredito);
+
+    let oldSaldo = credito.saldo + oldPay;
+
+    if (newPay > oldSaldo) {
+      throw new BadRequestException(`El Monto maximo que puedes ingresar es ${oldSaldo}`)
     }
+
+    return true;
 
   }
 
@@ -206,7 +211,7 @@ export class CreditoService {
 
   public async rectificarCredito(idCredito: string) {
 
-    const credito = await this.findOne(idCredito);
+    const credito = await this.creditoModel.findById(idCredito).populate('pagos')
 
     credito.saldo = getSaldo(credito);
     credito.abonos = getAbonos(credito);
