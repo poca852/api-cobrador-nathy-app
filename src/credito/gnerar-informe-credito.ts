@@ -83,6 +83,7 @@ export class InformeCredito {
          Fecha+Inicio%3a+${this.credito.fecha_inicio.replaceAll(" ", "+")}%0d%0a
          Cliente%3a+${this.credito.cliente.alias.replaceAll(" ", "+")}%0d%0a
          Abonos%3a+$${this.credito.abonos}.00%0d%0a
+         Saldo%3a+$${this.credito.saldo}.00%0d%0a
          Atrasos%3a+${await this.calcularAtrasos()}%0d%0a
          Cuotas+pendientes%3a+${cuotasPendientesParse}+/+${this.credito.total_cuotas}.00%0d%0a%0d%0a
          Informacion+ultimo+pago%3a+%0d%0a
@@ -94,6 +95,7 @@ export class InformeCredito {
          Fecha: ${this.credito.fecha_inicio} 
          Cliente: ${this.credito.cliente.alias} 
          Abonos: $${this.credito.abonos}.00 
+         Saldo: $${this.credito.saldo}.00 
          Atrasos: ${await this.calcularAtrasos()} 
          Cuotas Pendientes: ${cuotasPendientesParse} / ${this.credito.total_cuotas}  
          Informacion Ultimo Pago 
