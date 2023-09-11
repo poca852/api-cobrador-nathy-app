@@ -30,7 +30,7 @@ import { RutaModule } from '../ruta/ruta.module';
         return {
           secret: configService.get("SECRETORPRIVATEKEY"),
           signOptions: {
-            expiresIn: "1h"
+            expiresIn: "24h"
           }
         }
       }
