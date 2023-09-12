@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsMongoId, IsOptional, IsString, MinLength } from "class-validator";
+import { IsArray, IsBoolean, IsMongoId, IsNumber, IsOptional, IsString, MinLength } from "class-validator";
 
 export class CreateClienteDto {
 
@@ -33,6 +33,11 @@ export class CreateClienteDto {
 
    @IsString()
    direccion: string;
+
+   @IsNumber()
+   @IsArray()
+   @IsOptional()
+   ubication?: number[];
    
    @IsString()
    telefono: string;

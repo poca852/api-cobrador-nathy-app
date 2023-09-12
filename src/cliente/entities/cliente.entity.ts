@@ -60,6 +60,11 @@ export class Cliente extends Document {
    direccion: string;
 
    @Prop({
+      type: [Number],
+   })
+   ubication: number[]
+
+   @Prop({
       type: String,
       required: true,
       trim: true
