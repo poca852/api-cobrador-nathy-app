@@ -60,7 +60,7 @@ export class Cliente extends Document {
    direccion: string;
 
    @Prop({
-      type: [Number, Number],
+      type: [Number],
    })
    ubication: number[]
 
