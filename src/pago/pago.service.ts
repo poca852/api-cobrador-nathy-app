@@ -1,4 +1,4 @@
-import { Injectable, Logger, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, Logger, InternalServerErrorException, BadRequestException } from '@nestjs/common';
 import { CreatePagoDto } from './dto/create-pago.dto';
 import { UpdatePagoDto } from './dto/update-pago.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -78,7 +78,11 @@ export class PagoService {
     
     const pago = await this.findOne(id);
 
-    this.creditoService.verificarSiElPagoEsMayorActualizando(pago.credito._id, pago.valor, updatePagoDto.valor);
+    const sePuedeProcesarElPago = await this.creditoService.verificarSiElPagoEsMayorActualizando(pago.credito._id, pago.valor, updatePagoDto.valor);
+
+    if(!sePuedeProcesarElPago){
+      throw new BadRequestException('No se puede procesar el pago, porque el valor ingresado supera el saldo')
+    }
 
     await pago.updateOne(updatePagoDto, {new: true});
 

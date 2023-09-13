@@ -188,7 +188,7 @@ export class CreditoService {
     let oldSaldo = credito.saldo + oldPay;
 
     if (newPay > oldSaldo) {
-      throw new BadRequestException(`El Monto maximo que puedes ingresar es ${oldSaldo}`)
+      return false
     }
 
     return true;
