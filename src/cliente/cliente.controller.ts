@@ -9,7 +9,7 @@ import { ParseMongoIdPipe } from 'src/common/pipes/parse-mongo-id.pipe';
 @Auth()
 @Controller('cliente')
 export class ClienteController {
-  constructor(private readonly clienteService: ClienteService) {}
+  constructor(private readonly clienteService: ClienteService) { }
 
   @Post()
   async create(
@@ -39,9 +39,16 @@ export class ClienteController {
     return this.clienteService.findOne(termino);
   }
 
+  @Get('historial/:id')
+  async getHistorialCliente(
+    @Param('id', ParseMongoIdPipe) id: string
+  ) {
+    return this.clienteService.getHistorial(id);
+  }
+
   @Patch(':id')
   update(
-    @Param('id', ParseMongoIdPipe) id: string, 
+    @Param('id', ParseMongoIdPipe) id: string,
     @Body() updateClienteDto: UpdateClienteDto
   ) {
     return this.clienteService.update(id, updateClienteDto);

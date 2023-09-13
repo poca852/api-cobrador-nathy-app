@@ -3,10 +3,10 @@ import { CreateClienteDto } from './dto/create-cliente.dto';
 import { UpdateClienteDto } from './dto/update-cliente.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Cliente } from './entities/cliente.entity';
-import { Model, isValidObjectId } from 'mongoose';
+import { Model } from 'mongoose';
 import { GlobalParams } from '../common/dto/global-params.dto';
 import { isTrue } from 'src/common/helpers/isTrue';
-import { User } from '../auth/entities/user.entity';
+import { Credito } from 'src/credito/entities/credito.entity';
 
 @Injectable()
 export class ClienteService {
@@ -15,7 +15,10 @@ export class ClienteService {
 
   constructor(
     @InjectModel(Cliente.name)
-    private clienteModel: Model<Cliente>
+    private clienteModel: Model<Cliente>,
+
+    @InjectModel(Credito.name)
+    private creditoModel: Model<Credito>
   ){}
 
   async create(createClienteDto: CreateClienteDto): Promise<Cliente> {
@@ -60,6 +63,14 @@ export class ClienteService {
       ruta,
       state: true
     });
+
+  }
+
+  async getHistorial(id: string): Promise<Credito[]> {
+
+    const creditos = await this.creditoModel.find({cliente: id});
+
+    return creditos;
 
   }
 
