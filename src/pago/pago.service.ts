@@ -43,8 +43,7 @@ export class PagoService {
       fecha: new RegExp(fecha, "i")
     })
       .populate({
-        path: "cliente",
-        select: "nombre alias"
+        path: "cliente"
       })
       .populate({
         path: "credito",
