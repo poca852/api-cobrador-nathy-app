@@ -7,6 +7,7 @@ import { Model } from 'mongoose';
 import { GlobalParams } from '../common/dto/global-params.dto';
 import { isTrue } from 'src/common/helpers/isTrue';
 import { Credito } from 'src/credito/entities/credito.entity';
+import { addDate } from './helpers/orderCreditsByDate';
 
 @Injectable()
 export class ClienteService {
@@ -70,7 +71,9 @@ export class ClienteService {
 
     const creditos = await this.creditoModel.find({cliente: id});
 
-    return creditos;
+    const creditosFiltrados = creditos.sort((a,b) => addDate(b.fecha_inicio).getTime() - addDate(a.fecha_inicio).getTime())
+
+    return creditosFiltrados;
 
   }
 
