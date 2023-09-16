@@ -114,8 +114,12 @@ export class CreditoService {
     };
   }
 
-  update(id: number, updateCreditoDto: UpdateCreditoDto) {
-    return `This action updates a #${id} credito`;
+  async update(id: string, updateCreditoDto: UpdateCreditoDto) {
+    try {
+      return await this.creditoModel.findByIdAndUpdate(id, updateCreditoDto, {new: true})
+    } catch (error) {
+      this.hanldeExceptions(error);
+    }
   }
 
   async remove(id: string) {

@@ -29,8 +29,8 @@ export class CreditoController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCreditoDto: UpdateCreditoDto) {
-    return this.creditoService.update(+id, updateCreditoDto);
+  async update(@Param('id') id: string, @Body() updateCreditoDto: UpdateCreditoDto) {
+    return await this.creditoService.update(id, updateCreditoDto);
   }
 
   @Delete(':id')
