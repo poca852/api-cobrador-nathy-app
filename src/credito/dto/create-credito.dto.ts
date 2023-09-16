@@ -8,7 +8,7 @@ export class CreateCreditoDto {
 
    @IsBoolean()
    @IsOptional()
-   status?: boolean = true;
+   status?: boolean;
 
    @IsNumber()
    valor_credito: number;
@@ -26,7 +26,7 @@ export class CreateCreditoDto {
 
    @IsNumber()
    @IsOptional()
-   abonos?: number = 0; 
+   abonos?: number; 
    
    @IsNumber()
    saldo: number; 

@@ -93,6 +93,7 @@ export class Credito extends Document {
 
    @Prop({
       type: Number,
+      default: 1
    })
    turno: number;
    
