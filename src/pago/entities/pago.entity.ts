@@ -33,6 +33,11 @@ export class Pago extends Document {
       ref: 'Cliente'
    })
    cliente: Cliente;
+
+   @Prop({
+      type: String
+   })
+   observacion: string;
 }
 
 export const PagoSchema = SchemaFactory.createForClass(Pago);

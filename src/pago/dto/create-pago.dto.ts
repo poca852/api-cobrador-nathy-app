@@ -1,4 +1,4 @@
-import { IsMongoId, IsNumber, IsString } from "class-validator";
+import { IsMongoId, IsNumber, IsOptional, IsString } from "class-validator";
 
 export class CreatePagoDto {
 
@@ -16,5 +16,9 @@ export class CreatePagoDto {
 
    @IsMongoId()
    cliente: string;
+
+   @IsString()
+   @IsOptional()
+   observacion?: string
    
 }
