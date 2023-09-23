@@ -5,6 +5,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { RolModule } from './rol/rol.module';
 import { RutaModule } from './ruta/ruta.module';
 import { CajaModule } from './caja/caja.module';
+import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { MulterModule } from '@nestjs/platform-express';
 import { EmpresaModule } from './empresa/empresa.module';
 import { ClienteModule } from './cliente/cliente.module';
 import { CreditoModule } from './credito/credito.module';
@@ -16,10 +18,11 @@ import { RetiroModule } from './retiro/retiro.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { PruebasModule } from './pruebas/pruebas.module';
+import { FilesModule } from './files/files.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({isGlobal: true}),
     MongooseModule.forRoot(process.env.MONGO_URI),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname,"..",'public'),
@@ -36,7 +39,8 @@ import { PruebasModule } from './pruebas/pruebas.module';
     InversionModule,
     PagoModule,
     RetiroModule,
-    PruebasModule
+    PruebasModule,
+    FilesModule
   ],
   controllers: [],
   providers: [],
