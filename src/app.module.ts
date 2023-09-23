@@ -5,8 +5,6 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { RolModule } from './rol/rol.module';
 import { RutaModule } from './ruta/ruta.module';
 import { CajaModule } from './caja/caja.module';
-import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { MulterModule } from '@nestjs/platform-express';
 import { EmpresaModule } from './empresa/empresa.module';
 import { ClienteModule } from './cliente/cliente.module';
 import { CreditoModule } from './credito/credito.module';
