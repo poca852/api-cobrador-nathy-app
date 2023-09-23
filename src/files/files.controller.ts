@@ -42,14 +42,16 @@ export class FilesController {
     }))
   uploadProductImage(
     @UploadedFile()
-    file: Express.Multer.File
+    file: Express.Multer.File,
+
+    @Param('collection') collection: string
   ){
 
     if(!file){
       throw new BadRequestException('Por favor seleccion un archivo validos')
     }
 
-    const secureUrl = `${this.configService.get('HOST_API')}/files/product/${file.filename}`;
+    const secureUrl = `${this.configService.get('HOST_API')}/files/${collection}/${file.filename}`;
 
     return { secureUrl }
   }
