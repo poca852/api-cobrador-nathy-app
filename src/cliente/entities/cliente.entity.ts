@@ -90,6 +90,21 @@ export class Cliente extends Document {
       }]
    })
    creditos: Credito[]
+
+   @Prop({
+      type: String,
+   })
+   document_image: string;
+
+   @Prop({
+      type: String,
+   })
+   business_image: string;
+
+   @Prop({
+      type: String,
+   })
+   house_image: string;
 }
 
 export const ClienteSchema = SchemaFactory.createForClass(Cliente)

@@ -54,4 +54,16 @@ export class CreateClienteDto {
    @IsArray()
    @IsOptional()
    creditos?: string[];
+
+   @IsString()
+   @IsOptional()
+   document_image?: string;
+
+   @IsString()
+   @IsOptional()
+   business_image?: string;
+
+   @IsString()
+   @IsOptional()
+   house_image?: string;
 }
