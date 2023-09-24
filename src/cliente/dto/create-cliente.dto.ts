@@ -35,6 +35,7 @@ export class CreateClienteDto {
    direccion: string;
 
    @IsArray()
+   @IsNumber({}, { each: true })
    @IsOptional()
    ubication?: number[];
    
