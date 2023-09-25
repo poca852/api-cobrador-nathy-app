@@ -114,7 +114,7 @@ export class CreditoService {
     };
   }
 
-  async update(id: string, updateCreditoDto: UpdateCreditoDto) {
+  async update(id: string, updateCreditoDto: UpdateCreditoDto): Promise<Credito> {
     try {
       return await this.creditoModel.findByIdAndUpdate(id, updateCreditoDto, {new: true})
     } catch (error) {
@@ -154,10 +154,7 @@ export class CreditoService {
     credito.pagos.unshift(pago);
     credito.saldo = getSaldo(credito),
     credito.abonos = getAbonos(credito);
-    credito.turno = ruta.turno;
     credito.ultimo_pago = pago.fecha.split(" ")[0];
-
-    ruta.turno += 1;
 
     await credito.save();
     await ruta.save()
