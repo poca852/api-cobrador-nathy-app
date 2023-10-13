@@ -3,12 +3,10 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, isValidObjectId } from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from "bcrypt";
-
 import { CreateUserDto, LoginDto } from './dto';
 import { User } from './entities/user.entity';
 import { JwtPayload } from './interfaces';
 import { LoginResponse } from './interfaces/login-response.interface';
-import { GlobalParams } from '../common/dto/global-params.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { RutaService } from '../ruta/ruta.service';
 import { CierreCaja } from '../caja/entities/cierre_caja.entity';
@@ -76,7 +74,7 @@ export class AuthService {
 
       // verificar si se cerro la ruta
       if(user.ruta) {
-         if(!this.verificarSiCerroRuta(user.ruta._id, fecha)){
+         if(! await this.verificarSiCerroRuta(user.ruta._id, fecha)){
             throw new UnauthorizedException("Olvido cerrar la ruta, Hable con su administrador")
          }
       }
@@ -105,12 +103,9 @@ export class AuthService {
    async verificarSiCerroRuta(idRuta: string, fecha: Date): Promise<boolean> {
 
       fecha.setDate(fecha.getDate() - 1);
-
       const cierreDeCaja = await this.CcModel.findOne({
          ruta: idRuta,
-         date: {
-            $gte: fecha
-         }
+         date: fecha.toLocaleDateString('es')
       });
 
       return !!cierreDeCaja;

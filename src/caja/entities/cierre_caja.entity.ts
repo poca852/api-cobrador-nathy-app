@@ -35,10 +35,10 @@ export class CierreCaja {
     saldo: number;
 
     @Prop({
-        type: Date,
+        type: String,
         required: true
     })
-    date: Date;
+    date: string;
 
 }
 

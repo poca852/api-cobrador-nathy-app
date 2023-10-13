@@ -22,12 +22,12 @@ export class AuthController {
   @Post("login")
   async login(
     @Body() loginDto: LoginDto,
-    @Param() globalParams: GlobalParams
+    @Query() globalParams: GlobalParams
   ) {
 
-    const { fecha } = globalParams;
-
+    const {fecha} = globalParams;
     return this.authService.login(loginDto, convertirFechaStringAFechaObjeto(fecha));
+    
   }
 
   @Auth()

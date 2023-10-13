@@ -4,17 +4,13 @@ import { UpdateCajaDto } from './dto/update-caja.dto';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Caja } from './entities/caja.entity';
-import { Ruta } from '../ruta/entities/ruta.entity';
 import { Credito } from '../credito/entities/credito.entity';
 import { Gasto } from '../gasto/entities/gasto.entity';
 import { Retiro } from '../retiro/entities/retiro.entity';
 import { Inversion } from '../inversion/entities/inversion.entity';
 import { Pago } from '../pago/entities/pago.entity';
-import { CampoActualizarDeCaja } from './interfaces/campo-actualizar-caja.enum';
-import { GlobalParams } from 'src/common/dto/global-params.dto';
 import { User } from 'src/auth/entities/user.entity';
 import { AuthService } from '../auth/auth.service';
-import moment from 'moment';
 import { CierreCaja } from './entities/cierre_caja.entity';
 
 @Injectable()
@@ -206,7 +202,7 @@ export class CajaService {
         user: user._id,
         caja: idCaja,
         saldo: caja.caja_final,
-        date: fecha.toISOString()
+        date: fecha.toLocaleDateString('es')
       })
 
       return true;
