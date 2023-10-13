@@ -11,6 +11,7 @@ import { LoginResponse } from './interfaces/login-response.interface';
 import { GlobalParams } from '../common/dto/global-params.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { RutaService } from '../ruta/ruta.service';
+import { CierreCaja } from '../caja/entities/cierre_caja.entity';
 
 @Injectable()
 export class AuthService {
@@ -23,7 +24,10 @@ export class AuthService {
       private readonly jwtService: JwtService,
 
       @Inject(forwardRef(() => RutaService))
-      private readonly rutaService: RutaService
+      private readonly rutaService: RutaService,
+
+      @InjectModel(CierreCaja.name)
+      private readonly CcModel: Model<CierreCaja>
    ){}
 
    async create(createUserDto: CreateUserDto): Promise<User> {
@@ -43,7 +47,7 @@ export class AuthService {
 
    } 
 
-   async login(loginDto: LoginDto): Promise<LoginResponse> {
+   async login(loginDto: LoginDto, fecha: Date): Promise<LoginResponse> {
       const { username, password } = loginDto;
 
       const user = await this.userModel.findOne({username})
@@ -70,6 +74,14 @@ export class AuthService {
          }
       }
 
+      // verificar si se cerro la ruta
+      if(user.ruta) {
+         if(!this.verificarSiCerroRuta(user.ruta._id, fecha)){
+            throw new UnauthorizedException("Olvido cerrar la ruta, Hable con su administrador")
+         }
+      }
+
+
       for (const ruta of user.rutas) {
          await this.rutaService.actualizarRuta(ruta);
       }
@@ -89,6 +101,21 @@ export class AuthService {
       }
 
    }
+   
+   async verificarSiCerroRuta(idRuta: string, fecha: Date): Promise<boolean> {
+
+      fecha.setDate(fecha.getDate() - 1);
+
+      const cierreDeCaja = await this.CcModel.findOne({
+         ruta: idRuta,
+         date: {
+            $gte: fecha
+         }
+      });
+
+      return !!cierreDeCaja;
+
+   } 
 
    async findAll(user: User) {
  

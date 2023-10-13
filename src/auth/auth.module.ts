@@ -9,6 +9,7 @@ import { AuthController } from './auth.controller';
 import { User, UserSchema } from './entities/user.entity';
 import { JWTStrategy } from './strategies/jwt.strategy';
 import { RutaModule } from '../ruta/ruta.module';
+import { CierreCaja, CierreCajaSchema } from '../caja/entities/cierre_caja.entity';
 
 @Module({
   imports: [
@@ -18,6 +19,10 @@ import { RutaModule } from '../ruta/ruta.module';
       {
         name: User.name,
         schema: UserSchema
+      },
+      {
+        name: CierreCaja.name,
+        schema: CierreCajaSchema
       }
     ]),
     PassportModule.register({

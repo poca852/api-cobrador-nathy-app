@@ -2,6 +2,7 @@ import { Schema, SchemaFactory, Prop } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 import { User } from '../../auth/entities/user.entity';
 import { Caja } from './caja.entity';
+import { Ruta } from '../../ruta/entities/ruta.entity';
 
 @Schema()
 export class CierreCaja {
@@ -19,6 +20,13 @@ export class CierreCaja {
         required: true
     })
     caja: Caja;
+
+    @Prop({
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Ruta',
+        required: true
+    })
+    ruta: Ruta;
 
     @Prop({
         type: Number,

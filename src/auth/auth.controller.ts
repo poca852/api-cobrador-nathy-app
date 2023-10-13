@@ -5,6 +5,7 @@ import { GlobalParams } from 'src/common/dto/global-params.dto';
 import { Auth, GetUser } from './decorators';
 import { ValidRoles } from './interfaces';
 import { User } from './entities/user.entity';
+import convertirFechaStringAFechaObjeto from 'src/common/helpers/stringToDate';
 
 @Controller('auth')
 export class AuthController {
@@ -20,10 +21,13 @@ export class AuthController {
 
   @Post("login")
   async login(
-    @Body()
-    loginDto: LoginDto
+    @Body() loginDto: LoginDto,
+    @Param() globalParams: GlobalParams
   ) {
-    return this.authService.login(loginDto)
+
+    const { fecha } = globalParams;
+
+    return this.authService.login(loginDto, convertirFechaStringAFechaObjeto(fecha));
   }
 
   @Auth()
