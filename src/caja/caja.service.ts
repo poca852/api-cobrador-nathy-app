@@ -15,6 +15,7 @@ import { GlobalParams } from 'src/common/dto/global-params.dto';
 import { User } from 'src/auth/entities/user.entity';
 import { AuthService } from '../auth/auth.service';
 import moment from 'moment';
+import { CierreCaja } from './entities/cierre_caja.entity';
 
 @Injectable()
 export class CajaService {
@@ -41,7 +42,10 @@ export class CajaService {
     private readonly creditoModel: Model<Credito>,
 
     @Inject(forwardRef(() => AuthService))
-    private readonly authService: AuthService
+    private readonly authService: AuthService,
+
+    @InjectModel(CierreCaja.name)
+    private CcModel: Model<CierreCaja>
   ) { }
 
   create(createCajaDto: CreateCajaDto) {
@@ -188,6 +192,31 @@ export class CajaService {
 
     await caja.save()
     return caja;
+
+  }
+
+  // Cerrar caja
+  async closeCaja(idCaja: string, user: User, fecha: Date): Promise<boolean> {
+
+    const caja = await this.findOne(idCaja);
+
+    try {
+      
+      await this.CcModel.create({
+        user: user._id,
+        caja: idCaja,
+        saldo: caja.caja_final,
+        date: fecha.toISOString()
+      })
+
+      return true;
+      
+
+    } catch (error) {
+      
+      this.handleExceptions(error);
+
+    }
 
   }
 

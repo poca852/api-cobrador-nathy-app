@@ -77,9 +77,10 @@ export class RutaController {
   @Patch("close/:id")
   async closeRuta(
     @Param("id", ParseMongoIdPipe) id: string,
-    @Query() globalParams: GlobalParams
+    @Query() globalParams: GlobalParams,
+    @GetUser() user: User
   ) {
-    return this.rutaService.closeRuta(id, globalParams)
+    return this.rutaService.closeRuta(id, globalParams, user)
   }
 
 }

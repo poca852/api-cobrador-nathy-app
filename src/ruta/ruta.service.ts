@@ -14,6 +14,7 @@ import { Retiro } from '../retiro/entities/retiro.entity';
 import { GlobalParams } from '../common/dto/global-params.dto';
 import { Caja } from '../caja/entities/caja.entity';
 import { CajaService } from '../caja/caja.service';
+import convertirFechaStringAFechaObjeto from 'src/common/helpers/stringToDate';
 
 @Injectable()
 export class RutaService {
@@ -122,7 +123,7 @@ export class RutaService {
     return true;
   }
 
-  async closeRuta(id: string, { fecha, caja }: GlobalParams): Promise<boolean> {
+  async closeRuta(id: string, { fecha, caja }: GlobalParams, user: User): Promise<boolean> {
 
     const ruta = await this.findOne(id);
 
@@ -130,10 +131,11 @@ export class RutaService {
       status: false,
       ultimo_cierre: fecha.trim(),
       ultima_caja: ruta.caja_actual,
-      turno: 1
     }, {new: true});
+
+    await this.cajaService.closeCaja(ruta.caja_actual._id, user, convertirFechaStringAFechaObjeto(fecha.trim()))
     
-    await this.cajaService.actualizarCaja(caja) 
+    // await this.cajaService.actualizarCaja(caja) 
 
     return true;
 
@@ -266,6 +268,13 @@ export class RutaService {
       clientes,
       clientes_activos,
     }, {new: true});
+
+  }
+
+  // funcion para verificar si la ruta esta abierta
+  async checkIsOpenRuta(id: string, fecha: string): Promise<boolean> {
+
+    return true;
 
   }
 }
