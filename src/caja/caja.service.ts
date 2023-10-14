@@ -202,14 +202,15 @@ export class CajaService {
         user: user._id,
         caja: idCaja,
         saldo: caja.caja_final,
-        date: fecha.toLocaleDateString('es')
+        date: fecha.toLocaleDateString('es'),
+        ruta: caja.ruta._id
       })
 
       return true;
       
 
     } catch (error) {
-      
+
       this.handleExceptions(error);
 
     }
