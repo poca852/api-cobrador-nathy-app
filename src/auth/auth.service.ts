@@ -73,7 +73,7 @@ export class AuthService {
       }
 
       // verificar si se cerro la ruta
-      if(user.ruta) {
+      if(!!user.ruta) {
          if(! await this.verificarSiCerroRuta(user.ruta._id, fecha)){
             throw new UnauthorizedException("Olvido cerrar la ruta, Hable con su administrador")
          }
