@@ -45,7 +45,7 @@ export class AuthService {
 
    } 
 
-   async login(loginDto: LoginDto, fecha: Date): Promise<LoginResponse> {
+   async login(loginDto: LoginDto): Promise<LoginResponse> {
       const { username, password } = loginDto;
 
       const user = await this.userModel.findOne({username})
@@ -73,11 +73,11 @@ export class AuthService {
       }
 
       // verificar si se cerro la ruta
-      if(!!user.ruta) {
-         if(! await this.verificarSiCerroRuta(user.ruta._id, fecha)){
-            throw new UnauthorizedException("Olvido cerrar la ruta, Hable con su administrador")
-         }
-      }
+      // if(!!user.ruta) {
+      //    if(! await this.verificarSiCerroRuta(user.ruta._id, fecha)){
+      //       throw new UnauthorizedException("Olvido cerrar la ruta, Hable con su administrador")
+      //    }
+      // }
 
 
       for (const ruta of user.rutas) {

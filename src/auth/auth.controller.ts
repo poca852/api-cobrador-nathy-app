@@ -25,8 +25,7 @@ export class AuthController {
     @Query() globalParams: GlobalParams
   ) {
 
-    const {fecha} = globalParams;
-    return this.authService.login(loginDto, convertirFechaStringAFechaObjeto(fecha));
+    return this.authService.login(loginDto);
     
   }
 
