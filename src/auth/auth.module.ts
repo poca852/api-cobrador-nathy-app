@@ -10,6 +10,7 @@ import { User, UserSchema } from './entities/user.entity';
 import { JWTStrategy } from './strategies/jwt.strategy';
 import { RutaModule } from '../ruta/ruta.module';
 import { CierreCaja, CierreCajaSchema } from '../caja/entities/cierre_caja.entity';
+import { LogAuth, LogAuthSchema } from '../log-auth/entities/log-auth.entity';
 
 @Module({
   imports: [
@@ -23,6 +24,10 @@ import { CierreCaja, CierreCajaSchema } from '../caja/entities/cierre_caja.entit
       {
         name: CierreCaja.name,
         schema: CierreCajaSchema
+      },
+      {
+        name: LogAuth.name,
+        schema: LogAuthSchema
       }
     ]),
     PassportModule.register({

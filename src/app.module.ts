@@ -17,6 +17,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { PruebasModule } from './pruebas/pruebas.module';
 import { FilesModule } from './files/files.module';
+import { LogAuthModule } from './log-auth/log-auth.module';
 
 @Module({
   imports: [
@@ -38,7 +39,8 @@ import { FilesModule } from './files/files.module';
     PagoModule,
     RetiroModule,
     PruebasModule,
-    FilesModule
+    FilesModule,
+    LogAuthModule
   ],
   controllers: [],
   providers: [],

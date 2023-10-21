@@ -10,6 +10,7 @@ import { LoginResponse } from './interfaces/login-response.interface';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { RutaService } from '../ruta/ruta.service';
 import { CierreCaja } from '../caja/entities/cierre_caja.entity';
+import { LogAuth } from 'src/log-auth/entities/log-auth.entity';
 
 @Injectable()
 export class AuthService {
@@ -25,8 +26,11 @@ export class AuthService {
       private readonly rutaService: RutaService,
 
       @InjectModel(CierreCaja.name)
-      private readonly CcModel: Model<CierreCaja>
-   ){}
+      private readonly CcModel: Model<CierreCaja>,
+
+      @InjectModel(LogAuth.name)
+      private readonly logAuth: Model<LogAuth>
+   ) { }
 
    async create(createUserDto: CreateUserDto): Promise<User> {
 
@@ -38,68 +42,87 @@ export class AuthService {
          await user.save();
 
          return user;
-         
+
       } catch (error) {
          this.handleExceptions(error);
       }
 
-   } 
+   }
 
    async login(loginDto: LoginDto): Promise<LoginResponse> {
-      const { username, password } = loginDto;
 
-      const user = await this.userModel.findOne({username})
-         .populate({
-            path: "rol",
-            select: "rol"
-         })
-         .populate({
-            path: "ruta"
-         })
-         .populate("empresa")
+      try {
 
-      if(!user){
-         throw new UnauthorizedException("Datos Incorrectos");
-      }
+         const { username, password } = loginDto;
 
-      if(!bcrypt.compareSync(password, user.password)){
-         throw new UnauthorizedException("Datos Incorrectos")
-      }
-      
-      if(user.ruta){
-         if(!user.ruta.status){
-            throw new UnauthorizedException("Ruta cerrada hable con su administrador")
+         const user = await this.userModel.findOne({ username })
+            .populate({
+               path: "rol",
+               select: "rol"
+            })
+            .populate({
+               path: "ruta"
+            })
+            .populate("empresa")
+
+         if (!user) {
+            throw new UnauthorizedException("Datos Incorrectos");
          }
+
+         if (!bcrypt.compareSync(password, user.password)) {
+
+            // crear log de autenticacion
+            await this.logAuth.create({
+               user: user._id,
+               isSuccessful: false,
+               reason: "Contraseña Incorrecta"
+            })
+
+            throw new UnauthorizedException("Datos Incorrectos")
+         }
+
+         if (user.ruta) {
+            if (!user.ruta.status) {
+
+               // crear log de autenticacion
+               await this.logAuth.create({
+                  user: user._id,
+                  isSuccessful: false,
+                  reason: "Ruta Cerrada"
+               })
+
+               throw new UnauthorizedException("Ruta cerrada hable con su administrador")
+            }
+         }
+
+         for (const ruta of user.rutas) {
+            await this.rutaService.actualizarRuta(ruta);
+         }
+
+         const { password: _, ...rest } = user.toJSON();
+
+         return {
+            user: rest,
+            token: this.getJwtToken({ id: user._id.toString() })
+         }
+
+      } catch (error) {
+
+         this.handleExceptions(error);
+
       }
 
-      // verificar si se cerro la ruta
-      // if(!!user.ruta) {
-      //    if(! await this.verificarSiCerroRuta(user.ruta._id, fecha)){
-      //       throw new UnauthorizedException("Olvido cerrar la ruta, Hable con su administrador")
-      //    }
-      // }
 
-
-      for (const ruta of user.rutas) {
-         await this.rutaService.actualizarRuta(ruta);
-      }
-
-      const { password:_, ...rest } = user.toJSON();
-
-      return {
-         user: rest,
-         token: this.getJwtToken({id: user._id.toString()})
-      }
    }
 
    async checkStatus(user: User): Promise<LoginResponse> {
       return {
          user,
-         token: this.getJwtToken({id: user._id})
+         token: this.getJwtToken({ id: user._id })
       }
 
    }
-   
+
    async verificarSiCerroRuta(idRuta: string, fecha: Date): Promise<boolean> {
 
       fecha.setDate(fecha.getDate() - 1);
@@ -110,19 +133,19 @@ export class AuthService {
 
       return !!cierreDeCaja;
 
-   } 
+   }
 
    async findAll(user: User) {
- 
+
       let empleados = [];
 
       for (const ruta of user.rutas) {
          let consulta = await this.userModel.find({ ruta: ruta._id })
-           .populate('ruta', ['nombre'])
-           .populate('rol', ['rol'])
-   
+            .populate('ruta', ['nombre'])
+            .populate('rol', ['rol'])
+
          empleados.push(...consulta)
-       }
+      }
 
 
       return empleados;
@@ -133,7 +156,7 @@ export class AuthService {
 
       let user: User;
 
-      if(isValidObjectId(termino)){
+      if (isValidObjectId(termino)) {
          user = await this.userModel.findById(termino)
             .populate({
                path: "rol",
@@ -143,10 +166,10 @@ export class AuthService {
             .select("-password")
       }
 
-      if(!user){
+      if (!user) {
          const regex = new RegExp(termino.trim().toUpperCase(), "i");
          user = await this.userModel.findOne({
-            $or: [{nombre: regex}, {username: regex}],
+            $or: [{ nombre: regex }, { username: regex }],
          })
             .populate({
                path: "rol",
@@ -154,9 +177,9 @@ export class AuthService {
             })
             .select("-password");
       }
-      
 
-      if(!user) {
+
+      if (!user) {
          throw new NotFoundException(`No existe un usuario con el termino ${termino}`)
       }
 
@@ -167,19 +190,19 @@ export class AuthService {
 
       const user = await this.userModel.findById(id)
 
-      if(!user) {
+      if (!user) {
          throw new NotFoundException(`No existe un usuario con el id ${id}`)
       }
 
 
-      if(updateUserDto.password) {
+      if (updateUserDto.password) {
          updateUserDto.password = bcrypt.hashSync(updateUserDto.password, 10);
-      }else {
+      } else {
          delete updateUserDto.password;
       }
 
       try {
-         await user.updateOne(updateUserDto, {new: true});
+         await user.updateOne(updateUserDto, { new: true });
 
          return {
             ...user.toJSON(),
@@ -191,13 +214,13 @@ export class AuthService {
 
    }
 
-   private getJwtToken(payload: JwtPayload): string{
+   private getJwtToken(payload: JwtPayload): string {
       const token = this.jwtService.sign(payload);
       return token;
    }
 
    private handleExceptions(error: any) {
-      if(error.code === 11000){
+      if (error.code === 11000) {
          throw new BadRequestException(`Ya existe un usuario ${JSON.stringify(error.keyValue)}`);
       }
 
