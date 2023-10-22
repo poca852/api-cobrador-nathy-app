@@ -101,6 +101,12 @@ export class AuthService {
 
          const { password: _, ...rest } = user.toJSON();
 
+         await this.logAuth.create({
+            user: user._id,
+            isSuccessful: true,
+            reason: "Autenticacion Exitosa"
+         });
+
          return {
             user: rest,
             token: this.getJwtToken({ id: user._id.toString() })
