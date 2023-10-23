@@ -22,7 +22,6 @@ export class AuthController {
   @Post("login")
   async login(
     @Body() loginDto: LoginDto,
-    @Query() globalParams: GlobalParams
   ) {
 
     return this.authService.login(loginDto);
