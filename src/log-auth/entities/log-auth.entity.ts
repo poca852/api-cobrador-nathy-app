@@ -1,7 +1,8 @@
 import { Schema, SchemaFactory, Prop } from "@nestjs/mongoose";
 import mongoose, { Document } from "mongoose";
 import { User } from '../../auth/entities/user.entity';
-const moment = require('moment');
+const moment = require('moment-timezone');
+moment.tz.setDefault("America/Guatemala");
 
 @Schema()
 export class LogAuth extends Document {
