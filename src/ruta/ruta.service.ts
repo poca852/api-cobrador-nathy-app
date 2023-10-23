@@ -15,6 +15,7 @@ import { GlobalParams } from '../common/dto/global-params.dto';
 import { Caja } from '../caja/entities/caja.entity';
 import { CajaService } from '../caja/caja.service';
 import convertirFechaStringAFechaObjeto from 'src/common/helpers/stringToDate';
+import { LogRuta } from './entities/log-ruta';
 
 @Injectable()
 export class RutaService {
@@ -24,6 +25,9 @@ export class RutaService {
   constructor(
     @InjectModel(Ruta.name)
     private readonly rutaModel: Model<Ruta>,
+
+    @InjectModel(LogRuta.name)
+    private readonly logRutaModel: Model<LogRuta>,
 
     @InjectModel(Credito.name)
     private readonly creditoModel: Model<Credito>,
@@ -141,7 +145,7 @@ export class RutaService {
 
   }
 
-  async openRuta(id: string, globalParams: GlobalParams): Promise<boolean> {
+  async openRuta(id: string, globalParams: GlobalParams, user: User): Promise<boolean> {
 
     const { fecha } = globalParams;
 
@@ -184,6 +188,12 @@ export class RutaService {
       caja_actual: caja._id,
       status: true,
       ultima_apertura: fecha.trim()
+    });
+
+    // guardar registro de que se abrio la ruta
+    await this.logRutaModel.create({
+      user: user._id,
+      ruta: ruta._id
     })
 
     return true;

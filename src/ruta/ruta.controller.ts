@@ -69,9 +69,10 @@ export class RutaController {
   @Patch("open/:id")
   async openRuta(
     @Param("id", ParseMongoIdPipe) id: string,
-    @Query() globalParams: GlobalParams
+    @Query() globalParams: GlobalParams,
+    @GetUser() user: User
   ) {
-    return this.rutaService.openRuta(id, globalParams)
+    return this.rutaService.openRuta(id, globalParams, user)
   }
 
   @Patch("close/:id")

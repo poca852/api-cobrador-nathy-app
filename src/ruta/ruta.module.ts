@@ -12,6 +12,7 @@ import { Inversion, InversionSchema } from '../inversion/entities/inversion.enti
 import { Retiro, RetiroSchema } from '../retiro/entities/retiro.entity';
 import { Caja, CajaSchema } from '../caja/entities/caja.entity';
 import { CajaModule } from '../caja/caja.module';
+import { LogRuta, LogRutaSchema } from './entities/log-ruta';
 
 @Module({
   imports: [
@@ -22,6 +23,10 @@ import { CajaModule } from '../caja/caja.module';
       {
         name: Ruta.name,
         schema: RutaSchema
+      },
+      {
+        name: LogRuta.name,
+        schema: LogRutaSchema
       },
       {
         name: Credito.name,
