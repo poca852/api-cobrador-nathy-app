@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import { RolModule } from './rol/rol.module';
 import { RutaModule } from './ruta/ruta.module';
 import { CajaModule } from './caja/caja.module';
 import { EmpresaModule } from './empresa/empresa.module';
@@ -27,7 +26,6 @@ import { LogAuthModule } from './log-auth/log-auth.module';
       rootPath: join(__dirname,"..",'public'),
     }),
     AuthModule,
-    RolModule,
     RutaModule,
     CajaModule,
     EmpresaModule,

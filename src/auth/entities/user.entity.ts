@@ -1,7 +1,6 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import mongoose, {Document} from "mongoose";
 
-import { Rol } from "../../rol/entities/rol.entity";
 import { Ruta } from "src/ruta/entities/ruta.entity";
 import { Empresa } from "src/empresa/entities/empresa.entity";
 
@@ -41,11 +40,10 @@ export class User extends Document {
    password?: string;
 
    @Prop({
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Rol",
-      required: true
+      type: [String],
+      enum: ["ADMIN", "COBRADOR", "SUPERVISOR", "CLIENTE", 'SUPERADMIN'],
    })
-   rol: Rol;
+   rol: string[];
    
    @Prop({
       type: mongoose.Schema.Types.ObjectId,

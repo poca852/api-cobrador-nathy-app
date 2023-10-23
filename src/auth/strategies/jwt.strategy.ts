@@ -27,15 +27,12 @@ export class JWTStrategy extends PassportStrategy(Strategy){
     const {id} = payload;
     
     const user = await this.userModel.findById(id)
-      .populate({
-        path: "rol",
-        select: "rol"
-      })
       .populate("ruta")
+      .populate("rutas")
       .populate("empresa")
 
     if(!user)
-      throw new UnauthorizedException('Token no valid');
+      throw new UnauthorizedException('Token no valido');
     
     if(!user.estado)
       throw new UnauthorizedException('usuario no esta activo');

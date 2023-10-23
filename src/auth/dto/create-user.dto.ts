@@ -1,4 +1,4 @@
-import { IsString, MinLength, IsMongoId, IsOptional, IsArray } from "class-validator";
+import { IsString, MinLength, IsMongoId, IsOptional, IsArray, IsEnum } from "class-validator";
 
 export class CreateUserDto {
 
@@ -14,8 +14,11 @@ export class CreateUserDto {
    @MinLength(4)
    password: string;
 
-   @IsMongoId()
-   rol: string;
+   @IsString({
+      each: true
+   })
+   @IsArray()
+   rol: string[];
 
    @IsMongoId({
       each: true
