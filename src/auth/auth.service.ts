@@ -51,71 +51,61 @@ export class AuthService {
 
    async login(loginDto: LoginDto): Promise<LoginResponse> {
 
-      try {
+      const { username, password } = loginDto;
+      const user = await this.userModel.findOne({
+         username: username.toUpperCase()
+      })
+         .populate({
+            path: "rol",
+            select: "rol"
+         })
+         .populate({
+            path: "ruta"
+         })
+         .populate("empresa")
 
-         const { username, password } = loginDto;
+      if (!user) {
+         throw new UnauthorizedException("Datos Incorrectos");
+      }
 
-         const user = await this.userModel.findOne({ username })
-            .populate({
-               path: "rol",
-               select: "rol"
-            })
-            .populate({
-               path: "ruta"
-            })
-            .populate("empresa")
+      if (!bcrypt.compareSync(password, user.password)) {
 
-         if (!user) {
-            throw new UnauthorizedException("Datos Incorrectos");
-         }
-
-         if (!bcrypt.compareSync(password, user.password)) {
-
-            // crear log de autenticacion
-            await this.logAuth.create({
-               user: user._id,
-               isSuccessful: false,
-               reason: "Contraseña Incorrecta"
-            })
-
-            throw new UnauthorizedException("Datos Incorrectos")
-         }
-
-         if (user.ruta) {
-            if (!user.ruta.status) {
-
-               // crear log de autenticacion
-               await this.logAuth.create({
-                  user: user._id,
-                  isSuccessful: false,
-                  reason: "Ruta Cerrada"
-               })
-
-               throw new UnauthorizedException("Ruta cerrada hable con su administrador")
-            }
-         }
-
-         for (const ruta of user.rutas) {
-            await this.rutaService.actualizarRuta(ruta);
-         }
-
-         const { password: _, ...rest } = user.toJSON();
-
+         // crear log de autenticacion
          await this.logAuth.create({
             user: user._id,
-            isSuccessful: true,
-            reason: "Autenticacion Exitosa"
-         });
+            isSuccessful: false,
+            reason: "Contraseña Incorrecta"
+         })
 
-         return {
-            user: rest,
-            token: this.getJwtToken({ id: user._id.toString() })
-         }
+         throw new UnauthorizedException("Datos Incorrectos")
+      }
 
-      } catch (error) {
+      if (!user.ruta.status) {
+         // crear log de autenticacion
+         await this.logAuth.create({
+            user: user._id,
+            isSuccessful: false,
+            reason: "Ruta Cerrada"
+         })
 
-         this.handleExceptions(error);
+         throw new UnauthorizedException("Ruta cerrada hable con su administrador")
+      }
 
+      for (const ruta of user.rutas) {
+         await this.rutaService.actualizarRuta(ruta);
+      }
+
+      const { password: _, ...rest } = user.toJSON();
+
+      await this.logAuth.create({
+         user: user._id,
+         isSuccessful: true,
+         reason: "Autenticacion Exitosa"
+      });
+
+      return {
+         user: rest,
+         token: this.getJwtToken({ id: user._id.toString() })
       }
 
 
