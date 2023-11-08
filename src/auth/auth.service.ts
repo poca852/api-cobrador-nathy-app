@@ -80,15 +80,17 @@ export class AuthService {
          throw new UnauthorizedException("Datos Incorrectos")
       }
 
-      if (!user.ruta.status) {
-         // crear log de autenticacion
-         await this.logAuth.create({
-            user: user._id,
-            isSuccessful: false,
-            reason: "Ruta Cerrada"
-         })
-
-         throw new UnauthorizedException("Ruta cerrada hable con su administrador")
+      if(user.ruta) {
+         if (!user.ruta.status) {
+            // crear log de autenticacion
+            await this.logAuth.create({
+               user: user._id,
+               isSuccessful: false,
+               reason: "Ruta Cerrada"
+            })
+   
+            throw new UnauthorizedException("Ruta cerrada hable con su administrador")
+         }
       }
 
       for (const ruta of user.rutas) {
