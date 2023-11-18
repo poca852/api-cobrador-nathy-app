@@ -80,8 +80,12 @@ export class RutaService {
     let promiseOfRutas: any[] = [];
 
     user.rutas.forEach(ruta => {
-      promiseOfRutas.push(this.rutaModel.findById(ruta));
-    })
+      promiseOfRutas.push(
+        this.rutaModel.findById(ruta)
+          .populate('caja_actual')
+          .populate('ultima_caja')
+      )
+    });
 
     let rutas = await Promise.all(promiseOfRutas);
     
