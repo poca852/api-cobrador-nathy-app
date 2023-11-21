@@ -138,9 +138,7 @@ export class AuthService {
       let empleados = [];
 
       for (const ruta of user.rutas) {
-         let consulta = await this.userModel.find({ ruta: ruta._id })
-            .populate('ruta', ['nombre'])
-            .populate('rol', ['rol'])
+         let consulta = await this.userModel.find({ ruta: ruta._id });
 
          empleados.push(...consulta)
       }
@@ -156,11 +154,8 @@ export class AuthService {
 
       if (isValidObjectId(termino)) {
          user = await this.userModel.findById(termino)
-            .populate({
-               path: "rol",
-               select: "rol"
-            })
             .populate("rutas")
+            .populate('ruta')
             .select("-password")
       }
 
@@ -193,7 +188,10 @@ export class AuthService {
       }
 
 
-      if (updateUserDto.password) {
+      if (!!updateUserDto.password) {
+         if(updateUserDto.password.length < 6) {
+            throw new BadRequestException(`La contraseña tiene que tener minimo 6 caracteres`)
+         }
          updateUserDto.password = bcrypt.hashSync(updateUserDto.password, 10);
       } else {
          delete updateUserDto.password;
@@ -210,6 +208,21 @@ export class AuthService {
          this.handleExceptions(error)
       }
 
+   }
+
+   public async deleteUser(id: string) {
+      try {
+         const user = await this.findOne(id);
+
+         if(!user.ruta.status){
+            throw new BadRequestException('La ruta aun se encuentra abierta, Primero cierre la ruta para poder eliminar el cobrador')
+         }
+
+         await this.userModel.findByIdAndDelete(id);
+         return true;
+      } catch (error) {
+         this.handleExceptions(error)
+      }
    }
 
    private getJwtToken(payload: JwtPayload): string {

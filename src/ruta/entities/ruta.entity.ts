@@ -48,9 +48,6 @@ export class Ruta extends Document {
    @Prop({
       type: String,
       required: true,
-      index: true,
-      uppercase: true,
-      trim: true
    })
    ciudad: string;
   
@@ -77,6 +74,22 @@ export class Ruta extends Document {
       default: false
    })
    status: boolean
+
+   @Prop({
+      type: Boolean,
+      default: false
+   })
+   isLocked: boolean;
+
+   @Prop({
+      type: String
+   })
+   pais: string;
+
+   @Prop({
+      type: String
+   })
+   estado: string;
   
    @Prop({
       type: String

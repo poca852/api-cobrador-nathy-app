@@ -1,6 +1,10 @@
-import { IsString, MinLength, IsMongoId, IsOptional, IsArray, IsEnum } from "class-validator";
+import { IsString, MinLength, IsMongoId, IsOptional, IsArray, IsEnum, IsBoolean } from "class-validator";
 
 export class CreateUserDto {
+
+   @IsBoolean()
+   @IsOptional()
+   estado?: boolean;
 
    @IsString()
    @MinLength(3)

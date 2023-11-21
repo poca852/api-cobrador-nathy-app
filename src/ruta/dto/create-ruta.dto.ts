@@ -43,6 +43,10 @@ export class CreateRutaDto {
    @IsBoolean()
    @IsOptional()
    status?: boolean;
+
+   @IsBoolean()
+   @IsOptional()
+   isLocked?: boolean;
   
    @IsString()
    @IsOptional()
@@ -52,9 +56,9 @@ export class CreateRutaDto {
    @IsOptional()
    ultima_apertura?: string;
   
-   // @IsBoolean()
-   // @IsOptional()
-   // ingresar_gastos_cobrador?: boolean = true;
+   @IsBoolean()
+   @IsOptional()
+   ingresar_gastos_cobrador?: boolean = true;
   
    @IsMongoId()
    @IsOptional()
@@ -75,4 +79,11 @@ export class CreateRutaDto {
    @IsBoolean()
    @IsOptional()
    have_login_falso?: boolean;
+
+   @IsString()
+   pais: string;
+
+   @IsString()
+   estado: string;
+
 }

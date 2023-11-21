@@ -35,7 +35,7 @@ export class User extends Document {
 
    @Prop({
       type: String,
-      required: true
+      required: true,
    })
    password?: string;
 
@@ -50,13 +50,6 @@ export class User extends Document {
       ref: "Ruta"
    })
    ruta: Ruta;
-   
-   @Prop({
-      type: String,
-      required: true,
-      default: "1"
-   })
-   fecha_cobro: string;
 
    @Prop({
       type: [{
