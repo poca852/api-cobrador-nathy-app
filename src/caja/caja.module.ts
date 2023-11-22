@@ -12,11 +12,13 @@ import { Cliente, ClienteSchema } from '../cliente/entities/cliente.entity';
 import { Pago, PagoSchema } from '../pago/entities/pago.entity';
 import { AuthModule } from 'src/auth/auth.module';
 import { CierreCaja, CierreCajaSchema } from './entities/cierre_caja.entity';
+import { RutaModule } from 'src/ruta/ruta.module';
 
 @Module({
   imports: [
     ConfigModule,
     forwardRef(() => AuthModule),
+    forwardRef(() => RutaModule),
     MongooseModule.forFeature([
       {
         name: Caja.name,

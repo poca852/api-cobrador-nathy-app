@@ -12,6 +12,7 @@ import { Pago } from '../pago/entities/pago.entity';
 import { User } from 'src/auth/entities/user.entity';
 import { AuthService } from '../auth/auth.service';
 import { CierreCaja } from './entities/cierre_caja.entity';
+import { RutaService } from '../ruta/ruta.service';
 
 @Injectable()
 export class CajaService {
@@ -41,7 +42,10 @@ export class CajaService {
     private readonly authService: AuthService,
 
     @InjectModel(CierreCaja.name)
-    private CcModel: Model<CierreCaja>
+    private CcModel: Model<CierreCaja>,
+
+    @Inject(forwardRef(() => RutaService))
+    private rutaSvc: RutaService
   ) { }
 
   create(createCajaDto: CreateCajaDto) {
@@ -82,9 +86,16 @@ export class CajaService {
     return `This action removes a #${id} caja`;
   }
 
-  public async actualizarCaja(idCaja: string): Promise<Caja> {
+  public async actualizarCaja(idCaja: string|undefined, idRuta?: string): Promise<Caja> {
 
-    const caja = await this.cajaModel.findById(idCaja)
+    let id = idCaja;
+
+    if(!idCaja){
+      const ruta = await this.rutaSvc.findOne(idRuta);
+      id = ruta.caja_actual._id;
+    }
+
+    const caja = await this.cajaModel.findById(id)
       .populate("ruta");
       
     if(!caja) throw new NotFoundException("No existe la caja");
