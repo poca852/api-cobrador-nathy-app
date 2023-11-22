@@ -37,14 +37,13 @@ export class GastoService {
 
   async findByDate(globalParams: GlobalParams) {
     
-    const fechaInicio = new Date(globalParams.fechaInicio);
-    const fechaFin = new Date(globalParams.fechaFin);
+    const fecha = new Date(globalParams.fecha);
 
-    const gastos = await this.gastoModel.find({
+    return await this.gastoModel.find({
       ruta: globalParams.ruta,
       fecha: {
-        $gte: fechaInicio,
-        $lte: fechaFin
+        $gte: fecha,
+        $lte: new Date(fecha.getTime() + 24 * 60 * 60 * 1000)
       }
     })
       .populate({
@@ -52,10 +51,10 @@ export class GastoService {
         select: "gasto"
       })
 
-    return gastos.map(gasto => ({
-      ...gasto.toJSON(),
-      gasto: gasto.gasto.gasto
-    }))
+    // return gastos.map(gasto => ({
+    //   ...gasto.toJSON(),
+    //   gasto: gasto.gasto.gasto
+    // }))
 
   }
 
@@ -67,8 +66,19 @@ export class GastoService {
     return `This action returns a #${id} gasto`;
   }
 
-  update(id: number, updateGastoDto: UpdateGastoDto) {
-    return `This action updates a #${id} gasto`;
+  async update(id: string, updateGastoDto: UpdateGastoDto) {
+    
+    try {
+      
+      const { ruta } = await this.gastoModel.findByIdAndUpdate(id, updateGastoDto, {new: true});
+      await this.cajaService.actualizarCaja(undefined, `${ruta}`);
+
+      return true;
+
+    } catch (error) {
+      this.handleException(error);
+    }
+
   }
 
   remove(id: number) {

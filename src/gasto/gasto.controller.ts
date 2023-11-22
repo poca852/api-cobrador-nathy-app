@@ -4,6 +4,7 @@ import { CreateGastoDto } from './dto/create-gasto.dto';
 import { UpdateGastoDto } from './dto/update-gasto.dto';
 import { Auth } from 'src/auth/decorators';
 import { GlobalParams } from 'src/common/dto/global-params.dto';
+import { ParseMongoIdPipe } from 'src/common/pipes/parse-mongo-id.pipe';
 
 @Auth()
 @Controller('gasto')
@@ -37,8 +38,11 @@ export class GastoController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateGastoDto: UpdateGastoDto) {
-    return this.gastoService.update(+id, updateGastoDto);
+  update(
+    @Param('id', ParseMongoIdPipe) id: string, 
+    @Body() updateGastoDto: UpdateGastoDto
+  ) {
+    return this.gastoService.update(id, updateGastoDto);
   }
 
   @Delete(':id')
