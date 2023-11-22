@@ -11,6 +11,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { RutaService } from '../ruta/ruta.service';
 import { CierreCaja } from '../caja/entities/cierre_caja.entity';
 import { LogAuth } from 'src/log-auth/entities/log-auth.entity';
+import { MomentService } from 'src/common/plugins/moment/moment.service';
 
 @Injectable()
 export class AuthService {
@@ -29,7 +30,9 @@ export class AuthService {
       private readonly CcModel: Model<CierreCaja>,
 
       @InjectModel(LogAuth.name)
-      private readonly logAuth: Model<LogAuth>
+      private readonly logAuth: Model<LogAuth>,
+
+      private moment: MomentService
    ) { }
 
    async create(createUserDto: CreateUserDto): Promise<User> {
@@ -56,11 +59,11 @@ export class AuthService {
          username: username.toUpperCase()
       })
          .populate({
-            path: "rol",
-            select: "rol"
-         })
-         .populate({
-            path: "ruta"
+            path: "ruta",
+            populate: {
+               path: 'caja_actual',
+               select: 'fecha'
+            }
          })
          .populate("empresa")
 
@@ -69,41 +72,25 @@ export class AuthService {
       }
 
       if (!bcrypt.compareSync(password, user.password)) {
-
-         // crear log de autenticacion
-         await this.logAuth.create({
-            user: user._id,
-            isSuccessful: false,
-            reason: "Contraseña Incorrecta"
-         })
-
          throw new UnauthorizedException("Datos Incorrectos")
       }
 
       if(user.ruta) {
-         if (!user.ruta.status) {
-            // crear log de autenticacion
-            await this.logAuth.create({
-               user: user._id,
-               isSuccessful: false,
-               reason: "Ruta Cerrada"
-            })
-   
+         if (!user.ruta.status) {   
             throw new UnauthorizedException("Ruta cerrada hable con su administrador")
+         }
+
+         if(user.ruta.isLocked) {
+            throw new UnauthorizedException('Su ruta se encuentra bloqueada, por favor ponganse en contacto con su supervisor')
+         }
+
+         const today = this.moment.nowWithFormat('DD/MM/YYYY');
+         if(user.ruta.caja_actual.fecha !== today){
+            throw new UnauthorizedException('Usted no cerro la ruta, por favor pongase en contacto con su administrador')
          }
       }
 
-      for (const ruta of user.rutas) {
-         await this.rutaService.actualizarRuta(ruta);
-      }
-
       const { password: _, ...rest } = user.toJSON();
-
-      await this.logAuth.create({
-         user: user._id,
-         isSuccessful: true,
-         reason: "Autenticacion Exitosa"
-      });
 
       return {
          user: rest,
