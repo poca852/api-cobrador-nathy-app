@@ -149,15 +149,12 @@ export class CreditoService {
       .populate("cliente")
       .populate("pagos")
 
-    const ruta = await this.rutaModel.findById(idRuta);
-
     credito.pagos.unshift(pago);
     credito.saldo = getSaldo(credito),
     credito.abonos = getAbonos(credito);
     credito.ultimo_pago = pago.fecha.split(" ")[0];
 
     await credito.save();
-    await ruta.save()
 
     await this.verificarSiTermino(credito);
 
@@ -172,13 +169,15 @@ export class CreditoService {
 
   }
 
-  public async verificarSiElPagoEsMayor(idCredito: string, valor: number): Promise<void> {
+  public async verificarSiElPagoEsMayor(idCredito: string, valor: number): Promise<boolean> {
 
     const credito = await this.findOne(idCredito);
 
     if (valor > credito.saldo) {
-      throw new BadRequestException(`El saldo del cliente es ${credito.saldo}`);
+      return true;
     }
+
+    return false;
 
   }
 
@@ -199,12 +198,12 @@ export class CreditoService {
   public async verificarSiTermino(credito: Credito): Promise<void> {
 
     if (credito.saldo === 0) {
-      await credito.updateOne({ status: false }, { new: true });
+      await credito.updateOne({ status: false });
       await this.clienteService.update(credito.cliente._id, { status: false });
       return;
     }
 
-    await credito.updateOne({ status: true }, { new: true });
+    await credito.updateOne({ status: true });
     await this.clienteService.update(credito.cliente._id, { status: true });
     return;
 

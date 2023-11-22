@@ -22,7 +22,9 @@ export class PagoService {
 
   async create(createPagoDto: CreatePagoDto): Promise<PagoResponse> {
     
-    await this.creditoService.verificarSiElPagoEsMayor(createPagoDto.credito, createPagoDto.valor);
+   if(await this.creditoService.verificarSiElPagoEsMayor(createPagoDto.credito, createPagoDto.valor)){
+    throw new BadRequestException('El valor ingresado supera el saldo del cliente')
+   }
 
     const pago = await this.pagoModel.create(createPagoDto);
 
