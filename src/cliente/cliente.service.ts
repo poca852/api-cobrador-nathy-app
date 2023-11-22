@@ -44,17 +44,29 @@ export class ClienteService {
   }
 
   async findAll({status = "true", ruta}: GlobalParams): Promise<Cliente[]> {
+
+    if(status !== 'undefined') {
+      const clientes = await this.clienteModel.find({
+        ruta,
+        status: isTrue(status)
+      })
+      .populate({
+        path: "creditos"
+      })
+  
+  
+      return clientes;
+
+    }
+
+    return await this.clienteModel.find({ ruta })
+      .populate({
+        path: "creditos",
+        populate: {
+          path: 'pagos'
+        }
+      })
     
-    const clientes = await this.clienteModel.find({
-      ruta,
-      status: isTrue(status)
-    })
-    .populate({
-      path: "creditos"
-    })
-
-
-    return clientes;
 
   }
 
