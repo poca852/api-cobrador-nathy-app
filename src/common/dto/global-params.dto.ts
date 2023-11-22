@@ -29,7 +29,6 @@ export class GlobalParams {
 
    @IsString()
    @IsOptional()
-   @IsEnum(["false", "true"])
    status?: string;
 
 }
