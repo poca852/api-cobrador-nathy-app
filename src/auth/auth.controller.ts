@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Param, Get, Patch, Delete } from '@nestjs/common';
+import { Body, Controller, Post, Param, Get, Patch, Delete, Query } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto, UpdateUserDto, CreateUserDto } from './dto';
 import { Auth, GetUser } from './decorators';
@@ -20,9 +20,10 @@ export class AuthController {
   @Post("login")
   async login(
     @Body() loginDto: LoginDto,
+    @Query('rol') rol: string,
   ) {
 
-    return this.authService.login(loginDto);
+    return this.authService.login(loginDto, rol);
     
   }
 

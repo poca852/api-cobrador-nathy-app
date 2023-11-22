@@ -52,8 +52,7 @@ export class AuthService {
 
    }
 
-   async login(loginDto: LoginDto): Promise<LoginResponse> {
-
+   async login(loginDto: LoginDto, rol: string): Promise<LoginResponse> {
       const { username, password } = loginDto;
       const user = await this.userModel.findOne({
          username: username.toUpperCase()
@@ -75,7 +74,7 @@ export class AuthService {
          throw new UnauthorizedException("Datos Incorrectos")
       }
 
-      if(user.ruta) {
+      if(user.ruta  && rol !== 'ADMIN') {
          if (!user.ruta.status) {   
             throw new UnauthorizedException("Ruta cerrada hable con su administrador")
          }
