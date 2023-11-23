@@ -13,6 +13,7 @@ import { Retiro, RetiroSchema } from '../retiro/entities/retiro.entity';
 import { Caja, CajaSchema } from '../caja/entities/caja.entity';
 import { CajaModule } from '../caja/caja.module';
 import { LogRuta, LogRutaSchema } from './entities/log-ruta';
+import { MomentService } from 'src/common/plugins/moment/moment.service';
 
 @Module({
   imports: [
@@ -55,7 +56,7 @@ import { LogRuta, LogRutaSchema } from './entities/log-ruta';
     ]),
   ],
   controllers: [RutaController],
-  providers: [RutaService],
+  providers: [RutaService, MomentService],
   exports: [RutaService, MongooseModule]
 })
 export class RutaModule {}
