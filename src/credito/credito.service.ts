@@ -112,6 +112,10 @@ export class CreditoService {
     })
       .populate('cliente')
       .populate('pagos')
+      .populate({
+        path: 'ruta',
+        select: 'nombre'
+      })
 
   }
 
