@@ -77,19 +77,13 @@ export class RutaService {
 
   async findAll(user: User): Promise<Ruta[]> {
 
-    let promiseOfRutas: any[] = [];
-
-    user.rutas.forEach(ruta => {
-      promiseOfRutas.push(
-        this.rutaModel.findById(ruta)
-          .populate('caja_actual')
-          .populate('ultima_caja')
-      )
-    });
-
-    let rutas = await Promise.all(promiseOfRutas);
+    let rutas: string[] = user.rutas.map(ruta => ruta._id);
     
-    return rutas
+    return await this.rutaModel.find({
+      _id: { $in: rutas }
+    })
+      .populate('caja_actual')
+      .populate('ultima_caja')
 
   }
 
