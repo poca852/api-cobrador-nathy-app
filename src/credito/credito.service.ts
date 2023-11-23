@@ -110,12 +110,8 @@ export class CreditoService {
       fecha_inicio: fecha,
       ruta: { $in: rutas }
     })
-      .populate({
-        path: 'cliente',
-        populate: {
-          path: 'pagos'
-        }
-      })
+      .populate('cliente')
+      .populate('pagos')
 
   }
 
