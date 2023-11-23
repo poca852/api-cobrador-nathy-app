@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, Logger, NotFoundException, BadRequestException, Patch } from '@nestjs/common';
 import { CreateCreditoDto } from './dto/create-credito.dto';
 import { UpdateCreditoDto } from './dto/update-credito.dto';
 import { GlobalParams } from '../common/dto/global-params.dto';
@@ -15,6 +15,8 @@ import { InformeCredito } from './gnerar-informe-credito';
 import { calcularAtrasos } from './helpers/atrasos-credito';
 import { getSaldo } from './helpers/get-saldo-credito';
 import { getAbonos } from './helpers/get-abonos-credito';
+import { User } from 'src/auth/entities/user.entity';
+import { MomentService } from '../common/plugins/moment/moment.service';
 
 @Injectable()
 export class CreditoService {
@@ -32,7 +34,8 @@ export class CreditoService {
     private readonly clienteModel: Model<Cliente>,
 
     private readonly cajaService: CajaService,
-    private readonly clienteService: ClienteService
+    private readonly clienteService: ClienteService,
+    private moment: MomentService
   ) { }
 
   async create(createCreditoDto: CreateCreditoDto): Promise<Credito> {
@@ -96,6 +99,23 @@ export class CreditoService {
 
 
     return creditos;
+
+  }
+
+  async findRenovaciones(fecha: string, user: User) {
+
+    let rutas: string[] = user.rutas.map(ruta => ruta._id)
+    
+    return await this.creditoModel.find({
+      fecha_inicio: fecha,
+      ruta: { $in: rutas }
+    })
+      .populate({
+        path: 'cliente',
+        populate: {
+          path: 'pagos'
+        }
+      })
 
   }
 

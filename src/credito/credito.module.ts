@@ -10,6 +10,7 @@ import { AuthModule } from '../auth/auth.module';
 import { ClienteModule } from '../cliente/cliente.module';
 import { RutaSchema } from 'src/ruta/entities/ruta.entity';
 import { Ruta } from '../ruta/entities/ruta.entity';
+import { MomentService } from '../common/plugins/moment/moment.service';
 
 @Module({
   imports: [
@@ -33,7 +34,7 @@ import { Ruta } from '../ruta/entities/ruta.entity';
     ])
   ],
   controllers: [CreditoController],
-  providers: [CreditoService],
+  providers: [CreditoService, MomentService],
   exports: [CreditoService, MongooseModule]
 })
 export class CreditoModule {}

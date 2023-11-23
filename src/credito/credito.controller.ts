@@ -2,9 +2,10 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestj
 import { CreditoService } from './credito.service';
 import { CreateCreditoDto } from './dto/create-credito.dto';
 import { UpdateCreditoDto } from './dto/update-credito.dto';
-import { Auth } from '../auth/decorators';
+import { Auth, GetUser } from '../auth/decorators';
 import { GlobalParams } from '../common/dto/global-params.dto';
 import { ParseMongoIdPipe } from 'src/common/pipes/parse-mongo-id.pipe';
+import { User } from '../auth/entities/user.entity';
 
 @Auth()
 @Controller('credito')
@@ -21,6 +22,14 @@ export class CreditoController {
     @Query() globalParams: GlobalParams
   ) {
     return this.creditoService.findAll(globalParams);
+  }
+
+  @Get('renovaciones')
+  async findRenovaciones(
+    @Query('fecha') fecha: string,
+    @GetUser() user: User
+  ) {
+    return this.creditoService.findRenovaciones(fecha, user);
   }
 
   @Get(':id')
