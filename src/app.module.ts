@@ -17,6 +17,7 @@ import { join } from 'path';
 import { PruebasModule } from './pruebas/pruebas.module';
 import { FilesModule } from './files/files.module';
 import { LogAuthModule } from './log-auth/log-auth.module';
+import { MomentService } from './common/plugins/moment/moment.service';
 
 @Module({
   imports: [
@@ -41,6 +42,6 @@ import { LogAuthModule } from './log-auth/log-auth.module';
     LogAuthModule
   ],
   controllers: [],
-  providers: [],
+  providers: [MomentService],
 })
 export class AppModule {}

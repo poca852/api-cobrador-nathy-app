@@ -16,6 +16,7 @@ import { Caja } from '../caja/entities/caja.entity';
 import { CajaService } from '../caja/caja.service';
 import convertirFechaStringAFechaObjeto from 'src/common/helpers/stringToDate';
 import { LogRuta } from './entities/log-ruta';
+import { MomentService } from '../common/plugins/moment/moment.service';
 
 @Injectable()
 export class RutaService {
@@ -51,7 +52,9 @@ export class RutaService {
     private readonly authService: AuthService,
 
     @Inject(forwardRef(() => CajaService))
-    private readonly cajaService: CajaService
+    private readonly cajaService: CajaService,
+
+    private moment: MomentService
   ){}
 
   async create(createRutaDto: CreateRutaDto, user: User) {
@@ -145,7 +148,8 @@ export class RutaService {
 
   async openRuta(id: string, globalParams: GlobalParams, user: User): Promise<boolean> {
 
-    const { fecha } = globalParams;
+    // const { fecha } = globalParams;
+    const fecha = this.moment.nowWithFormat('DD/MM/YYYY');
 
     const ruta: Ruta = await this.findOne(id);
 
@@ -178,8 +182,6 @@ export class RutaService {
         pretendido,
         fecha: fecha.trim()
       })
-
-      await this.cajaService.actualizarCaja(caja._id)
     }
 
     await ruta.updateOne({

@@ -83,10 +83,10 @@ export class AuthService {
             throw new UnauthorizedException('Su ruta se encuentra bloqueada, por favor ponganse en contacto con su supervisor')
          }
 
-         const today = this.moment.nowWithFormat('DD/MM/YYYY');
-         if(user.ruta.caja_actual.fecha !== today){
-            throw new UnauthorizedException('Usted no cerro la ruta, por favor pongase en contacto con su administrador')
-         }
+         // const today = this.moment.nowWithFormat('DD/MM/YYYY');
+         // if(user.ruta.caja_actual.fecha !== today){
+         //    throw new UnauthorizedException('Usted no cerro la ruta, por favor pongase en contacto con su administrador')
+         // }
       }
 
       const { password: _, ...rest } = user.toJSON();
