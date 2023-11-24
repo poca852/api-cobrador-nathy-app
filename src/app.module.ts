@@ -17,6 +17,7 @@ import { join } from 'path';
 import { PruebasModule } from './pruebas/pruebas.module';
 import { FilesModule } from './files/files.module';
 import { LogAuthModule } from './log-auth/log-auth.module';
+import { CountryModule } from './country/country.module';
 
 @Module({
   imports: [
@@ -38,7 +39,8 @@ import { LogAuthModule } from './log-auth/log-auth.module';
     RetiroModule,
     PruebasModule,
     FilesModule,
-    LogAuthModule
+    LogAuthModule,
+    CountryModule,
   ],
   controllers: [],
   providers: [],
