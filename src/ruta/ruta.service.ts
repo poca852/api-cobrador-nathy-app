@@ -128,19 +128,18 @@ export class RutaService {
     return true;
   }
 
-  async closeRuta(id: string, { fecha, caja }: GlobalParams, user: User): Promise<boolean> {
+  async closeRuta(id: string): Promise<boolean> {
 
     const ruta = await this.findOne(id);
+    const fecha = this.moment.nowWithFormat('DD/MM/YYYY')
 
-    await ruta.updateOne({
+    await this.update(id, {
       status: false,
-      ultimo_cierre: fecha.trim(),
-      ultima_caja: ruta.caja_actual,
-    }, {new: true});
-
-    await this.cajaService.closeCaja(ruta.caja_actual._id, user, convertirFechaStringAFechaObjeto(fecha.trim()))
+      ultimo_cierre: fecha,
+      ultima_caja: ruta.caja_actual._id
+    })
     
-    // await this.cajaService.actualizarCaja(caja) 
+    await this.cajaService.actualizarCaja(ruta.caja_actual._id) 
 
     return true;
 
