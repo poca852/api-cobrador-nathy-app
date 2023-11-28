@@ -14,7 +14,6 @@ import { Retiro } from '../retiro/entities/retiro.entity';
 import { GlobalParams } from '../common/dto/global-params.dto';
 import { Caja } from '../caja/entities/caja.entity';
 import { CajaService } from '../caja/caja.service';
-import convertirFechaStringAFechaObjeto from 'src/common/helpers/stringToDate';
 import { LogRuta } from './entities/log-ruta';
 import { MomentService } from '../common/plugins/moment/moment.service';
 
@@ -55,15 +54,15 @@ export class RutaService {
     private readonly cajaService: CajaService,
 
     private moment: MomentService
-  ){}
+  ) { }
 
   async create(createRutaDto: CreateRutaDto, user: User) {
-    
+
     const admin = await this.authService.findOne(user._id);
 
     try {
 
-      const ruta = await this.rutaModel.create(createRutaDto); 
+      const ruta = await this.rutaModel.create(createRutaDto);
 
       admin.rutas.push(ruta._id);
       await admin.save();
@@ -81,7 +80,7 @@ export class RutaService {
   async findAll(user: User): Promise<Ruta[]> {
 
     let rutas: string[] = user.rutas.map(ruta => ruta._id);
-    
+
     return await this.rutaModel.find({
       _id: { $in: rutas }
     })
@@ -91,13 +90,13 @@ export class RutaService {
   }
 
   async findOne(id: string): Promise<Ruta> {
-    
-    
+
+
     const ruta = await this.rutaModel.findById(id)
       .populate("ultima_caja")
       .populate("caja_actual")
-    
-    if(!ruta){
+
+    if (!ruta) {
       throw new NotFoundException(`No existe una ruta con el id ${id}`);
     }
 
@@ -106,9 +105,9 @@ export class RutaService {
   }
 
   async update(id: string, updateRutaDto: UpdateRutaDto) {
-    
+
     try {
-      const rutaUpdate = await this.rutaModel.findByIdAndUpdate(id, updateRutaDto, {new: true});
+      const rutaUpdate = await this.rutaModel.findByIdAndUpdate(id, updateRutaDto, { new: true });
       return rutaUpdate;
     } catch (error) {
       this.handleExceptions(error);
@@ -138,41 +137,39 @@ export class RutaService {
       ultimo_cierre: fecha,
       ultima_caja: ruta.caja_actual._id
     })
-    
-    await this.cajaService.actualizarCaja(ruta.caja_actual._id) 
+
+    await this.cajaService.actualizarCaja(ruta.caja_actual._id)
+    await this.actualizarRuta(id);
 
     return true;
 
   }
 
-  async openRuta(id: string, globalParams: GlobalParams, user: User): Promise<boolean> {
+  async openRuta(id: string): Promise<boolean> {
 
-    // const { fecha } = globalParams;
     const fecha = this.moment.nowWithFormat('DD/MM/YYYY');
 
     const ruta: Ruta = await this.findOne(id);
 
+    await this.actualizarRuta(id);
+
     let caja;
 
-    if(!ruta.ultima_caja) {
+    if (!ruta.ultima_caja) {
       caja = await this.cajaModel.create({
         fecha: fecha,
         ruta: id
       })
     }
 
-    if(ruta.ultima_caja){
-      
+    if (ruta.ultima_caja) {
+
       let creditosDeLaRuta = await this.creditoModel.find({
         ruta: ruta._id,
         status: true
       })
 
-      let pretendido: number = 0;
-
-      creditosDeLaRuta.forEach(credito => {
-        pretendido += credito.valor_cuota;
-      })
+      let pretendido = creditosDeLaRuta.reduce((sum, credito) => sum + credito.saldo, 0)
 
       caja = await this.cajaModel.create({
         base: ruta.ultima_caja.caja_final,
@@ -189,27 +186,11 @@ export class RutaService {
       ultima_apertura: fecha.trim()
     });
 
-    // guardar registro de que se abrio la ruta
-    await this.logRutaModel.create({
-      user: user._id,
-      ruta: ruta._id
-    })
-
     return true;
   }
 
-  async verificarSiCerroRuta(id: string): Promise<boolean>{
-    const ruta = await this.findOne(id);
-
-    if(ruta.ultima_apertura === ruta.ultima_caja.fecha){
-      return true;
-    }
-
-    return false;
-  }
-
   private handleExceptions(error: any) {
-    if(error.code === 11000){
+    if (error.code === 11000) {
       throw new BadRequestException("Ya existe esta ruta");
     }
 
@@ -217,73 +198,54 @@ export class RutaService {
     throw new InternalServerErrorException("Revisar los logs")
   }
 
-  public async actualizarRuta(idRuta: any) {
+  private roundToTwoDecimals(value: number): number {
+    return Math.round(value * 100) / 100;
+  }
+
+  // ACTUALIZAR RUTA IMPLICA QUE SE DEBE CALCULAR NUEVAMENTE SU CARTERA, GASTOS Y DEMAS
+  public async actualizarRuta(idRuta: any): Promise<void> {
 
     const ruta = await this.rutaModel.findById(idRuta);
 
-    let cartera: number = 0;
-    let total_cobrado: number = 0;
-    let gastos: number = 0;
-    let retiros: number = 0;
-    let inversiones: number = 0;
-    let total_prestado: number = 0;
+    if (!ruta) throw new NotFoundException(`La ruta con el id ${idRuta} no existe`);
 
-    let [ clientes, 
-          clientes_activos, 
-          creditosActivos, 
-          allCreditos,
-          allGastos,
-          allRetiros,
-          allInversiones ] = await Promise.all([
-      this.clienteModel.countDocuments({ruta: ruta._id}),
-      this.clienteModel.countDocuments({ruta: ruta._id, status: true}),
-      this.creditoModel.find({ruta: ruta._id, status: true}),
-      this.creditoModel.find({ruta: ruta._id}),
-      this.gastoModel.find({ruta: ruta._id}),
-      this.retiroModel.find({ruta: ruta._id}),
-      this.inversionModel.find({ruta: ruta._id})
-    ])
+    try {
 
-    
-    creditosActivos.forEach(credito => {
-      cartera += credito.saldo;
-    });
+      const [clientes, clientesActivos, creditosActivos, allCreditos, allGastos, allRetiros, allInversiones] =
+        await Promise.all([
+          this.clienteModel.countDocuments({ ruta: ruta._id }),
+          this.clienteModel.countDocuments({ ruta: ruta._id, status: true }),
+          this.creditoModel.find({ ruta: ruta._id, status: true }),
+          this.creditoModel.find({ ruta: ruta._id }),
+          this.gastoModel.find({ ruta: ruta._id }),
+          this.retiroModel.find({ ruta: ruta._id }),
+          this.inversionModel.find({ ruta: ruta._id }),
+        ]);
 
-    allCreditos.forEach(credito => {
-      total_cobrado += credito.abonos;
-      total_prestado += credito.valor_credito;
-    })
+      const cartera = creditosActivos.reduce((sum, credito) => sum + credito.saldo, 0);
+      const totalCobrado = allCreditos.reduce((sum, credito) => sum + credito.abonos, 0);
+      const totalPrestado = allCreditos.reduce((sum, credito) => sum + credito.valor_credito, 0);
+      const gastos = allGastos.reduce((sum, gasto) => sum + gasto.valor, 0);
+      const retiros = allRetiros.reduce((sum, retiro) => sum + retiro.valor, 0);
+      const inversiones = allInversiones.reduce((sum, inversion) => sum + inversion.valor, 0);
 
-    allGastos.forEach(gasto => {
-      gastos += gasto.valor;
-    })
-    
-    allRetiros.forEach(retiro => {
-      retiros += retiro.valor;
-    })
+      await ruta.updateOne({
+        cartera,
+        total_cobrado: this.roundToTwoDecimals(totalCobrado),
+        gastos,
+        retiros,
+        inversiones,
+        total_prestado: totalPrestado,
+        clientes,
+        clientes_activos: clientesActivos,
+      }, { new: true });
 
-    allInversiones.forEach(inversion => {
-      inversiones += inversion.valor;
-    })
+    } catch (error) {
 
+      this.handleExceptions(error);
 
-    await ruta.updateOne({
-      cartera,
-      total_cobrado,
-      gastos,
-      retiros,
-      inversiones,
-      total_prestado,
-      clientes,
-      clientes_activos,
-    }, {new: true});
+    }
 
   }
 
-  // funcion para verificar si la ruta esta abierta
-  async checkIsOpenRuta(id: string, fecha: string): Promise<boolean> {
-
-    return true;
-
-  }
 }

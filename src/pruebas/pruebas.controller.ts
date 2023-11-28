@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe } from '@nestjs/common';
 import { PruebasService } from './pruebas.service';
 import { CreatePruebaDto } from './dto/create-prueba.dto';
 import { UpdatePruebaDto } from './dto/update-prueba.dto';
+import { ParseMongoIdPipe } from 'src/common/pipes/parse-mongo-id.pipe';
 
 @Controller('pruebas')
 export class PruebasController {
@@ -12,9 +13,11 @@ export class PruebasController {
     return this.pruebasService.create(createPruebaDto);
   }
 
-  @Get()
-  async findAll() {
-    return this.pruebasService.findAll();
+  @Get('getCartera')
+  async findAll(
+    @Query('ruta', ParseMongoIdPipe) ruta: string
+  ) {
+    return this.pruebasService.findAll(ruta);
   }
 
   @Get(':id')

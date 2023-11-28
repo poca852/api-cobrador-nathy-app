@@ -18,6 +18,7 @@ import { PruebasModule } from './pruebas/pruebas.module';
 import { FilesModule } from './files/files.module';
 import { LogAuthModule } from './log-auth/log-auth.module';
 import { CountryModule } from './country/country.module';
+import { MessageModule } from './message/message.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { CountryModule } from './country/country.module';
     FilesModule,
     LogAuthModule,
     CountryModule,
+    MessageModule,
   ],
   controllers: [],
   providers: [],
