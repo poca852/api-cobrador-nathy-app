@@ -18,11 +18,9 @@ export class CreateUserDto {
    @MinLength(4)
    password: string;
 
-   @IsString({
-      each: true
-   })
-   @IsArray()
-   rol: string[];
+   @IsString()
+   @IsEnum(['ADMIN', 'SUPERADMIN', 'COBRADOR', 'SUPERVISOR', 'CLIENTE'])
+   rol: string;
 
    @IsMongoId({
       each: true

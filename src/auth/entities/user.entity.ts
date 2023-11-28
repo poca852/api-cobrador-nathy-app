@@ -40,10 +40,11 @@ export class User extends Document {
    password?: string;
 
    @Prop({
-      type: [String],
-      enum: ["ADMIN", "COBRADOR", "SUPERVISOR", "CLIENTE", 'SUPERADMIN'],
+      type: String,
+      enum: ['ADMIN', 'SUPERADMIN', 'COBRADOR', 'SUPERVISOR', 'CLIENTE'],
+      default: 'COBRADOR'
    })
-   rol: string[];
+   rol: string;
    
    @Prop({
       type: mongoose.Schema.Types.ObjectId,
