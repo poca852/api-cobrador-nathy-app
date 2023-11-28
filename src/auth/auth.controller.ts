@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Param, Get, Patch, Delete, Query } from '@nestjs/common';
+import { Body, Controller, Post, Param, Get, Patch, Delete, Query, ParseBoolPipe } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto, UpdateUserDto, CreateUserDto } from './dto';
 import { Auth, GetUser } from './decorators';
@@ -30,9 +30,10 @@ export class AuthController {
   @Auth()
   @Get("users")
   async findAll(
-    @GetUser() user: User
+    @GetUser() user: User,
+    @Query('have_empresa', ParseBoolPipe) have_empresa: boolean,
   ) {
-    return this.authService.findAll(user)
+    return this.authService.findAll(user, have_empresa)
   }
 
   @Auth()

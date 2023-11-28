@@ -5,20 +5,28 @@ import { AuthModule } from '../auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Empresa, EmpresaSchema } from './entities/empresa.entity';
+import { MomentService } from '../common/plugins/moment/moment.service';
+import { User, UserSchema } from '../auth/entities/user.entity';
+import { RutaModule } from '../ruta/ruta.module';
 
 @Module({
   imports: [
     ConfigModule,
     AuthModule,
+    RutaModule,
     MongooseModule.forFeature([
       {
         name: Empresa.name,
         schema: EmpresaSchema
-      }
+      },
+      {
+        name: User.name,
+        schema: UserSchema
+      },
     ])
   ],
   controllers: [EmpresaController],
-  providers: [EmpresaService],
+  providers: [EmpresaService, MomentService],
   exports: [EmpresaService, MongooseModule]
 })
 export class EmpresaModule {}

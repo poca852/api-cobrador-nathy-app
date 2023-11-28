@@ -1,13 +1,9 @@
-import { IsBoolean, IsNumber, IsOptional, IsString, Min } from "class-validator";
+import { IsArray, IsBoolean, IsMongoId, IsNumber, IsOptional, IsString, Min } from "class-validator";
 
 export class CreateEmpresaDto {
 
    @IsString()
    name: string;
-
-   @IsBoolean()
-   @IsOptional()
-   haveLoginFalse?: boolean = false;
 
    @IsNumber()
    @IsOptional()
@@ -16,7 +12,22 @@ export class CreateEmpresaDto {
    @IsString()
    country: string;
 
-   @IsString()
-   currency: string;
+   @IsMongoId()
+   @IsOptional()
+   owner: string;
+
+   @IsMongoId({
+      each: true
+   })
+   @IsArray()
+   @IsOptional()
+   employes: string[]
+
+   @IsMongoId({
+      each: true
+   })
+   @IsArray()
+   @IsOptional()
+   rutas: string[]
 
 }

@@ -119,7 +119,14 @@ export class AuthService {
 
    }
 
-   async findAll(user: User) {
+   async findAll(user: User, have_empresa: boolean = true) {
+
+      console.log(have_empresa)
+      if(!have_empresa){
+         return this.userModel.find({
+            empresa: { $in: [null, undefined] }
+         })
+      }
 
       let empleados = [];
 

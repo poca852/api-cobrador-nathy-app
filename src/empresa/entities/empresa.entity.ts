@@ -1,5 +1,7 @@
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import mongoose, { Document } from 'mongoose';
+import { User } from '../../auth/entities/user.entity';
+import { Ruta } from '../../ruta/entities/ruta.entity';
 
 @Schema()
 export class Empresa extends Document {
@@ -13,12 +15,6 @@ export class Empresa extends Document {
    name: string;
 
    @Prop({
-      type: Boolean,
-      default: false
-   })
-   haveLoginFalse: boolean;
-
-   @Prop({
       type: Number,
       default: 19
    })
@@ -27,19 +23,31 @@ export class Empresa extends Document {
    @Prop({
       type: String,
       required: true,
-      trim: true,
-      uppercase: true,
       index: true
    })
    country: string;
 
    @Prop({
-      type: String,
-      required: true,
-      trim: true,
-      uppercase: true
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
    })
-   currency: string;
+   owner: User;
+
+   @Prop({
+      type: [{
+         type: mongoose.Schema.Types.ObjectId,
+         ref: 'User'
+      }]
+   })
+   employes: User[]
+
+   @Prop({
+      type: [{
+         type: mongoose.Schema.Types.ObjectId,
+         ref: "Ruta"
+      }]
+   })
+   rutas: Ruta[];
 
 }
 
