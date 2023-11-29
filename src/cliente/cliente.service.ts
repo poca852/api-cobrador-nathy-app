@@ -44,7 +44,6 @@ export class ClienteService {
   }
 
   async findAll(status: boolean, idRuta: string): Promise<Cliente[]> {
-
       return await this.clienteModel.find({
         ruta: idRuta,
         status
