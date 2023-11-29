@@ -56,15 +56,15 @@ export class CajaService {
     
     let listaDePromsesasDeCajas = [];
 
-    user.rutas.forEach((ruta) => {
-      listaDePromsesasDeCajas.push(
-        this.cajaModel.findOne({ruta, fecha})
-          .populate({
-            path: "ruta",
-            select: "nombre"
-          })
-      )
-    })
+    // user.rutas.forEach((ruta) => {
+    //   listaDePromsesasDeCajas.push(
+    //     this.cajaModel.findOne({ruta, fecha})
+    //       .populate({
+    //         path: "ruta",
+    //         select: "nombre"
+    //       })
+    //   )
+    // })
 
     const cajas = await Promise.all(listaDePromsesasDeCajas);
 

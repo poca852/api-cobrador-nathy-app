@@ -5,6 +5,7 @@ import { UpdateEmpresaDto } from './dto/update-empresa.dto';
 import { ParseMongoIdPipe } from 'src/common/pipes/parse-mongo-id.pipe';
 import { Auth } from 'src/auth/decorators';
 import { ValidRoles } from 'src/auth/interfaces';
+import { CreateUserDto } from 'src/auth/dto';
 
 @Auth()
 @Controller('empresa')
@@ -40,12 +41,20 @@ export class EmpresaController {
   }
 
   @Auth(ValidRoles.admin, ValidRoles.superAdmin)
-  @Patch('add-empleado')
+  @Post('add-empleado')
   addEmploye(
+    @Body() userDto: CreateUserDto,
+  ){
+    return this.empresaService.addEmploye(userDto);
+  }
+
+  @Auth(ValidRoles.admin, ValidRoles.superAdmin)
+  @Delete('remove-empleado')
+  removeEmploye(
     @Query('empresa', ParseMongoIdPipe) empresa: string,
     @Query('empleado', ParseMongoIdPipe) empleado: string
   ){
-    return this.empresaService.addEmploye(empresa, empleado);
+    return this.empresaService.deleteEmpleado(empresa, empleado);
   }
 
   @Auth(ValidRoles.admin, ValidRoles.superAdmin)

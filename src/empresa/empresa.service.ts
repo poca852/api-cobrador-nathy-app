@@ -6,6 +6,9 @@ import { Empresa } from './entities/empresa.entity';
 import { Model } from 'mongoose';
 import { User } from '../auth/entities/user.entity';
 import { RutaService } from '../ruta/ruta.service';
+import { AuthService } from '../auth/auth.service';
+import { CreateUserDto } from '../auth/dto/create-user.dto';
+import { ClienteService } from '../cliente/cliente.service';
 
 @Injectable()
 export class EmpresaService {
@@ -19,6 +22,9 @@ export class EmpresaService {
     @InjectModel(User.name)
     private readonly userModel: Model<User>,
     private rutaSvc: RutaService,
+
+    private authSvc: AuthService,
+    private clienteSrc: ClienteService,
   ) { }
 
   async create(createEmpresaDto: CreateEmpresaDto) {
@@ -57,12 +63,25 @@ export class EmpresaService {
 
   }
 
+  async getClientes(idEmpresa: string) {
+
+    const empresa = await this.empresaModel.findById(idEmpresa)
+
+  }
+
   async findOne(id: string) {
 
     const empresa = await this.empresaModel.findById(id)
       .populate([
         {
           path: 'employes'
+        },
+        {
+          path: 'rutas',
+          populate: [
+            { path: 'caja_actual' },
+            { path: 'ultima_caja' },
+          ]
         }
       ])
 
@@ -91,38 +110,54 @@ export class EmpresaService {
 
   }
 
-  async addEmploye(idEmpresa: string, idEmpleado: string) {
-    const empresa = await this.empresaModel.findById(idEmpresa).populate('employes');
-    const empleado = await this.userModel.findById(idEmpleado);
+  async addEmploye(userDto: CreateUserDto) {
 
-    if (!empresa) {
-      throw new NotFoundException('La empresa no existe');
-    }
+    try {
 
-    if (!empleado) {
-      throw new NotFoundException('El empleado no existe');
-    }
+      const empresa = await this.empresaModel.findById(userDto.empresa).populate('employes');
+      const empleado = await this.authSvc.create(userDto);
 
-    const existeEmpleado = empresa.employes.some(e => e._id.equals(empleado._id));
+      const existeEmpleado = empresa.employes.some(e => e._id.equals(empleado._id));
 
-    if (!existeEmpleado) {
-      try {
+      if (!existeEmpleado) {
+
         empresa.employes.push(empleado);
         await empresa.save();
 
         empleado.empresa = empresa._id;
         await empleado.save();
 
-      } catch (error) {
-        console.error('Error al guardar en la base de datos:', error);
-        throw new Error('Error al guardar en la base de datos');
-      }
-    } else {
-      throw new BadRequestException('El empleado ya esta en esta empresa')
+      } else {
+        throw new BadRequestException('El empleado ya esta en esta empresa')
+      } 
+
+    }catch (error) {
+
+      this.handleExceptions(error)
+
     }
 
     return true;
-}
+  }
+
+  async deleteEmpleado(idEmpresa: string, empleado: string) {
+
+    const user = await this.userModel.findById(empleado);
+    if (!user) throw new NotFoundException('No existe el usuario');
+    const empresa = await this.empresaModel.findById(idEmpresa);
+    if (!empresa) throw new NotFoundException('No existe la empresa');
+
+    try {
+      empresa.employes = empresa.employes.filter(empId => !empId.equals(user._id));
+      await empresa.save();
+      await this.userModel.findByIdAndDelete(empleado);
+    } catch (error) {
+      this.handleExceptions(error)
+    }
+
+    return true;
+
+  }
 
 
   async addRuta(idEmpresa: string, idRuta: string) {
@@ -159,7 +194,7 @@ export class EmpresaService {
     const empresa = await this.findOne(idEmpresa);
     const owner = await this.userModel.findById(user)
 
-    if(!owner) throw new NotFoundException('El usuario no existe');
+    if (!owner) throw new NotFoundException('El usuario no existe');
 
     try {
 

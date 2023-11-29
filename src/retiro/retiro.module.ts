@@ -5,6 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Retiro, RetiroSchema } from './entities/retiro.entity';
 import { AuthModule } from 'src/auth/auth.module';
+import { MomentService } from '../common/plugins/moment/moment.service';
 
 @Module({
   imports: [
@@ -18,7 +19,7 @@ import { AuthModule } from 'src/auth/auth.module';
     ])
   ],
   controllers: [RetiroController],
-  providers: [RetiroService],
+  providers: [RetiroService, MomentService],
   exports: [RetiroService, MongooseModule]
 })
 export class RetiroModule {}

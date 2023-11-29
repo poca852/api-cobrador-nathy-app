@@ -22,13 +22,6 @@ export class CreateUserDto {
    @IsEnum(['ADMIN', 'SUPERADMIN', 'COBRADOR', 'SUPERVISOR', 'CLIENTE'])
    rol: string;
 
-   @IsMongoId({
-      each: true
-   })
-   @IsArray()
-   @IsOptional()
-   rutas?: string;
-
    @IsMongoId()
    @IsOptional()
    ruta?: string;

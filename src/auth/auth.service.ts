@@ -53,8 +53,10 @@ export class AuthService {
    }
 
    async login(loginDto: LoginDto, rol: string): Promise<LoginResponse> {
+
       const { username, password } = loginDto;
-      const user = await this.userModel.findOne({
+
+      let user = await this.userModel.findOne({
          username: username.toUpperCase()
       })
          .populate({
@@ -82,17 +84,14 @@ export class AuthService {
          if(user.ruta.isLocked) {
             throw new UnauthorizedException('Su ruta se encuentra bloqueada, por favor ponganse en contacto con su supervisor')
          }
-
-         // const today = this.moment.nowWithFormat('DD/MM/YYYY');
-         // if(user.ruta.caja_actual.fecha !== today){
-         //    throw new UnauthorizedException('Usted no cerro la ruta, por favor pongase en contacto con su administrador')
-         // }
       }
 
-      const { password: _, ...rest } = user.toJSON();
+      user = user.toObject();
+      delete user.password;
+      delete user.__v;
 
       return {
-         user: rest,
+         user,
          token: this.getJwtToken({ id: user._id.toString() })
       }
 
@@ -121,7 +120,6 @@ export class AuthService {
 
    async findAll(user: User, have_empresa: boolean = true) {
 
-      console.log(have_empresa)
       if(!have_empresa){
          return this.userModel.find({
             empresa: { $in: [null, undefined] }
@@ -130,14 +128,14 @@ export class AuthService {
 
       let empleados = [];
 
-      for (const ruta of user.rutas) {
-         let consulta = await this.userModel.find({ ruta: ruta._id });
+      // for (const ruta of user.rutas) {
+      //    let consulta = await this.userModel.find({ ruta: ruta._id });
 
-         empleados.push(...consulta)
-      }
+      //    empleados.push(...consulta)
+      // }
 
 
-      return empleados;
+      return [];
 
    }
 
@@ -147,7 +145,6 @@ export class AuthService {
 
       if (isValidObjectId(termino)) {
          user = await this.userModel.findById(termino)
-            .populate("rutas")
             .populate('ruta')
             .select("-password")
       }
@@ -203,18 +200,16 @@ export class AuthService {
 
    }
 
-   public async deleteUser(id: string) {
+   public async deleteUser(id: string): Promise<string> {
       try {
-         const user = await this.findOne(id);
-
-         if(!user.ruta.status){
-            throw new BadRequestException('La ruta aun se encuentra abierta, Primero cierre la ruta para poder eliminar el cobrador')
-         }
 
          await this.userModel.findByIdAndDelete(id);
-         return true;
+         return id;
+
       } catch (error) {
+
          this.handleExceptions(error)
+
       }
    }
 

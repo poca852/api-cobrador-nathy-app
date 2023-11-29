@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { RetiroService } from './retiro.service';
 import { CreateRetiroDto } from './dto/create-retiro.dto';
 import { UpdateRetiroDto } from './dto/update-retiro.dto';
 import { Auth } from 'src/auth/decorators';
+import { ParseMongoIdPipe } from 'src/common/pipes/parse-mongo-id.pipe';
 
 @Auth()
 @Controller('retiro')
@@ -19,6 +20,14 @@ export class RetiroController {
   @Get()
   findAll() {
     return this.retiroService.findAll();
+  }
+
+  @Get('get-by-date')
+  findByDate(
+    @Query('fecha') fecha: string,
+    @Query('ruta', ParseMongoIdPipe) ruta: string,
+  ) {
+    return this.retiroService.findByDate(fecha, ruta);
   }
 
   @Get(':id')

@@ -8,12 +8,14 @@ import { Empresa, EmpresaSchema } from './entities/empresa.entity';
 import { MomentService } from '../common/plugins/moment/moment.service';
 import { User, UserSchema } from '../auth/entities/user.entity';
 import { RutaModule } from '../ruta/ruta.module';
+import { ClienteModule } from '../cliente/cliente.module';
 
 @Module({
   imports: [
     ConfigModule,
     AuthModule,
     RutaModule,
+    ClienteModule,
     MongooseModule.forFeature([
       {
         name: Empresa.name,

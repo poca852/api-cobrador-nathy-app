@@ -4,6 +4,7 @@ import { UpdateInversionDto } from './dto/update-inversion.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Inversion } from './entities/inversion.entity';
 import { Model } from 'mongoose';
+import { MomentService } from '../common/plugins/moment/moment.service';
 
 @Injectable()
 export class InversionService {
@@ -12,7 +13,8 @@ export class InversionService {
 
   constructor(
     @InjectModel(Inversion.name)
-    private readonly inversionModel: Model<Inversion>
+    private readonly inversionModel: Model<Inversion>,
+    private moment: MomentService,
   ){}
 
   async create(createInversionDto: CreateInversionDto) {
@@ -29,6 +31,19 @@ export class InversionService {
 
   findAll() {
     return `This action returns all inversion`;
+  }
+
+  async findByDate(fecha: string, ruta: string) {
+    const newFecha = this.moment.fecha(fecha, 'DD/MM/YYYY')
+    let inversiones = await this.inversionModel.find({
+      ruta,
+      fecha: newFecha
+    });
+
+    return inversiones.map(inversion => ({
+      ...inversion.toJSON(),
+      fecha
+    }))
   }
 
   findOne(id: number) {

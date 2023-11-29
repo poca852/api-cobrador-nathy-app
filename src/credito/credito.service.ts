@@ -17,6 +17,7 @@ import { getSaldo } from './helpers/get-saldo-credito';
 import { getAbonos } from './helpers/get-abonos-credito';
 import { User } from 'src/auth/entities/user.entity';
 import { MomentService } from '../common/plugins/moment/moment.service';
+import { EmpresaService } from '../empresa/empresa.service';
 
 @Injectable()
 export class CreditoService {
@@ -35,6 +36,7 @@ export class CreditoService {
 
     private readonly cajaService: CajaService,
     private readonly clienteService: ClienteService,
+    private empresaSvc: EmpresaService,
     private moment: MomentService
   ) { }
 
@@ -104,18 +106,22 @@ export class CreditoService {
 
   async findRenovaciones(fecha: string, user: User) {
 
-    let rutas: string[] = user.rutas.map(ruta => ruta._id)
-    
+    const empresa = await this.empresaSvc.findOne(`${user.empresa}`)
+    const rutas = empresa.rutas.map(ruta => ruta._id);
     return await this.creditoModel.find({
       fecha_inicio: fecha,
       ruta: { $in: rutas }
     })
-      .populate('cliente')
-      .populate('pagos')
-      .populate({
-        path: 'ruta',
-        select: 'nombre'
-      })
+      .populate([
+        { path: 'pagos' },
+        { 
+          path: 'cliente',
+          populate: {
+            path: 'creditos'
+          }
+        },
+        { path: 'ruta' },
+      ])
 
   }
 

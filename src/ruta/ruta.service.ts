@@ -64,7 +64,6 @@ export class RutaService {
 
       const ruta = await this.rutaModel.create(createRutaDto);
 
-      admin.rutas.push(ruta._id);
       await admin.save();
 
       return ruta;
@@ -79,14 +78,16 @@ export class RutaService {
 
   async findAll(user: User): Promise<Ruta[]> {
 
-    let rutas: string[] = user.rutas.map(ruta => ruta._id);
+    // let rutas: string[] = user.rutas.map(ruta => ruta._id);
 
-    return await this.rutaModel.find({
-      _id: { $in: rutas }
-    })
-      .populate('caja_actual')
-      .populate('ultima_caja')
+    // return await this.rutaModel.find({
+    //   _id: { $in: rutas }
+    // })
+    //   .populate('caja_actual')
+    //   .populate('ultima_caja')
 
+
+    return []
   }
 
   async findOne(id: string): Promise<Ruta> {
@@ -119,10 +120,10 @@ export class RutaService {
     const { userId } = globalParams;
     const user = await this.authService.findOne(userId);
 
-    await this.rutaModel.findByIdAndDelete(id);
+    // await this.rutaModel.findByIdAndDelete(id);
 
-    user.rutas = user.rutas.filter(ruta => ruta._id !== id);
-    await user.save();
+    // user.rutas = user.rutas.filter(ruta => ruta._id !== id);
+    // await user.save();
 
     return true;
   }

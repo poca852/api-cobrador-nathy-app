@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseBoolPipe } from '@nestjs/common';
 import { ClienteService } from './cliente.service';
 import { CreateClienteDto } from './dto/create-cliente.dto';
 import { UpdateClienteDto } from './dto/update-cliente.dto';
@@ -20,16 +20,17 @@ export class ClienteController {
 
   @Get()
   async findAll(
-    @Query() globalParams: GlobalParams
+    @Query('status', ParseBoolPipe) status: boolean, 
+    @Query('idRuta', ParseMongoIdPipe) idRuta: string, 
   ) {
-    return this.clienteService.findAll(globalParams);
+    return this.clienteService.findAll(status, idRuta);
   }
 
   @Get("admin")
   async findAllByAdmin(
-    @Query() globalParams: GlobalParams
+    @Query('idRuta', ParseMongoIdPipe) idRuta: string
   ) {
-    return this.clienteService.findByAdmin(globalParams);
+    return this.clienteService.findByAdmin(idRuta);
   }
 
   @Get(':termino')

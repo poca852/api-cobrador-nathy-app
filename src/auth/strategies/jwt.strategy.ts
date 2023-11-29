@@ -26,16 +26,20 @@ export class JWTStrategy extends PassportStrategy(Strategy){
   async validate(payload: JwtPayload): Promise<User>{
     const {id} = payload;
     
-    const user = await this.userModel.findById(id)
-      .populate("ruta")
-      .populate("rutas")
-      .populate("empresa")
+    let user = await this.userModel.findById(id)
+      .populate([
+        { path: 'ruta' }
+      ])
 
     if(!user)
       throw new UnauthorizedException('Token no valido');
     
     if(!user.estado)
       throw new UnauthorizedException('usuario no esta activo');
+
+    user = user.toObject();
+    delete user.password;
+    delete user.__v;
 
     return user;
   }

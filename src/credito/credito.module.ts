@@ -11,6 +11,7 @@ import { ClienteModule } from '../cliente/cliente.module';
 import { RutaSchema } from 'src/ruta/entities/ruta.entity';
 import { Ruta } from '../ruta/entities/ruta.entity';
 import { MomentService } from '../common/plugins/moment/moment.service';
+import { EmpresaModule } from '../empresa/empresa.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { MomentService } from '../common/plugins/moment/moment.service';
     ConfigModule,
     CajaModule,
     ClienteModule,
+    EmpresaModule,
     MongooseModule.forFeature([
       {
         name: Credito.name,

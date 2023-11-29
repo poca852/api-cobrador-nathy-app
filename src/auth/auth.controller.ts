@@ -12,7 +12,7 @@ export class AuthController {
   @Auth(ValidRoles.admin, ValidRoles.superAdmin)
   @Post("new-user")
   async create(
-    @Body() createUserDto: CreateUserDto
+    @Body() createUserDto: CreateUserDto,
   ){
     return this.authService.create(createUserDto)
   }

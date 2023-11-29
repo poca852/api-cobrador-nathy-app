@@ -17,7 +17,11 @@ export class MomentService {
       return moment(this.now()).format(format);
    }
 
+   fecha(date: string, format: FormatDate) {
+      return moment(date).utc(true).format(format);
+   }
+
    date(): Date {
-      return new Date(moment().utc(true).toISOString());
+      return new Date(moment().utc(true).toISOString());      
    }
 }

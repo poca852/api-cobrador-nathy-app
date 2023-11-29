@@ -53,14 +53,6 @@ export class User extends Document {
    ruta: Ruta;
 
    @Prop({
-      type: [{
-         type: mongoose.Schema.Types.ObjectId,
-         ref: "Ruta"
-      }]
-   })
-   rutas: Ruta[];
-
-   @Prop({
       type: mongoose.Schema.Types.ObjectId,
       ref: "Empresa"
    })
