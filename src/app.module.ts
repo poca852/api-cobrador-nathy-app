@@ -19,6 +19,7 @@ import { FilesModule } from './files/files.module';
 import { LogAuthModule } from './log-auth/log-auth.module';
 import { CountryModule } from './country/country.module';
 import { MessageModule } from './message/message.module';
+import { ReportsModule } from './reports/reports.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { MessageModule } from './message/message.module';
     LogAuthModule,
     CountryModule,
     MessageModule,
+    ReportsModule,
   ],
   controllers: [],
   providers: [],
