@@ -1,3 +1,4 @@
+import * as fs from 'fs';
 import { Controller, Get, Query, Res } from '@nestjs/common';
 import { ReportsService } from './reports.service';
 import { Auth } from '../auth/decorators';
@@ -17,7 +18,11 @@ export class ReportsController {
   ){
 
     const path = await this.reportsService.getBackup(empresa);
-    res.sendFile(path);
+
+    const file = fs.readFileSync(path);
+    res.header('Content-Type', 'text/csv');
+    res.attachment('Copia de seguridad')
+    res.send(file);
     
   }
 
