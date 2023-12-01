@@ -1,11 +1,10 @@
-import * as fs from 'fs';
-import { Controller, Get, Query, Res } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { ReportsService } from './reports.service';
 import { Auth } from '../auth/decorators';
 import { ParseMongoIdPipe } from 'src/common/pipes/parse-mongo-id.pipe';
-import { Response } from 'express';
+import { ValidRoles } from 'src/auth/interfaces';
 
-@Auth()
+@Auth(ValidRoles.admin, ValidRoles.superAdmin)
 @Controller('reports')
 export class ReportsController {
 
@@ -13,16 +12,16 @@ export class ReportsController {
 
   @Get('backup')
   async getBackup(
-    @Res() res: Response,
-    @Query('empresa', ParseMongoIdPipe) empresa: string
+    // @Res() res: Response,
+    @Query('empresa', ParseMongoIdPipe) empresa: string,
+    @Query('to') to: string[],
   ){
 
-    const path = await this.reportsService.getBackup(empresa);
-
-    const file = fs.readFileSync(path);
-    res.header('Content-Type', 'text/csv');
-    res.attachment('Copia de seguridad')
-    res.send(file);
+    const { file, sentEmail } = await this.reportsService.getBackup(empresa, to);
+    // const csv = fs.readFileSync(file);
+    // res.header('Content-Type', 'text/csv');
+    // res.attachment('Copia de seguridad')
+    return sentEmail;
     
   }
 

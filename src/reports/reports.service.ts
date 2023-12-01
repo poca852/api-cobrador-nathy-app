@@ -1,16 +1,38 @@
-import fs, { existsSync } from 'fs';
+import * as fs from 'fs';
 import { join } from 'path';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { Transporter, createTransport } from 'nodemailer';
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 
 import { Credito } from '../credito/entities/credito.entity';
 import { Empresa } from 'src/empresa/entities/empresa.entity';
 import { MomentService } from '../common/plugins/moment/moment.service';
+import { ConfigService } from '@nestjs/config';
+
+export interface SendEmailOptions {
+   to: string | string[];
+   subject: string;
+   htmlBody: string;
+   attachments?: Attachment[];
+}
+
+interface Attachment {
+   filename: string;
+   content: Buffer;
+}
 
 @Injectable()
 export class ReportsService {
+
+   private transporter: Transporter = createTransport({
+      service: this.configService.get('MAILER_SERVICE'),
+      auth: {
+         user: this.configService.get('MAILER_EMAIL'),
+         pass: this.configService.get('MAILER_SECRET_KEY')
+      }
+   })
 
    constructor(
       @InjectModel(Credito.name)
@@ -20,9 +42,53 @@ export class ReportsService {
       private empresaModel: Model<Empresa>,
 
       private moment: MomentService,
+      private configService: ConfigService,
    ) {}
 
-   async getBackup(idEmpresa: string) {
+   async sendEmail(options: SendEmailOptions): Promise<boolean> {
+
+      const { to, subject, htmlBody, attachments } = options;
+
+      try {
+         
+         const sendInformation = await this.transporter.sendMail({
+            to,
+            subject, 
+            html: htmlBody,
+            attachments
+         })
+
+         return true;
+
+      } catch (error) {
+
+         return false;
+
+      }
+
+   }
+
+   async sendBackUpViaEmail(to: string | string[], file: Buffer, empresa: Empresa){
+
+      const subject = `Copia de seguridad de ${empresa.name}`;
+      const htmlBody = `
+         <h3>Copia de seguridad del sistema - ${empresa.name}</h3>
+         <p>Descarga el archivo excel</p>
+      `;
+
+      const attachments: Attachment[] = [
+         {
+            filename: 'backup.csv',
+            content: file
+         }
+      ]
+
+      return await this.sendEmail({
+         to, subject, attachments, htmlBody
+      })
+   }
+
+   async getBackup(idEmpresa: string, to: string[]) {
 
       try {
 
@@ -36,7 +102,7 @@ export class ReportsService {
             { path: 'ruta' },
          ]);
 
-         const path = await this.generarBackUp(empresa, creditos);
+         const path = await this.generarBackUp(empresa, creditos, to);
          return path;
          
       } catch (error) {
@@ -48,7 +114,7 @@ export class ReportsService {
 
    }
 
-   async generarBackUp(empresa: Empresa, creditos: Credito[]) {
+   async generarBackUp(empresa: Empresa, creditos: Credito[], to: string[]) {
 
       const fecha = this.moment.nowWithFormat('YYYY-MM-DD');
       const path = `static/backups/${empresa._id}_${fecha}.csv`;
@@ -58,6 +124,8 @@ export class ReportsService {
          header: [
             {id: 'ruta', title: 'RUTA'},
             {id: 'cliente', title: 'CLIENTE'},
+            {id: 'telefono', title: 'TELEFONO'},
+            {id: 'direccion', title: 'DIRECCION'},
             {id: 'valor_credito', title: 'PRESTADO'},
             {id: 'total_cuotas', title: 'CUOTAS'},
             {id: 'abonos', title: 'ABONOS'},
@@ -74,6 +142,8 @@ export class ReportsService {
          records.push({
             ruta: credito.ruta.nombre,
             cliente: credito.cliente.nombre,
+            telefono: credito.cliente.telefono,
+            direccion: `${credito.cliente.direccion} - ${credito.cliente.ciudad}`,
             valor_credito: credito.valor_credito,
             total_cuotas: credito.total_cuotas,
             abonos: credito.abonos,
@@ -88,11 +158,16 @@ export class ReportsService {
 
       const backup = join(__dirname, `../../static/backups/`, `${empresa._id}_${fecha}.csv`);
 
-      if(!existsSync(backup)) {
+      if(!fs.existsSync(backup)) {
          throw new BadRequestException('No se pudo crear el backup')
       }
 
-      return backup;
+      const file = fs.readFileSync(backup);
+      
+      return {
+         file: backup,
+         sentEmail: await this.sendBackUpViaEmail(to, file, empresa)
+      }
    
    }
 
