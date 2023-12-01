@@ -13,6 +13,7 @@ import { Pago, PagoSchema } from '../pago/entities/pago.entity';
 import { AuthModule } from 'src/auth/auth.module';
 import { CierreCaja, CierreCajaSchema } from './entities/cierre_caja.entity';
 import { RutaModule } from 'src/ruta/ruta.module';
+import { MomentService } from '../common/plugins/moment/moment.service';
 
 @Module({
   imports: [
@@ -55,7 +56,7 @@ import { RutaModule } from 'src/ruta/ruta.module';
     ])
   ],
   controllers: [CajaController],
-  providers: [CajaService],
+  providers: [CajaService, MomentService],
   exports: [CajaService, MongooseModule]
 })
 export class CajaModule {}

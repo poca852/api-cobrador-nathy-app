@@ -13,6 +13,7 @@ import { User } from 'src/auth/entities/user.entity';
 import { AuthService } from '../auth/auth.service';
 import { CierreCaja } from './entities/cierre_caja.entity';
 import { RutaService } from '../ruta/ruta.service';
+import { MomentService } from '../common/plugins/moment/moment.service';
 
 @Injectable()
 export class CajaService {
@@ -45,30 +46,26 @@ export class CajaService {
     private CcModel: Model<CierreCaja>,
 
     @Inject(forwardRef(() => RutaService))
-    private rutaSvc: RutaService
+    private rutaSvc: RutaService,
+    private moment: MomentService,
   ) { }
 
   create(createCajaDto: CreateCajaDto) {
     return 'This action adds a new caja';
   }
 
-  async findAll(user: User, fecha: string, ) {
+  async findAll(ruta: string, fecha: string, ) {
     
-    let listaDePromsesasDeCajas = [];
+    const caja = await this.cajaModel.findOne({
+      ruta,
+      fecha
+    })
 
-    // user.rutas.forEach((ruta) => {
-    //   listaDePromsesasDeCajas.push(
-    //     this.cajaModel.findOne({ruta, fecha})
-    //       .populate({
-    //         path: "ruta",
-    //         select: "nombre"
-    //       })
-    //   )
-    // })
+    if(!caja) {
+      throw new NotFoundException('No se encontraron registro de este dia')
+    }
 
-    const cajas = await Promise.all(listaDePromsesasDeCajas);
-
-    return cajas;
+    return caja;
 
   }
 

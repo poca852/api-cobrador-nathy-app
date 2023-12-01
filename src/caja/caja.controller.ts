@@ -19,11 +19,10 @@ export class CajaController {
 
   @Get()
   async findAll(
-    @GetUser() user: User,
-    @Query() globalparams: GlobalParams
+    @Query('ruta', ParseMongoIdPipe) ruta: string,
+    @Query('fecha') fecha: string
   ) {
-    const { fecha } = globalparams;
-    return this.cajaService.findAll(user, fecha);
+    return this.cajaService.findAll(ruta, fecha);
   }
 
   @Get(":id")
