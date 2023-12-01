@@ -170,7 +170,7 @@ export class RutaService {
         status: true
       })
 
-      let pretendido = creditosDeLaRuta.reduce((sum, credito) => sum + credito.saldo, 0)
+      let pretendido = creditosDeLaRuta.reduce((sum, credito) => sum + credito.valor_cuota, 0)
 
       caja = await this.cajaModel.create({
         base: ruta.ultima_caja.caja_final,
