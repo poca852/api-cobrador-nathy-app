@@ -88,7 +88,7 @@ export class ReportsService {
       })
    }
 
-   async getBackup(idEmpresa: string, to: string[]) {
+   async getBackup(idEmpresa: string, to: string) {
 
       try {
 
@@ -114,7 +114,7 @@ export class ReportsService {
 
    }
 
-   async generarBackUp(empresa: Empresa, creditos: Credito[], to: string[]) {
+   async generarBackUp(empresa: Empresa, creditos: Credito[], to?: string) {
 
       const fecha = this.moment.nowWithFormat('YYYY-MM-DD');
       const path = `static/backups/${empresa._id}_${fecha}.csv`;
@@ -163,10 +163,16 @@ export class ReportsService {
       }
 
       const file = fs.readFileSync(backup);
+
+      let sentEmail = false;
       
+      if(to !== 'undefined'){
+         sentEmail = await this.sendBackUpViaEmail(to, file, empresa)
+      }
+
       return {
          file: backup,
-         sentEmail: await this.sendBackUpViaEmail(to, file, empresa)
+         sentEmail
       }
    
    }
