@@ -15,6 +15,12 @@ export class Empresa extends Document {
    name: string;
 
    @Prop({
+      type: String,
+      trim: true
+   })
+   email: string;
+
+   @Prop({
       type: Number,
       default: 19
    })

@@ -1,9 +1,13 @@
-import { IsArray, IsBoolean, IsMongoId, IsNumber, IsOptional, IsString, Min } from "class-validator";
+import { IsArray, IsEmail, IsMongoId, IsNumber, IsOptional, IsString } from "class-validator";
 
 export class CreateEmpresaDto {
 
    @IsString()
    name: string;
+
+   @IsEmail()
+   @IsOptional()
+   email?: string;
 
    @IsNumber()
    @IsOptional()
