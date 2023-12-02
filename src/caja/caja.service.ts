@@ -83,7 +83,7 @@ export class CajaService {
     // esta es la fecha que ya manejamos en los gastos que es un isostring, aca cogemos la fecha que nos mandan por querys que es en formato de isostring
     const fechaParseada = new Date(fecha);
 
-    const caja = await this.cajaModel.findOne({ ruta, fecha });
+    const caja = await this.cajaModel.findOne({ ruta, fecha: fechaPropia });
     if (!caja) throw new BadRequestException('La ruta no fue cerrada');
 
     const [
@@ -95,7 +95,7 @@ export class CajaService {
       gastos,
     ] = await Promise.all([
       this.creditoModel.find({ status: true, ruta }),
-      this.creditoModel.find({ status: true, fecha_inicio: fechaPropia }).populate('pagos'),
+      this.creditoModel.find({ ruta, status: true, fecha_inicio: fechaPropia }).populate('pagos'),
       this.pagoModel.find({ ruta, fecha: new RegExp(fechaPropia, 'i') }).populate('credito'),
       this.retiroModel.find({ ruta, fecha: fechaPropia }),
       this.inversionModel.find({ ruta, fecha: fechaPropia }),
@@ -121,7 +121,7 @@ export class CajaService {
     const extra = extraPorPagos + extraPorCreditosRenovados;
 
     // PAGOS
-    let pagos = pagosOfDay.reduce((sum, pago) => sum + pago.valor, 0);
+    let cobro = pagosOfDay.reduce((sum, pago) => sum + pago.valor, 0);
 
     // PRESTAMOS
     let prestamo = renovaciones.reduce((sum, credito) => sum + credito.valor_credito, 0);
@@ -140,6 +140,24 @@ export class CajaService {
 
     // GASTOS
     let gasto = gastos.reduce((sum, gasto) => sum + gasto.valor, 0)
+
+    // TENIAN QUE PAGAR
+    let tenianQuePagar = pagosOfDay
+      .filter(pago => pago.credito.fecha_inicio !== fechaPropia);
+
+    caja.inversion = inversion;
+    caja.retiro = retiro;
+    caja.gasto = gasto;
+    caja.cobro = cobro;
+    caja.prestamo = prestamo;
+    caja.total_clientes = totalClientes,
+    caja.clientes_pendientes = (totalClientes - numeroDeRenovaciones) - tenianQuePagar.length
+    caja.renovaciones = numeroDeRenovaciones,
+    caja.extra = extra;
+    caja.caja_final = (caja.base + inversion + cobro) - (retiro + gasto + prestamo)
+
+    await caja.save()
+    return caja;
 
   }
 

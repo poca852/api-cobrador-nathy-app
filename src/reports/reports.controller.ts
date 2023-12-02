@@ -4,6 +4,7 @@ import { ReportsService } from './reports.service';
 import { Auth } from '../auth/decorators';
 import { ParseMongoIdPipe } from 'src/common/pipes/parse-mongo-id.pipe';
 import { ValidRoles } from 'src/auth/interfaces';
+import { Response } from 'express';
 
 @Auth(ValidRoles.admin, ValidRoles.superAdmin)
 @Controller('reports')
@@ -17,19 +18,20 @@ export class ReportsController {
     @Query('empresa', ParseMongoIdPipe) empresa: string,
   ){
 
-    const { file, sentEmail } = await this.reportsService.getBackup(empresa);
-
-    // res.headers('')
+    const { file: path } = await this.reportsService.getBackup(empresa);
+    const file = fs.readFileSync(path);
+    res.header('Content-Type', 'text-csv');
+    res.attachment('copia');
+    res.send(file)
     
   }
 
   @Get('send-backup')
   async sendBackup(
     @Query('empresa', ParseMongoIdPipe) empresa: string,
-    @Query('to') to: string,
   ){
 
-    const { sentEmail } = await this.reportsService.getBackup(empresa, to);
+    const { sentEmail } = await this.reportsService.getBackup(empresa);
 
     return sentEmail;
     

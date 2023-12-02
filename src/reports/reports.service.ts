@@ -164,7 +164,11 @@ export class ReportsService {
 
       const file = fs.readFileSync(backup);
       
-      const sentEmail = await this.sendBackUpViaEmail(to, file, empresa)
+      let sentEmail = false;
+
+      if(to){
+         sentEmail = await this.sendBackUpViaEmail(to, file, empresa)
+      }
 
       return {
          file: backup,

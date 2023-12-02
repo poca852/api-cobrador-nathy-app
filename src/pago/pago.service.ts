@@ -7,6 +7,7 @@ import { Model } from 'mongoose';
 import { CreditoService } from '../credito/credito.service';
 import { GlobalParams } from 'src/common/dto/global-params.dto';
 import { PagoResponse } from './interfaces/pago-response.interface';
+import { CajaService } from '../caja/caja.service';
 
 @Injectable()
 export class PagoService {
@@ -18,6 +19,7 @@ export class PagoService {
     private pagoModel: Model<Pago>,
 
     private readonly creditoService: CreditoService,
+    private cajaSvc: CajaService,
   ) {}
 
   async create(createPagoDto: CreatePagoDto): Promise<PagoResponse> {
@@ -29,6 +31,11 @@ export class PagoService {
     const pago = await this.pagoModel.create(createPagoDto);
 
     const {message, urlMessage} = await this.creditoService.agregarPago(createPagoDto.credito, pago, createPagoDto.ruta);
+
+    let q = createPagoDto.fecha.split(' ')[0];
+    let nq = q.split('/');
+    let fecha = `${nq[2]}-${nq[1]}-${nq[0]}`;
+    await this.cajaSvc.currentCaja(createPagoDto.ruta, fecha);
 
     return {
       pago,

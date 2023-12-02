@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { PagoService } from './pago.service';
 import { PagoController } from './pago.controller';
 import { ConfigModule } from '@nestjs/config';
@@ -9,6 +9,7 @@ import { Credito, CreditoSchema } from '../credito/entities/credito.entity';
 import { Cliente, ClienteSchema } from 'src/cliente/entities/cliente.entity';
 import { CreditoModule } from '../credito/credito.module';
 import { RutaModule } from '../ruta/ruta.module';
+import { CajaModule } from '../caja/caja.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { RutaModule } from '../ruta/ruta.module';
     AuthModule,
     CreditoModule,
     RutaModule,
+    forwardRef(() => CajaModule),
     MongooseModule.forFeature([
       {
         name: Pago.name,
