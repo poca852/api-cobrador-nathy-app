@@ -97,6 +97,12 @@ export class PagoService {
 
     await this.creditoService.rectificarCredito(pago.credito._id);
 
+    let q = pago.fecha.split(' ')[0];
+    let nq = q.split('/');
+    let fecha = `${nq[2]}-${nq[1]}-${nq[0]}`;
+
+    await this.cajaSvc.currentCaja(`${pago.ruta}`, fecha);
+
     return true;
     
   }

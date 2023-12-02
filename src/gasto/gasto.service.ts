@@ -8,6 +8,7 @@ import { GlobalParams } from 'src/common/dto/global-params.dto';
 import { CajaService } from 'src/caja/caja.service';
 import { RutaService } from '../ruta/ruta.service';
 import { User } from '../auth/entities/user.entity';
+import { MomentService } from '../common/plugins/moment/moment.service';
 
 @Injectable()
 export class GastoService {
@@ -19,13 +20,15 @@ export class GastoService {
     private readonly gastoModel: Model<Gasto>,
 
     private cajaService: CajaService,
-    private rutaService: RutaService
+    private rutaService: RutaService,
+    private moment: MomentService,
   ) {}
 
   async create(createGastoDto: CreateGastoDto): Promise<boolean> {
     try {
       
       await this.gastoModel.create(createGastoDto);
+      await this.cajaService.currentCaja(createGastoDto.ruta, this.moment.fecha(createGastoDto.fecha, 'YYYY-MM-DD'));
       return true;
 
     } catch (error) {

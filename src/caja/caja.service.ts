@@ -75,6 +75,19 @@ export class CajaService {
 
   }
 
+  async findFecha(fecha: string, ruta: string) {
+
+    const newFecha = this.moment.fecha(fecha, 'DD/MM/YYYY');
+
+    const caja = await this.cajaModel.findOne({fecha: newFecha, ruta}).populate('ruta')
+    if(!caja) {
+      throw new NotFoundException('Olvido cerrar la ruta, hable con el administrador del sistema')
+    }
+
+    return caja;
+
+  }
+
   async currentCaja(ruta: string, fecha: string) {
 
     // FECHA PROPIA se lo asigno porque lastimosamente es la fecha que eligi para el manejo de la fecha de la caja, despues esto se tiene que arregar
@@ -83,7 +96,8 @@ export class CajaService {
     // esta es la fecha que ya manejamos en los gastos que es un isostring, aca cogemos la fecha que nos mandan por querys que es en formato de isostring
     const fechaParseada = new Date(fecha);
 
-    const caja = await this.cajaModel.findOne({ ruta, fecha: fechaPropia });
+    const caja = await this.cajaModel.findOne({ ruta, fecha: fechaPropia })
+      .populate('ruta');
     if (!caja) throw new BadRequestException('La ruta no fue cerrada');
 
     const [

@@ -55,7 +55,10 @@ export class CreditoService {
       cliente.creditos.unshift(newCredito);
       await cliente.save();
 
-      // await this.cajaService.actualizarCaja(createCreditoDto.ruta, createCreditoDto.fecha_inicio)
+      let fecha = createCreditoDto.fecha_inicio.split('/');
+      let newFecha = `${fecha[2]}-${fecha[1]}-${fecha[0]}`;
+
+      await this.cajaService.currentCaja(createCreditoDto.ruta, newFecha)
 
       return newCredito;
 

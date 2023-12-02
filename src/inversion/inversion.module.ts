@@ -6,11 +6,13 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Inversion, InversionSchema } from './entities/inversion.entity';
 import { AuthModule } from 'src/auth/auth.module';
 import { MomentService } from '../common/plugins/moment/moment.service';
+import { CajaModule } from '../caja/caja.module';
 
 @Module({
   imports: [
     ConfigModule,
     AuthModule,
+    CajaModule,
     MongooseModule.forFeature([
       {
         name: Inversion.name,

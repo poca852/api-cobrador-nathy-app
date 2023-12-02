@@ -30,7 +30,7 @@ export class CajaController {
     @Query("ruta", ParseMongoIdPipe) ruta: string,
     @Query("fecha") fecha: string,
   ) {
-    return this.cajaService.currentCaja(ruta, fecha);
+    return this.cajaService.findFecha(fecha,ruta);
   }
 
   @Get(":id")

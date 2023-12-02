@@ -5,6 +5,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Inversion } from './entities/inversion.entity';
 import { Model } from 'mongoose';
 import { MomentService } from '../common/plugins/moment/moment.service';
+import { CajaService } from '../caja/caja.service';
 
 @Injectable()
 export class InversionService {
@@ -15,12 +16,22 @@ export class InversionService {
     @InjectModel(Inversion.name)
     private readonly inversionModel: Model<Inversion>,
     private moment: MomentService,
+    private cajaSvc: CajaService,
   ){}
 
   async create(createInversionDto: CreateInversionDto) {
     try {
       
-      return this.inversionModel.create(createInversionDto);
+      const inversion = await this.inversionModel.create(createInversionDto);
+      
+      let fecha = createInversionDto.fecha.split('/');
+      let newFecha = `${fecha[2]}-${fecha[1]}-${fecha[0]}`;
+      let { ruta } = createInversionDto;
+      
+      await this.cajaSvc.currentCaja(ruta, newFecha);
+
+      return inversion
+
 
     } catch (error) {
 

@@ -7,6 +7,7 @@ import { Gasto, GastoSchema } from './entities/gasto.entity';
 import { AuthModule } from 'src/auth/auth.module';
 import { CajaModule } from 'src/caja/caja.module';
 import { RutaModule } from '../ruta/ruta.module';
+import { MomentService } from '../common/plugins/moment/moment.service';
 
 @Module({
   imports: [
@@ -22,7 +23,7 @@ import { RutaModule } from '../ruta/ruta.module';
     ])
   ],
   controllers: [GastoController],
-  providers: [GastoService],
+  providers: [GastoService, MomentService],
   exports: [GastoService, MongooseModule]
 })
 export class GastoModule {}

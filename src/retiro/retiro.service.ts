@@ -5,6 +5,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Retiro } from './entities/retiro.entity';
 import { Model } from 'mongoose';
 import { MomentService } from '../common/plugins/moment/moment.service';
+import { CajaService } from '../caja/caja.service';
 
 @Injectable()
 export class RetiroService {
@@ -15,12 +16,21 @@ export class RetiroService {
     @InjectModel(Retiro.name)
     private retiroModel: Model<Retiro>,
     private moment: MomentService,
+    private cajaSvc: CajaService,
   ){}
 
   async create(createRetiroDto: CreateRetiroDto): Promise<Retiro> {
     try {
 
-      return await this.retiroModel.create(createRetiroDto);
+      const retiro = await this.retiroModel.create(createRetiroDto);
+
+      let fecha = createRetiroDto.fecha.split('/');
+      let newFecha = `${fecha[2]}-${fecha[1]}-${fecha[0]}`;
+      let { ruta } = createRetiroDto;
+
+      await this.cajaSvc.currentCaja(ruta, newFecha);
+
+      return retiro;
       
     } catch (error) {
 
