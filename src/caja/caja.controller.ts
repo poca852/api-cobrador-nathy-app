@@ -25,6 +25,14 @@ export class CajaController {
     return this.cajaService.findAll(ruta, fecha);
   }
 
+  @Get("current")
+  async findCurrentCaja(
+    @Query("ruta", ParseMongoIdPipe) ruta: string,
+    @Query("fecha") fecha: string,
+  ) {
+    return this.cajaService.currentCaja(ruta, fecha);
+  }
+
   @Get(":id")
   async findOne(
     @Param("id", ParseMongoIdPipe) id: string,

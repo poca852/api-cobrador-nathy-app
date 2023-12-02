@@ -176,6 +176,8 @@ export class RutaService {
         base: ruta.ultima_caja.caja_final,
         caja_final: ruta.caja_actual.caja_final,
         ruta: id,
+        total_clientes: creditosDeLaRuta.length,
+        clientes_pendientes: creditosDeLaRuta.length,
         pretendido,
         fecha: fecha.trim()
       })

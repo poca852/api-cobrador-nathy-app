@@ -1,4 +1,4 @@
-import { Injectable, Logger, InternalServerErrorException, NotFoundException, forwardRef, Inject } from '@nestjs/common';
+import { Injectable, Logger, InternalServerErrorException, NotFoundException, forwardRef, Inject, BadRequestException } from '@nestjs/common';
 import { CreateCajaDto } from './dto/create-caja.dto';
 import { UpdateCajaDto } from './dto/update-caja.dto';
 import { Model } from 'mongoose';
@@ -54,14 +54,14 @@ export class CajaService {
     return 'This action adds a new caja';
   }
 
-  async findAll(ruta: string, fecha: string, ) {
-    
+  async findAll(ruta: string, fecha: string,) {
+
     const caja = await this.cajaModel.findOne({
       ruta,
       fecha
     })
 
-    if(!caja) {
+    if (!caja) {
       throw new NotFoundException('No se encontraron registro de este dia')
     }
 
@@ -70,8 +70,76 @@ export class CajaService {
   }
 
   async findOne(id: string) {
-    
+
     return await this.actualizarCaja(id);
+
+  }
+
+  async currentCaja(ruta: string, fecha: string) {
+
+    // FECHA PROPIA se lo asigno porque lastimosamente es la fecha que eligi para el manejo de la fecha de la caja, despues esto se tiene que arregar
+    const fechaPropia = this.moment.fecha(fecha, 'DD/MM/YYYY');
+
+    // esta es la fecha que ya manejamos en los gastos que es un isostring, aca cogemos la fecha que nos mandan por querys que es en formato de isostring
+    const fechaParseada = new Date(fecha);
+
+    const caja = await this.cajaModel.findOne({ ruta, fecha });
+    if (!caja) throw new BadRequestException('La ruta no fue cerrada');
+
+    const [
+      allCreditos,
+      renovaciones,
+      pagosOfDay,
+      retiros,
+      inversiones,
+      gastos,
+    ] = await Promise.all([
+      this.creditoModel.find({ status: true, ruta }),
+      this.creditoModel.find({ status: true, fecha_inicio: fechaPropia }).populate('pagos'),
+      this.pagoModel.find({ ruta, fecha: new RegExp(fechaPropia, 'i') }).populate('credito'),
+      this.retiroModel.find({ ruta, fecha: fechaPropia }),
+      this.inversionModel.find({ ruta, fecha: fechaPropia }),
+      this.gastoModel.find({
+        ruta,
+        fecha: {
+          $gte: fechaParseada,
+          $lte: new Date(fechaParseada.getTime() + 24 * 60 * 60 * 1000)
+        }
+      }),
+    ]);
+
+
+    // Estos dos bloques manejan el extra del dia, el extra del dia se compone de pagosextra y creditos a los cuales le abonaron en el mismo dia.
+    const extraPorPagos = pagosOfDay
+      .filter(({ valor, credito }) => valor > credito.valor_cuota)
+      .reduce((totalExtra, { valor, credito }) => totalExtra + (valor - credito.valor_cuota), 0);
+
+    const extraPorCreditosRenovados = renovaciones
+      .filter(credito => credito.pagos.length > 0)
+      .reduce((totalExtra, credito) => totalExtra + credito.pagos[0].valor, 0);
+
+    const extra = extraPorPagos + extraPorCreditosRenovados;
+
+    // PAGOS
+    let pagos = pagosOfDay.reduce((sum, pago) => sum + pago.valor, 0);
+
+    // PRESTAMOS
+    let prestamo = renovaciones.reduce((sum, credito) => sum + credito.valor_credito, 0);
+
+    // NUMERO DE RENOVACIONES
+    let numeroDeRenovaciones = renovaciones.length;
+
+    // TOTAL DE CLIENTES
+    let totalClientes = allCreditos.length;
+
+    // INVERSION
+    let inversion = inversiones.reduce((sum, inversion) => sum + inversion.valor, 0)
+
+    // RETIRO
+    let retiro = retiros.reduce((sum, retiro) => sum + retiro.valor, 0)
+
+    // GASTOS
+    let gasto = gastos.reduce((sum, gasto) => sum + gasto.valor, 0)
 
   }
 
@@ -83,19 +151,19 @@ export class CajaService {
     return `This action removes a #${id} caja`;
   }
 
-  public async actualizarCaja(idCaja: string|undefined, idRuta?: string): Promise<Caja> {
+  public async actualizarCaja(idCaja: string | undefined, idRuta?: string): Promise<Caja> {
 
     let id = idCaja;
 
-    if(!idCaja){
+    if (!idCaja) {
       const ruta = await this.rutaSvc.findOne(idRuta);
       id = ruta.caja_actual._id;
     }
 
     const caja = await this.cajaModel.findById(id)
       .populate("ruta");
-      
-    if(!caja) throw new NotFoundException("No existe la caja");
+
+    if (!caja) throw new NotFoundException("No existe la caja");
 
 
     // TODO: ESTO es provicional mientras actualizo el modelo de caja
@@ -108,29 +176,29 @@ export class CajaService {
     let fechaFin = new Date(nuevaFecha);
     fechaFin.setHours(23, 59, 59, 999);
 
-    const [ todosLosCreditosDeLaRuta, 
-            creditosRenovadosHoy, 
-            pagosDelDiaDeHoy, 
-            invesionesDelDiaDeHoy, 
-            gastosDelDiaDeHoy, 
-            retirosDelDiaDeHoy, 
-            numeroDeClientesQuePagaronHoy] = await Promise.all([
-      this.creditoModel.find({ ruta: caja.ruta, status: true }),
-      this.creditoModel.find({ ruta: caja.ruta, fecha_inicio: caja.fecha })
-        .populate('pagos'),
-      this.pagoModel.find({ ruta: caja.ruta, fecha: new RegExp(caja.fecha, 'i') })
-        .populate("credito"),
-      this.inversionModel.find({ ruta: caja.ruta, fecha: caja.fecha }),
-      this.gastoModel.find({
-        ruta: caja.ruta,
-        $and: [
-          { fecha: { $gte: fechaInicio } },
-          { fecha: { $lt: fechaFin } }
-        ]
-      }),
-      this.retiroModel.find({ ruta: caja.ruta, fecha: caja.fecha }),
-      this.pagoModel.countDocuments({ ruta: caja.ruta, fecha: new RegExp(caja.fecha, 'i') })
-    ]);
+    const [todosLosCreditosDeLaRuta,
+      creditosRenovadosHoy,
+      pagosDelDiaDeHoy,
+      invesionesDelDiaDeHoy,
+      gastosDelDiaDeHoy,
+      retirosDelDiaDeHoy,
+      numeroDeClientesQuePagaronHoy] = await Promise.all([
+        this.creditoModel.find({ ruta: caja.ruta, status: true }),
+        this.creditoModel.find({ ruta: caja.ruta, fecha_inicio: caja.fecha })
+          .populate('pagos'),
+        this.pagoModel.find({ ruta: caja.ruta, fecha: new RegExp(caja.fecha, 'i') })
+          .populate("credito"),
+        this.inversionModel.find({ ruta: caja.ruta, fecha: caja.fecha }),
+        this.gastoModel.find({
+          ruta: caja.ruta,
+          $and: [
+            { fecha: { $gte: fechaInicio } },
+            { fecha: { $lt: fechaFin } }
+          ]
+        }),
+        this.retiroModel.find({ ruta: caja.ruta, fecha: caja.fecha }),
+        this.pagoModel.countDocuments({ ruta: caja.ruta, fecha: new RegExp(caja.fecha, 'i') })
+      ]);
 
     let extra = 0;
 
@@ -189,9 +257,9 @@ export class CajaService {
     caja.cobro = cobro;
     caja.prestamo = prestamo;
     caja.total_clientes = total_clientes,
-    caja.clientes_pendientes = total_clientes - numeroDeClientesQuePagaronHoy
+      caja.clientes_pendientes = total_clientes - numeroDeClientesQuePagaronHoy
     caja.renovaciones = renovaciones,
-    caja.extra = extra;
+      caja.extra = extra;
     caja.caja_final = (base + inversion + cobro) - (retiro + gasto + prestamo)
 
     await caja.save()
@@ -205,7 +273,7 @@ export class CajaService {
     const caja = await this.findOne(idCaja);
 
     try {
-      
+
       await this.CcModel.create({
         user: user._id,
         caja: idCaja,
@@ -215,7 +283,7 @@ export class CajaService {
       })
 
       return true;
-      
+
 
     } catch (error) {
 

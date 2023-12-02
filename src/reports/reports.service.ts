@@ -88,7 +88,7 @@ export class ReportsService {
       })
    }
 
-   async getBackup(idEmpresa: string, to: string) {
+   async getBackup(idEmpresa: string, to?: string) {
 
       try {
 
@@ -163,12 +163,8 @@ export class ReportsService {
       }
 
       const file = fs.readFileSync(backup);
-
-      let sentEmail = false;
       
-      if(to !== 'undefined'){
-         sentEmail = await this.sendBackUpViaEmail(to, file, empresa)
-      }
+      const sentEmail = await this.sendBackUpViaEmail(to, file, empresa)
 
       return {
          file: backup,

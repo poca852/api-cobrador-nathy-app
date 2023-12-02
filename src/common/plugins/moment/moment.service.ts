@@ -21,6 +21,10 @@ export class MomentService {
       return moment(date).utc(true).format(format);
    }
 
+   fechaIsoString(date: string){
+      return moment(date).utc().toISOString();
+   }
+
    date(): Date {
       return new Date(moment().utc(true).toISOString());      
    }
