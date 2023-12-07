@@ -128,14 +128,13 @@ export class RutaService {
     return true;
   }
 
-  async closeRuta(id: string): Promise<boolean> {
+  async closeRuta(id: string, fecha: string): Promise<boolean> {
 
     const ruta = await this.findOne(id);
-    const fecha = this.moment.nowWithFormat('DD/MM/YYYY')
 
     await this.update(id, {
       status: false,
-      ultimo_cierre: fecha,
+      ultimo_cierre: this.moment.fecha(fecha, 'DD/MM/YYYY'),
       ultima_caja: ruta.caja_actual._id
     })
 
@@ -146,13 +145,15 @@ export class RutaService {
 
   }
 
-  async openRuta(id: string): Promise<boolean> {
+  async openRuta(id: string, date: string): Promise<boolean> {
 
-    const fecha = this.moment.nowWithFormat('DD/MM/YYYY');
+    const fecha = this.moment.fecha(date, 'DD/MM/YYYY');
 
     const ruta: Ruta = await this.findOne(id);
 
-    await this.actualizarRuta(id);
+    if(ruta.ultima_apertura === fecha) {
+      throw new BadRequestException('Esta intentando abrir la rutas dos veces en el mismo dia, por favor hable con el administrador del sistema.')
+    }
 
     let caja;
 
@@ -186,7 +187,7 @@ export class RutaService {
     await ruta.updateOne({
       caja_actual: caja._id,
       status: true,
-      ultima_apertura: fecha.trim()
+      ultima_apertura: fecha
     });
 
     return true;

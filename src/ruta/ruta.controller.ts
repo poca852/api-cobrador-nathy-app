@@ -69,15 +69,17 @@ export class RutaController {
   @Patch("open/:id")
   async openRuta(
     @Param("id", ParseMongoIdPipe) id: string,
+    @Query('fecha') fecha: string 
   ) {
-    return this.rutaService.openRuta(id)
+    return this.rutaService.openRuta(id, fecha)
   }
 
   @Patch("close/:id")
   async closeRuta(
     @Param("id", ParseMongoIdPipe) id: string,
+    @Query('fecha') fecha: string 
   ) {
-    return this.rutaService.closeRuta(id)
+    return this.rutaService.closeRuta(id, fecha)
   }
 
 }
