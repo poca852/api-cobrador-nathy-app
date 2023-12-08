@@ -91,7 +91,7 @@ export class CajaService {
   async currentCaja(ruta: string, fecha: string) {
 
     // FECHA PROPIA se lo asigno porque lastimosamente es la fecha que eligi para el manejo de la fecha de la caja, despues esto se tiene que arregar
-    const fechaPropia = this.moment.nowWithFormat('DD/MM/YYYY');
+    const fechaPropia = this.moment.fecha(fecha, 'DD/MM/YYYY');
 
     // esta es la fecha que ya manejamos en los gastos que es un isostring, aca cogemos la fecha que nos mandan por querys que es en formato de isostring
     const fechaParseada = new Date(fecha);
