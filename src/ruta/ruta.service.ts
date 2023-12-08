@@ -134,7 +134,7 @@ export class RutaService {
 
     await this.update(id, {
       status: false,
-      ultimo_cierre: this.moment.fecha(fecha, 'DD/MM/YYYY'),
+      ultimo_cierre: this.moment.nowWithFormat('DD/MM/YYYY'),
       ultima_caja: ruta.caja_actual._id
     })
 
@@ -147,7 +147,7 @@ export class RutaService {
 
   async openRuta(id: string, date: string): Promise<boolean> {
 
-    const fecha = this.moment.fecha(date, 'DD/MM/YYYY');
+    const fecha = this.moment.nowWithFormat('DD/MM/YYYY');
 
     const ruta: Ruta = await this.findOne(id);
 
