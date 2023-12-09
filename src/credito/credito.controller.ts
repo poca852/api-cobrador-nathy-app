@@ -38,8 +38,12 @@ export class CreditoController {
   }
 
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() updateCreditoDto: UpdateCreditoDto) {
-    return await this.creditoService.update(id, updateCreditoDto);
+  async update(
+    @Param('id') id: string, 
+    @Body() updateCreditoDto: UpdateCreditoDto,
+    @Query('fecha') fecha: string,
+  ) {
+    return await this.creditoService.update(id, updateCreditoDto, fecha);
   }
 
   @Delete(':id')

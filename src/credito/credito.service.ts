@@ -143,9 +143,22 @@ export class CreditoService {
     };
   }
 
-  async update(id: string, updateCreditoDto: UpdateCreditoDto): Promise<Credito> {
+  async update(id: string, updateCreditoDto: UpdateCreditoDto, fecha: string) {
     try {
-      return await this.creditoModel.findByIdAndUpdate(id, updateCreditoDto, {new: true})
+      const creditoUpdate = await this.creditoModel.findByIdAndUpdate(id, updateCreditoDto, {new: true});
+
+      if(creditoUpdate.fecha_inicio === this.moment.fecha(fecha, 'DD/MM/YYYY')){
+        await this.cajaService.currentCaja(`${creditoUpdate.ruta}`, fecha)
+        return creditoUpdate;
+      }
+      
+      let fechaSplit = creditoUpdate.fecha_inicio.split('/');
+      let newFecha = `${fechaSplit[2]}-${fechaSplit[1]}-${fechaSplit[0]}`;
+      await this.cajaService.currentCaja(`${creditoUpdate.ruta}`, newFecha);
+      await this.cajaService.currentCaja(`${creditoUpdate.ruta}`, fecha);
+      
+      return creditoUpdate;
+      
     } catch (error) {
       this.hanldeExceptions(error);
     }
@@ -163,6 +176,15 @@ export class CreditoService {
       await cliente.save();
 
       await this.creditoModel.findByIdAndRemove(id);
+
+      if(credito.fecha_inicio !== this.moment.nowWithFormat('DD/MM/YYYY')){
+        let queryFecha = credito.fecha_inicio.split('/');
+        let newFecha = `${queryFecha[2]}-${queryFecha[1]}-${queryFecha[0]}`;
+
+        await this.cajaService.currentCaja(`${credito.ruta}`, newFecha)
+      }
+      
+      await this.cajaService.currentCaja(`${credito.ruta}`, this.moment.nowWithFormat('YYYY-MM-DD'));
 
       return true;
     } catch (error) {
