@@ -97,7 +97,12 @@ export class CajaService {
     const fechaParseada = new Date(fecha);
 
     const caja = await this.cajaModel.findOne({ ruta, fecha: fechaPropia })
-      .populate('ruta');
+      .populate([
+        {
+          path: 'ruta',
+          populate: 'ultima_caja'
+        }
+      ]);
     if (!caja) throw new BadRequestException('La ruta no fue cerrada');
 
     const [
@@ -159,6 +164,7 @@ export class CajaService {
     let tenianQuePagar = pagosOfDay
       .filter(pago => pago.credito.fecha_inicio !== fechaPropia);
 
+    caja.base = caja.ruta.ultima_caja.caja_final;
     caja.inversion = inversion;
     caja.retiro = retiro;
     caja.gasto = gasto;
