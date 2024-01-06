@@ -164,7 +164,7 @@ export class CajaService {
     let tenianQuePagar = pagosOfDay
       .filter(pago => pago.credito.fecha_inicio !== fechaPropia);
 
-    caja.base = caja.ruta.ultima_caja.caja_final;
+    // caja.base = caja.ruta.ultima_caja.caja_final;
     caja.inversion = inversion;
     caja.retiro = retiro;
     caja.gasto = gasto;
