@@ -8,7 +8,7 @@ export class CreateCreditoDto {
 
    @IsBoolean()
    @IsOptional()
-   status?: boolean;
+   status?: boolean = true;
 
    @IsNumber()
    valor_credito: number;
@@ -54,7 +54,7 @@ export class CreateCreditoDto {
 
    @IsNumber()
    @IsOptional()
-   turno?: number; 
+   turno?: number = 1; 
 
    @IsOptional()
    @IsBoolean()
@@ -66,4 +66,9 @@ export class CreateCreditoDto {
 
    @IsBoolean()
    se_cobran_domingos: boolean;
+
+   @IsString()
+   @IsOptional()
+   @IsEnum(['BUENO', 'REGULAR', 'MALO'])
+   state?: string = 'BUENO';
 }

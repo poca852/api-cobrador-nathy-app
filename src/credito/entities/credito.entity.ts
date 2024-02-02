@@ -17,7 +17,7 @@ export class Credito extends Document {
 
    @Prop({
       type: Boolean,
-      default: true
+      required: true
    })
    status: boolean;
 
@@ -93,7 +93,7 @@ export class Credito extends Document {
 
    @Prop({
       type: Number,
-      default: 1
+      required: true
    })
    turno: number;
    
@@ -111,6 +111,13 @@ export class Credito extends Document {
 
    @Prop({type: Number})
    atraso?: number;
+
+   @Prop({
+      type: String,
+      enum: ['BUENO', 'REGULAR', 'MALO'],
+      default: 'BUENO'
+   })
+   state: string;
 }
 
 export const CreditoSchema = SchemaFactory.createForClass(Credito)
