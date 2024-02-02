@@ -24,10 +24,6 @@ export class PagoService {
 
   async create(createPagoDto: CreatePagoDto): Promise<PagoResponse> {
     
-   if(await this.creditoService.verificarSiElPagoEsMayor(createPagoDto.credito, createPagoDto.valor)){
-    throw new BadRequestException('El valor ingresado supera el saldo del cliente')
-   }
-
     const pago = await this.pagoModel.create(createPagoDto);
 
     const {message, urlMessage} = await this.creditoService.agregarPago(createPagoDto.credito, pago, createPagoDto.ruta);
