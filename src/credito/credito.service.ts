@@ -12,7 +12,7 @@ import { Pago } from '../pago/entities/pago.entity';
 import { ClienteService } from '../cliente/cliente.service';
 import { Ruta } from '../ruta/entities/ruta.entity';
 import { InformeCredito } from './gnerar-informe-credito';
-import { calcularAtrasos } from './helpers/atrasos-credito';
+import { CalculadorDeAtrasos } from './helpers/atrasos-credito';
 import { getSaldo } from './helpers/get-saldo-credito';
 import { getAbonos } from './helpers/get-abonos-credito';
 import { User } from 'src/auth/entities/user.entity';
@@ -83,7 +83,7 @@ export class CreditoService {
         .sort({ turno: 1 })
 
       for (const credito of creditos) {
-        credito.atraso = await calcularAtrasos(credito);
+        credito.atraso = new CalculadorDeAtrasos(credito).calcularAtrasos();
       }
 
       return creditos
@@ -99,7 +99,7 @@ export class CreditoService {
       .sort({ turno: 1 })
 
     for (const credito of creditos) {
-      credito.atraso = await calcularAtrasos(credito);
+      credito.atraso = new CalculadorDeAtrasos(credito).calcularAtrasos();
     }
 
 
@@ -139,7 +139,7 @@ export class CreditoService {
 
     return {
       ...credito.toJSON(),
-      atraso: await calcularAtrasos(credito)
+      atraso: new CalculadorDeAtrasos(credito).calcularAtrasos()
     };
   }
 
@@ -194,6 +194,8 @@ export class CreditoService {
 
   }
 
+  // RELACIONADO CON LOS PAGOS
+
   public async agregarPago(idCredito: string, pago: Pago, idRuta: string) {
 
     const credito = await this.creditoModel.findById(idCredito)
@@ -209,8 +211,9 @@ export class CreditoService {
 
     await this.verificarSiTermino(credito);
 
-    const factura = new InformeCredito(credito);
-    const { message, urlMessage } = await factura.getMessage();
+    const factura = new CalculadorDeAtrasos(credito).getMessage();
+    const { message, urlMessage } = factura;
+    await this.updateStateCredit(idCredito);
 
     return {
       true: true,
@@ -219,6 +222,27 @@ export class CreditoService {
     };
 
   }
+
+  // <==== AGREGAR STATE AL CREDITO DEPENDIENDO SUS ATRASASOS =====>
+  public async updateStateCredit(idCredito: string) {
+
+    const credito = await this.creditoModel.findById(idCredito);
+
+    if(!credito) throw new NotFoundException(`Credito con el id ${idCredito} no fue encontrado`);
+
+    const calculadorDeAtrasos = new CalculadorDeAtrasos(credito);
+    credito.atraso = calculadorDeAtrasos.calcularAtrasos();
+
+    if(credito.atraso > 5) {
+      credito.state = 'MALO'
+    }else if(credito.atraso > 2 && credito.atraso < 5){
+      credito.state = 'REGULAR'
+    }else {
+      credito.state = 'BUENO'
+    }
+
+    return await credito.save();
+  }  
 
   public async verificarSiElPagoEsMayor(idCredito: string, valor: number): Promise<boolean> {
 
