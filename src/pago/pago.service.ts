@@ -22,15 +22,12 @@ export class PagoService {
     private cajaSvc: CajaService,
   ) {}
 
-  async create(createPagoDto: CreatePagoDto): Promise<PagoResponse> {
+  async create(createPagoDto: CreatePagoDto, fecha: string): Promise<PagoResponse> {
     
     const pago = await this.pagoModel.create(createPagoDto);
 
     const {message, urlMessage} = await this.creditoService.agregarPago(createPagoDto.credito, pago, createPagoDto.ruta);
 
-    let q = createPagoDto.fecha.split(' ')[0];
-    let nq = q.split('/');
-    let fecha = `${nq[2]}-${nq[1]}-${nq[0]}`;
     await this.cajaSvc.currentCaja(createPagoDto.ruta, fecha);
 
     return {
