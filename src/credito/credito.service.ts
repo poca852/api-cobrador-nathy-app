@@ -98,10 +98,11 @@ export class CreditoService {
       .populate("pagos")
       .sort({ turno: 1 })
 
+      // esto se debe aliminar mañana
     for (const credito of creditos) {
-      credito.atraso = new CalculadorDeAtrasos(credito).calcularAtrasos();
+      // credito.atraso = new CalculadorDeAtrasos(credito).calcularAtrasos();
+      await this.updateStateCredit(credito._id)
     }
-
 
     return creditos;
 
