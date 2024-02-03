@@ -12,8 +12,11 @@ export class PagoController {
   constructor(private readonly pagoService: PagoService) {}
 
   @Post()
-  async create(@Body() createPagoDto: CreatePagoDto) {
-    return this.pagoService.create(createPagoDto);
+  async create(
+    @Body() createPagoDto: CreatePagoDto,
+    @Query('fecha') fecha: string
+  ) {
+    return this.pagoService.create(createPagoDto, fecha);
   }
 
   @Get()
