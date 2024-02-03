@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException, Logger, NotFoundException, BadRequestException, Patch } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { CreateCreditoDto } from './dto/create-credito.dto';
 import { UpdateCreditoDto } from './dto/update-credito.dto';
 import { GlobalParams } from '../common/dto/global-params.dto';
@@ -10,8 +10,6 @@ import { CajaService } from '../caja/caja.service';
 import { isTrue } from 'src/common/helpers/isTrue';
 import { Pago } from '../pago/entities/pago.entity';
 import { ClienteService } from '../cliente/cliente.service';
-import { Ruta } from '../ruta/entities/ruta.entity';
-import { InformeCredito } from './gnerar-informe-credito';
 import { CalculadorDeAtrasos } from './helpers/atrasos-credito';
 import { getSaldo } from './helpers/get-saldo-credito';
 import { getAbonos } from './helpers/get-abonos-credito';
@@ -27,9 +25,6 @@ export class CreditoService {
   constructor(
     @InjectModel(Credito.name)
     private readonly creditoModel: Model<Credito>,
-
-    @InjectModel(Ruta.name)
-    private readonly rutaModel: Model<Ruta>,
 
     @InjectModel(Cliente.name)
     private readonly clienteModel: Model<Cliente>,
@@ -97,12 +92,6 @@ export class CreditoService {
       .populate("cliente")
       .populate("pagos")
       .sort({ turno: 1 })
-
-      // esto se debe aliminar mañana
-    for (const credito of creditos) {
-      // credito.atraso = new CalculadorDeAtrasos(credito).calcularAtrasos();
-      await this.updateStateCredit(credito._id)
-    }
 
     return creditos;
 
