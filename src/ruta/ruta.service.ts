@@ -132,9 +132,10 @@ export class RutaService {
 
     const ruta = await this.findOne(id);
 
+    // POR EL MOMENTO VAMOS A RECIBIR LA FECHA COMO VENGA CON EL FORMATO DD/MM/YYYY MIENTRAS SOLUCIONO, OJO ESTO SE DEBE CAMBIAR
     await this.update(id, {
       status: false,
-      ultimo_cierre: this.moment.nowWithFormat('DD/MM/YYYY'),
+      ultimo_cierre: fecha,
       ultima_caja: ruta.caja_actual._id
     })
 
@@ -145,9 +146,9 @@ export class RutaService {
 
   }
 
-  async openRuta(id: string, date: string): Promise<boolean> {
+  async openRuta(id: string, fecha: string): Promise<boolean> {
 
-    const fecha = this.moment.nowWithFormat('DD/MM/YYYY');
+    // const fecha = this.moment.nowWithFormat('DD/MM/YYYY');
 
     const ruta: Ruta = await this.findOne(id);
 
