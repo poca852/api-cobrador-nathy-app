@@ -38,8 +38,7 @@ export class PagoService {
 
   }
 
-  async findAll( { ruta, fecha }: GlobalParams ): Promise<Pago[]> {
-    
+  async findAll( fecha: string, ruta: string ): Promise<Pago[]> {
     const pagos = await this.pagoModel.find({
       ruta,
       fecha: new RegExp(fecha, "i")

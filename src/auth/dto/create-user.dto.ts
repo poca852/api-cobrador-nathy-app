@@ -26,6 +26,11 @@ export class CreateUserDto {
    @IsOptional()
    ruta?: string;
 
+   @IsMongoId({each: true})
+   @IsArray()
+   @IsOptional()
+   rutas?: string[];
+
    @IsMongoId()
    @IsOptional()
    empresa?: string;

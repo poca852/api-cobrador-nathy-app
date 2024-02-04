@@ -66,7 +66,6 @@ export class AuthService {
                select: 'fecha'
             }
          })
-         .populate("empresa")
 
       if (!user) {
          throw new UnauthorizedException("Datos Incorrectos");

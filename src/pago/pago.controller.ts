@@ -21,9 +21,10 @@ export class PagoController {
 
   @Get()
   async findAll(
-    @Query() globalParams: GlobalParams
+    @Query('fecha') fecha: string,
+    @Query('ruta') ruta: string,
   ) {
-    return this.pagoService.findAll(globalParams);
+    return this.pagoService.findAll(fecha, ruta);
   }
 
   @Get(':id')
