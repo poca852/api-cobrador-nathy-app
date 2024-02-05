@@ -7,16 +7,14 @@ export class CalculadorDeAtrasos {
     private credito: Credito;
     private fechaActual: moment.Moment;
 
-    constructor(credito: Credito) {
+    constructor(credito: Credito, fecha: string) {
         this.credito = credito;
-        this.fechaActual = moment();
+        this.fechaActual = moment(fecha);
     }
 
     public getLastPay(): Pago {
-
       return this.credito.pagos[0];
-
-   }
+    }
 
     private calcularDiasEfectivosPago(): number {
         let diasEfectivosPago = this.fechaActual.diff(moment(this.credito.fecha_inicio, 'DD/MM/YYYY'), 'days');
@@ -52,25 +50,13 @@ export class CalculadorDeAtrasos {
         return atrasos;
     }
 
-    getMessage(): { message: string; urlMessage: string } {
+    getMessage(): string {
 
       let cuotasPendientes = this.credito.saldo / this.credito.valor_cuota;
       let aplicandoFixed = cuotasPendientes.toFixed(2);
 
       let cuotasPendientesParse = Number(aplicandoFixed);
-
-      let txtEncoded: string = `
-         Fecha+Inicio%3a+${this.credito.fecha_inicio.replaceAll(" ", "+")}%0d%0a
-         Cliente%3a+${this.credito.cliente.alias.replaceAll(" ", "+")}%0d%0a
-         Abonos%3a+$${this.credito.abonos}.00%0d%0a
-         Saldo%3a+$${this.credito.saldo}.00%0d%0a
-         Atrasos%3a+${this.calcularAtrasos()}%0d%0a
-         Cuotas+pendientes%3a+${cuotasPendientesParse}+/+${this.credito.total_cuotas}.00%0d%0a%0d%0a
-         Informacion+ultimo+pago%3a+%0d%0a
-         Valor%3a+$${this.getLastPay().valor}.00%0d%0a
-         Fecha%3a+${this.getLastPay().fecha.replaceAll(" ", "+")}
-      `
-
+  
       let txtMessage: string = `
          Fecha: ${this.credito.fecha_inicio} 
          Cliente: ${this.credito.cliente.alias} 
@@ -83,9 +69,6 @@ export class CalculadorDeAtrasos {
          Fecha: ${this.getLastPay().fecha}
       `
 
-      return {
-         urlMessage: `https://wa.me/${this.credito.cliente.telefono}?text=${txtEncoded}`,
-         message: txtMessage
-      }
+      return txtMessage
     }
 }

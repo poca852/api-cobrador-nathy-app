@@ -8,6 +8,7 @@ import { CreditoService } from '../credito/credito.service';
 import { GlobalParams } from 'src/common/dto/global-params.dto';
 import { PagoResponse } from './interfaces/pago-response.interface';
 import { CajaService } from '../caja/caja.service';
+import { MomentService } from '../common/plugins/moment/moment.service';
 
 @Injectable()
 export class PagoService {
@@ -20,20 +21,20 @@ export class PagoService {
 
     private readonly creditoService: CreditoService,
     private cajaSvc: CajaService,
+    private moment: MomentService,
   ) {}
 
+  
   async create(createPagoDto: CreatePagoDto, fecha: string): Promise<PagoResponse> {
-    
     const pago = await this.pagoModel.create(createPagoDto);
 
-    const {message, urlMessage} = await this.creditoService.agregarPago(createPagoDto.credito, pago, createPagoDto.ruta);
+    const {message} = await this.creditoService.agregarPago(createPagoDto.credito, pago, this.moment.fecha(fecha, 'YYYY-MM-DD'));
 
-    await this.cajaSvc.currentCaja(createPagoDto.ruta, fecha);
+    await this.cajaSvc.currentCaja(createPagoDto.ruta, this.moment.fecha(fecha,'YYYY-MM-DD'));
 
     return {
       pago,
       message,
-      urlMessage
     };
 
   }

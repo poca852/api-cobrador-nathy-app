@@ -77,10 +77,6 @@ export class CreditoService {
         .populate("pagos")
         .sort({ turno: 1 })
 
-      for (const credito of creditos) {
-        credito.atraso = new CalculadorDeAtrasos(credito).calcularAtrasos();
-      }
-
       return creditos
 
     }
@@ -128,8 +124,7 @@ export class CreditoService {
     }
 
     return {
-      ...credito.toJSON(),
-      atraso: new CalculadorDeAtrasos(credito).calcularAtrasos()
+      ...credito.toJSON()
     };
   }
 
@@ -186,7 +181,7 @@ export class CreditoService {
 
   // RELACIONADO CON LOS PAGOS
 
-  public async agregarPago(idCredito: string, pago: Pago, idRuta: string) {
+  public async agregarPago(idCredito: string, pago: Pago, fecha: string) {
 
     const credito = await this.creditoModel.findById(idCredito)
       .populate("cliente")
@@ -201,26 +196,27 @@ export class CreditoService {
 
     await this.verificarSiTermino(credito);
 
-    const factura = new CalculadorDeAtrasos(credito).getMessage();
-    const { message, urlMessage } = factura;
-    await this.updateStateCredit(idCredito);
+    const message = await this.updateStateCredit(idCredito, fecha);
 
     return {
       true: true,
       message,
-      urlMessage
     };
 
   }
 
   // <==== AGREGAR STATE AL CREDITO DEPENDIENDO SUS ATRASASOS =====>
-  public async updateStateCredit(idCredito: string) {
+  public async updateStateCredit(idCredito: string, fecha: string) {
 
-    const credito = await this.creditoModel.findById(idCredito);
+    const credito = await this.creditoModel.findById(idCredito)
+      .populate('cliente')
 
     if(!credito) throw new NotFoundException(`Credito con el id ${idCredito} no fue encontrado`);
 
-    const calculadorDeAtrasos = new CalculadorDeAtrasos(credito);
+    const calculadorDeAtrasos = new CalculadorDeAtrasos(credito, fecha);
+
+    // Inmediatamente descargamos la factura para enviarla al cliente
+    const factura = calculadorDeAtrasos.getMessage();
     credito.atraso = calculadorDeAtrasos.calcularAtrasos();
 
     if(credito.atraso > 5) {
@@ -231,7 +227,9 @@ export class CreditoService {
       credito.state = 'BUENO'
     }
 
-    return await credito.save();
+    await credito.save();
+
+    return factura
   }  
 
   public async verificarSiElPagoEsMayor(idCredito: string, valor: number): Promise<boolean> {

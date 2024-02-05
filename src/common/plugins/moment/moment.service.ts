@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import * as moment from 'moment-timezone';
 
-export type FormatDate = 'DD/MM/YYYY'|'YYYY/MM/DD'|'YYYY, MM, DD'|'YYYY-MM-DD'
+export type FormatDate = 'DD/MM/YYYY'|'YYYY/MM/DD'|'YYYY, MM, DD'|'YYYY-MM-DD'|'YYYY/MM/DD HH:mm a'
 
 @Injectable()
 export class MomentService {
@@ -18,7 +18,7 @@ export class MomentService {
    }
 
    fecha(date: string, format: FormatDate) {
-      return moment(date).utc(true).format(format);
+      return moment(date).format(format);
    }
 
    fechaIsoString(date: string){

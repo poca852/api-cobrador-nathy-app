@@ -10,6 +10,7 @@ import { Cliente, ClienteSchema } from 'src/cliente/entities/cliente.entity';
 import { CreditoModule } from '../credito/credito.module';
 import { RutaModule } from '../ruta/ruta.module';
 import { CajaModule } from '../caja/caja.module';
+import { MomentService } from 'src/common/plugins/moment/moment.service';
 
 @Module({
   imports: [
@@ -34,7 +35,7 @@ import { CajaModule } from '../caja/caja.module';
     ])
   ],
   controllers: [PagoController],
-  providers: [PagoService],
+  providers: [PagoService, MomentService],
   exports: [PagoService, MongooseModule]
 })
 export class PagoModule {}
