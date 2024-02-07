@@ -44,10 +44,10 @@ export class CalculadorDeAtrasos {
         const diasEfectivosPago = this.calcularDiasEfectivosPago();
         const pagosRealizados = Math.floor(this.credito.abonos / this.credito.valor_cuota);
         const atrasos = diasEfectivosPago - pagosRealizados;
-        // const atrasosMaximos = this.calcularAtrasosMaximos();
+        const atrasosMaximos = this.calcularAtrasosMaximos();
 
-        // return Math.min(atrasos, atrasosMaximos);
-        return atrasos;
+        return Math.min(atrasos, atrasosMaximos);
+        // return atrasos;
     }
 
     getMessage(): string {
