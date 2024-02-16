@@ -13,21 +13,20 @@ export class MessageGateway implements OnGatewayConnection, OnGatewayDisconnect 
 
   async handleConnection(client: Socket) {
     
-    this.wss.emit('mensaje', {
-      name: 'david cuspoca'
-    })
-
   }
   
   handleDisconnect(client: Socket) {
   }
 
 
-  @SubscribeMessage('close-ruta')
-  async handleCoseRuta( client: Socket, paylaod: { ruta: string }){
-    
+  @SubscribeMessage('admin-close-caja')
+  async handleCoseRuta( client: Socket, payload: { ruta: string }){
+    this.wss.emit('close-caja', { ruta: payload[0].ruta })
+  }
 
-
+  @SubscribeMessage('admin-block-caja')
+  async handleBlockRuta( client: Socket, paylaod: { ruta: string }){
+    this.wss.emit('block-caja', { ruta: paylaod[0].ruta })
   }
 
 }
