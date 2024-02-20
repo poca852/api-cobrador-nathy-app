@@ -152,9 +152,9 @@ export class RutaService {
 
     const ruta: Ruta = await this.findOne(id);
 
-    if(ruta.ultima_apertura === fecha) {
-      throw new BadRequestException('Esta intentando abrir la rutas dos veces en el mismo dia, por favor hable con el administrador del sistema.')
-    }
+    // if(ruta.ultima_apertura === fecha) {
+    //   throw new BadRequestException('Esta intentando abrir la rutas dos veces en el mismo dia, por favor hable con el administrador del sistema.')
+    // }
 
     let caja;
 
