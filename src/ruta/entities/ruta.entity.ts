@@ -131,8 +131,11 @@ export class Ruta extends Document {
    })
    empresa: Empresa;
 
-   @Prop({ type: Boolean, default: true })
+   @Prop({ type: Boolean, required: true })
    have_login_falso: boolean;
+
+   @Prop({ type: String })
+   senha: string;
   
 }
 

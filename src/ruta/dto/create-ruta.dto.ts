@@ -78,12 +78,15 @@ export class CreateRutaDto {
 
    @IsBoolean()
    @IsOptional()
-   have_login_falso?: boolean;
+   have_login_falso: boolean = true;
 
    @IsString()
    pais: string;
 
    @IsString()
    estado: string;
+
+   @IsString()
+   senha?: string;
 
 }

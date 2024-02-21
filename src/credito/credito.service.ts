@@ -149,6 +149,18 @@ export class CreditoService {
     }
   }
 
+  async updateTurno(id: string, updateCreditoDto: UpdateCreditoDto) {
+    try {
+
+      await this.creditoModel.findByIdAndUpdate(id, updateCreditoDto, {new: true});
+
+      return true;
+      
+    } catch (error) {
+      this.hanldeExceptions(error);
+    }
+  }
+
   async remove(id: string) {
 
     try {

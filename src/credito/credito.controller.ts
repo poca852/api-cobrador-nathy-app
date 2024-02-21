@@ -46,6 +46,14 @@ export class CreditoController {
     return await this.creditoService.update(id, updateCreditoDto, fecha);
   }
 
+  @Patch('turno/:id')
+  async updateTurno(
+    @Param('id') id: string, 
+    @Body() updateCreditoDto: UpdateCreditoDto,
+  ) {
+    return await this.creditoService.updateTurno( id, updateCreditoDto );
+  }
+
   @Delete(':id')
   remove(
     @Param('id', ParseMongoIdPipe) id: string,
