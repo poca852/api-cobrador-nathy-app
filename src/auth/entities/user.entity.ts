@@ -66,6 +66,9 @@ export class User extends Document {
    })
    empresa: Empresa;
 
+   @Prop({ type: Boolean })
+   close_ruta: boolean;
+
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

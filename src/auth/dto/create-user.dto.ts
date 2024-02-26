@@ -34,4 +34,8 @@ export class CreateUserDto {
    @IsMongoId()
    @IsOptional()
    empresa?: string;
+
+   @IsBoolean()
+   @IsOptional()
+   close_ruta: boolean;
 }
