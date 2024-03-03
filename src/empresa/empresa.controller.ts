@@ -7,17 +7,18 @@ import { Auth } from 'src/auth/decorators';
 import { ValidRoles } from 'src/auth/interfaces';
 import { CreateUserDto } from 'src/auth/dto';
 
-@Auth()
 @Controller('empresa')
 export class EmpresaController {
   constructor(private readonly empresaService: EmpresaService) {}
 
+  @Auth()
   @Post()
   create(@Body() createEmpresaDto: CreateEmpresaDto) {
     return this.empresaService.create(createEmpresaDto);
   }
 
   // ! TRAE LOS EMPLEADOS SEGUN LA EMPRESA
+  @Auth()
   @Get('get-empleados')
   findAll(
     @Query('empresa', ParseMongoIdPipe) empresa: string
@@ -25,6 +26,12 @@ export class EmpresaController {
     return this.empresaService.findAll(empresa);
   }
 
+  @Get('get-open-rutas')
+  findEmpresaWithRutasOpened(){
+    return this.empresaService.findEmpresaWithRutasOpened()
+  }
+
+  @Auth()
   @Get(':id')
   findOne(
     @Param('id', ParseMongoIdPipe) id: string
@@ -32,6 +39,7 @@ export class EmpresaController {
     return this.empresaService.findOne(id);
   }
 
+  @Auth()
   @Patch('update/:id')
   update(
     @Param('id', ParseMongoIdPipe) id: string, 
@@ -66,6 +74,7 @@ export class EmpresaController {
     return this.empresaService.addRuta(empresa, ruta)
   }
 
+  @Auth()
   @Patch('add-owner')
   addOwner(
     @Query('empresa', ParseMongoIdPipe) empresa: string,
@@ -74,6 +83,7 @@ export class EmpresaController {
     return this.empresaService.addOwner(empresa, user);
   }
 
+  @Auth()
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.empresaService.remove(+id);

@@ -20,6 +20,9 @@ export class Empresa extends Document {
    })
    email: string;
 
+   @Prop({ type: String })
+   phone: string;
+
    @Prop({
       type: Number,
       default: 19

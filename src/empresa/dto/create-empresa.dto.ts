@@ -9,6 +9,10 @@ export class CreateEmpresaDto {
    @IsOptional()
    email?: string;
 
+   @IsString()
+   @IsOptional()
+   phone?: string;
+
    @IsNumber()
    @IsOptional()
    dayOfPay?: number;

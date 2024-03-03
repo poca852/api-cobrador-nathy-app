@@ -43,6 +43,45 @@ export class EmpresaService {
 
   }
 
+  async findEmpresaWithRutasOpened() {
+
+    try {
+      const empresasConRutasAbiertas = await this.empresaModel.aggregate([
+        {
+          $lookup: {
+            from: 'rutas', // Nombre de la colección de rutas en la base de datos
+            localField: 'rutas',
+            foreignField: '_id',
+            as: 'rutas',
+          },
+        },
+        {
+          $unwind: '$rutas',
+        },
+        {
+          $match: {
+            'rutas.status': true,
+          },
+        },
+        {
+          $group: {
+            _id: '$_id',
+            nombre: { $first: '$name' },
+            email: { $first: '$email' },
+            phone: { $first: '$phone' },
+            rutas: { $push: '$rutas.nombre' },
+          },
+        },
+      ]);
+  
+      return empresasConRutasAbiertas;
+    } catch (error) {
+      console.error('Error al obtener empresas con rutas abiertas:', error);
+      throw error;
+    }
+
+  }
+
   async findAll(empresa: string) {
 
     let empresaDB = await this.empresaModel.findById(empresa)
