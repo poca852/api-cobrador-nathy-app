@@ -149,7 +149,13 @@ export class RutaService {
   async openRuta(id: string): Promise<boolean> {
 
     const date = new Date();
-    const fecha = date.toLocaleDateString('es-CO', {timeZone: 'America/Guatemala'})
+
+    const fecha = date.toLocaleDateString('es-CO', {
+      timeZone: 'America/Guatemala',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    })
 
     const ruta: Ruta = await this.findOne(id);
 
