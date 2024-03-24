@@ -135,7 +135,7 @@ export class RutaService {
     // POR EL MOMENTO VAMOS A RECIBIR LA FECHA COMO VENGA CON EL FORMATO DD/MM/YYYY MIENTRAS SOLUCIONO, OJO ESTO SE DEBE CAMBIAR
     await this.update(id, {
       status: false,
-      ultimo_cierre: fecha,
+      ultimo_cierre: ruta.caja_actual.fecha,
       ultima_caja: ruta.caja_actual._id
     })
 
@@ -146,9 +146,10 @@ export class RutaService {
 
   }
 
-  async openRuta(id: string, fecha: string): Promise<boolean> {
+  async openRuta(id: string): Promise<boolean> {
 
-    // const fecha = this.moment.nowWithFormat('DD/MM/YYYY');
+    const date = new Date();
+    const fecha = date.toLocaleDateString('es-CO', {timeZone: 'America/Guatemala'})
 
     const ruta: Ruta = await this.findOne(id);
 
@@ -160,7 +161,7 @@ export class RutaService {
 
     if (!ruta.ultima_caja) {
       caja = await this.cajaModel.create({
-        fecha: fecha,
+        fecha,
         ruta: id
       })
     }
@@ -181,7 +182,7 @@ export class RutaService {
         total_clientes: creditosDeLaRuta.length,
         clientes_pendientes: creditosDeLaRuta.length,
         pretendido,
-        fecha: fecha.trim()
+        fecha
       })
     }
 

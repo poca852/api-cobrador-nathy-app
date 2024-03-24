@@ -71,7 +71,7 @@ export class RutaController {
     @Param("id", ParseMongoIdPipe) id: string,
     @Query('fecha') fecha: string 
   ) {
-    return this.rutaService.openRuta(id, fecha)
+    return this.rutaService.openRuta(id)
   }
 
   @Patch("close/:id")
