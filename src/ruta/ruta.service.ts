@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException, Logger, BadRequestException, InternalServerErrorException, forwardRef, Inject } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { CronJob } from 'cron';
 import { CreateRutaDto } from './dto/create-ruta.dto';
 import { UpdateRutaDto } from './dto/update-ruta.dto';
 import { Ruta } from './entities/ruta.entity';
@@ -54,7 +55,16 @@ export class RutaService {
     private readonly cajaService: CajaService,
 
     private moment: MomentService
-  ) { }
+  ) { 
+
+    const job = CronJob.from({
+      cronTime: '00 00 4 * * *',
+      onTick: this.checkRutas,
+      start: true,
+      timeZone: 'America/sao_paulo'
+    })
+
+  }
 
   async create(createRutaDto: CreateRutaDto, user: User) {
 
@@ -128,14 +138,21 @@ export class RutaService {
     return true;
   }
 
-  async closeRuta(id: string, fecha: string): Promise<boolean> {
+  async closeRuta(id: string, fecha?: string): Promise<boolean> {
 
     const ruta = await this.findOne(id);
+
+    const date = new Date().toLocaleDateString('es-CO', {
+      timeZone: `America/${ruta.pais}`,
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    })
 
     // POR EL MOMENTO VAMOS A RECIBIR LA FECHA COMO VENGA CON EL FORMATO DD/MM/YYYY MIENTRAS SOLUCIONO, OJO ESTO SE DEBE CAMBIAR
     await this.update(id, {
       status: false,
-      ultimo_cierre: ruta.caja_actual.fecha,
+      ultimo_cierre: date,
       ultima_caja: ruta.caja_actual._id
     })
 
@@ -148,20 +165,16 @@ export class RutaService {
 
   async openRuta(id: string): Promise<boolean> {
 
+    const ruta: Ruta = await this.findOne(id);
+    
     const date = new Date();
 
     const fecha = date.toLocaleDateString('es-CO', {
-      timeZone: 'America/Guatemala',
+      timeZone: `America/${ruta.pais}`,
       day: '2-digit',
       month: '2-digit',
       year: 'numeric'
     })
-
-    const ruta: Ruta = await this.findOne(id);
-
-    // if(ruta.ultima_apertura === fecha) {
-    //   throw new BadRequestException('Esta intentando abrir la rutas dos veces en el mismo dia, por favor hable con el administrador del sistema.')
-    // }
 
     let caja;
 
@@ -257,6 +270,21 @@ export class RutaService {
       this.handleExceptions(error);
 
     }
+
+  }
+
+  private checkRutas = async () => {
+    
+    const rutas = await this.rutaModel.find({status: true});
+
+    for(const ruta of rutas){
+      try {
+        await this.closeRuta(ruta._id)
+      } catch (error) {
+        this.handleExceptions(error);
+      }
+    }
+
 
   }
 
