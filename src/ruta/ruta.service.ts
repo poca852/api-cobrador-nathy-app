@@ -57,12 +57,19 @@ export class RutaService {
     private moment: MomentService
   ) { 
 
-    const job = CronJob.from({
+    const closeRutas = CronJob.from({
       cronTime: '00 00 4 * * *',
       onTick: this.checkRutas,
       start: true,
       timeZone: 'America/sao_paulo'
-    })
+    });
+
+    const openRutas = CronJob.from({
+      cronTime: '00 00 9 * * *',
+      onTick: this.checkOpenRutas,
+      start: true,
+      timeZone: 'America/sao_paulo'
+    });
 
   }
 
@@ -285,6 +292,22 @@ export class RutaService {
       }
     }
 
+
+  }
+
+  private checkOpenRutas = async () => {
+
+    const rutas = await this.rutaModel.find({ autoOpen: true, status: false });
+
+    for(const ruta of rutas) {
+
+      try {
+        await this.openRuta(ruta._id);
+      } catch (error) {
+        this.handleExceptions(error)
+      }
+
+    }
 
   }
 

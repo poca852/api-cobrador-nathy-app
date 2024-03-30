@@ -136,6 +136,9 @@ export class Ruta extends Document {
 
    @Prop({ type: String })
    senha: string;
+
+   @Prop({ type: Boolean, required: true })
+   autoOpen: boolean;
   
 }
 

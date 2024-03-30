@@ -89,4 +89,8 @@ export class CreateRutaDto {
    @IsString()
    senha?: string;
 
+   @IsBoolean()
+   @IsOptional()
+   autoOpen: boolean = true;
+
 }
