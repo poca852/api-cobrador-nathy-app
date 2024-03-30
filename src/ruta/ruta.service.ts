@@ -150,7 +150,6 @@ export class RutaService {
     const ruta = await this.findOne(id);
 
     const date = new Date().toLocaleDateString('es-CO', {
-      timeZone: `America/${ruta.pais}`,
       day: '2-digit',
       month: '2-digit',
       year: 'numeric'
