@@ -58,14 +58,14 @@ export class RutaService {
   ) { 
 
     const closeRutas = CronJob.from({
-      cronTime: '00 00 4 * * *',
+      cronTime: '00 00 4 * * 1-6',
       onTick: this.checkRutas,
       start: true,
       timeZone: 'America/sao_paulo'
     });
 
     const openRutas = CronJob.from({
-      cronTime: '00 00 9 * * *',
+      cronTime: '00 00 9 * * 1-6',
       onTick: this.checkOpenRutas,
       start: true,
       timeZone: 'America/sao_paulo'
