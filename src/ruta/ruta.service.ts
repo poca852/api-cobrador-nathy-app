@@ -279,34 +279,35 @@ export class RutaService {
 
   }
 
+  //Esta funcion busca las rutas abiertas y las cierra
   private checkRutas = async () => {
     
-    const rutas = await this.rutaModel.find({status: true});
-
-    for(const ruta of rutas){
-      try {
-        await this.closeRuta(ruta._id)
-      } catch (error) {
-        this.handleExceptions(error);
-      }
-    }
-
+    await this.processRuta({status: true}, this.closeRuta.bind(this))
 
   }
 
+  //Esta funcion se encarga de abrir las rutas
   private checkOpenRutas = async () => {
+    
+    await this.processRuta({autoOpen: true, status: false}, this.openRuta.bind(this))
 
-    const rutas = await this.rutaModel.find({ autoOpen: true, status: false });
+  }
 
-    for(const ruta of rutas) {
-
-      try {
-        await this.openRuta(ruta._id);
-      } catch (error) {
-        this.handleExceptions(error)
-      }
-
-    }
+  private async processRuta(
+    filter: Record<string, any>,
+    action: (rutaId: string) => Promise<void>
+  ): Promise<void>  {
+    const rutas = await this.rutaModel.find(filter);
+    
+    await Promise.all(
+      rutas.map( async (ruta) => {
+        try {
+          await action(ruta._id);
+        } catch (error) {
+          this.handleExceptions(error)
+        }
+      })
+    )
 
   }
 
