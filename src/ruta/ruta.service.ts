@@ -1,6 +1,5 @@
 import { Injectable, NotFoundException, Logger, BadRequestException, InternalServerErrorException, forwardRef, Inject } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { CronJob } from 'cron';
 import { CreateRutaDto } from './dto/create-ruta.dto';
 import { UpdateRutaDto } from './dto/update-ruta.dto';
 import { Ruta } from './entities/ruta.entity';
@@ -55,23 +54,7 @@ export class RutaService {
     private readonly cajaService: CajaService,
 
     private moment: MomentService
-  ) { 
-
-    const closeRutas = CronJob.from({
-      cronTime: '00 00 4 * * 1-6',
-      onTick: this.checkRutas,
-      start: true,
-      timeZone: 'America/sao_paulo'
-    });
-
-    const openRutas = CronJob.from({
-      cronTime: '00 00 9 * * 1-6',
-      onTick: this.checkOpenRutas,
-      start: true,
-      timeZone: 'America/sao_paulo'
-    });
-
-  }
+  ) {}
 
   async create(createRutaDto: CreateRutaDto, user: User) {
 
@@ -93,18 +76,10 @@ export class RutaService {
 
   }
 
-  async findAll(user: User): Promise<Ruta[]> {
+  async findByFilter(filter: any): Promise<Ruta[]> {
 
-    // let rutas: string[] = user.rutas.map(ruta => ruta._id);
+    return await this.rutaModel.find(filter)
 
-    // return await this.rutaModel.find({
-    //   _id: { $in: rutas }
-    // })
-    //   .populate('caja_actual')
-    //   .populate('ultima_caja')
-
-
-    return []
   }
 
   async findOne(id: string): Promise<Ruta> {
@@ -276,38 +251,6 @@ export class RutaService {
       this.handleExceptions(error);
 
     }
-
-  }
-
-  //Esta funcion busca las rutas abiertas y las cierra
-  private checkRutas = async () => {
-    
-    await this.processRuta({status: true}, this.closeRuta.bind(this))
-
-  }
-
-  //Esta funcion se encarga de abrir las rutas
-  private checkOpenRutas = async () => {
-    
-    await this.processRuta({autoOpen: true, status: false}, this.openRuta.bind(this))
-
-  }
-
-  private async processRuta(
-    filter: Record<string, any>,
-    action: (rutaId: string) => Promise<void>
-  ): Promise<void>  {
-    const rutas = await this.rutaModel.find(filter);
-    
-    await Promise.all(
-      rutas.map( async (ruta) => {
-        try {
-          await action(ruta._id);
-        } catch (error) {
-          this.handleExceptions(error)
-        }
-      })
-    )
 
   }
 

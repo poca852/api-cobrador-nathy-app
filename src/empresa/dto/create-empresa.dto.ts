@@ -1,4 +1,4 @@
-import { IsArray, IsEmail, IsMongoId, IsNumber, IsOptional, IsString } from "class-validator";
+import { IsArray, IsBoolean, IsEmail, IsMongoId, IsNumber, IsOptional, IsString } from "class-validator";
 
 export class CreateEmpresaDto {
 
@@ -37,5 +37,9 @@ export class CreateEmpresaDto {
    @IsArray()
    @IsOptional()
    rutas: string[]
+
+   @IsBoolean()
+   @IsOptional()
+   isSubscriptionPaid: boolean;
 
 }

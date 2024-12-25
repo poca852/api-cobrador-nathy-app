@@ -37,6 +37,12 @@ export class Empresa extends Document {
    country: string;
 
    @Prop({
+      type: Boolean,
+      default: true
+   })
+   isSubscriptionPaid: boolean;
+
+   @Prop({
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User'
    })

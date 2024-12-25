@@ -3,6 +3,7 @@ import { CreateEmpresaDto } from './dto/create-empresa.dto';
 import { UpdateEmpresaDto } from './dto/update-empresa.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Empresa } from './entities/empresa.entity';
+import { CronJob } from 'cron';
 import { Model } from 'mongoose';
 import { User } from '../auth/entities/user.entity';
 import { RutaService } from '../ruta/ruta.service';
@@ -25,7 +26,22 @@ export class EmpresaService {
 
     private authSvc: AuthService,
     private clienteSrc: ClienteService,
-  ) { }
+  ) { 
+
+    const closeRutas = CronJob.from({
+      cronTime: '00 00 4 * * 1-7',
+      onTick: this.checkRutas,
+      start: true,
+      timeZone: 'America/sao_paulo'
+    });
+
+    const openRutas = CronJob.from({
+      cronTime: '00 00 9 * * 1-6',
+      onTick: this.checkOpenRutas,
+      start: true,
+      timeZone: 'America/sao_paulo'
+    });
+  }
 
   async create(createEmpresaDto: CreateEmpresaDto) {
 
@@ -41,6 +57,10 @@ export class EmpresaService {
       this.handleExceptions(error);
     }
 
+  }
+
+  mundo() {
+    this.findEmpresaWithRutasOpened().then(console.log)
   }
 
   async findEmpresaWithRutasOpened() {
@@ -251,6 +271,38 @@ export class EmpresaService {
 
   remove(id: number) {
     return `This action removes a #${id} empresa`;
+  }
+
+  //Esta funcion busca las rutas abiertas y las cierra
+  private checkRutas = async () => {
+    
+    await this.processRuta({status: true}, this.rutaSvc.closeRuta.bind(this))
+
+  }
+
+  //Esta funcion se encarga de abrir las rutas
+  private checkOpenRutas = async () => {
+    
+    await this.processRuta({autoOpen: true, status: false}, this.rutaSvc.openRuta.bind(this))
+
+  }
+
+  private async processRuta(
+    filter: Record<string, any>,
+    action: (rutaId: string) => Promise<void>
+  ): Promise<void>  {
+    const rutas = await this.rutaSvc.findByFilter(filter);
+    
+    await Promise.all(
+      rutas.map( async (ruta) => {
+        try {
+          await action(ruta._id);
+        } catch (error) {
+          this.handleExceptions(error)
+        }
+      })
+    )
+
   }
 
   private handleExceptions(error: any) {

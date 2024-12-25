@@ -63,16 +63,24 @@ export class AuthService {
             path: "ruta",
             populate: {
                path: 'caja_actual',
-               select: 'fecha'
+               select: 'fecha', 
             }
          })
-
+         .populate({
+            path: 'empresa',
+            select: ['isSubscriptionPaid']
+         })
+      
       if (!user) {
          throw new UnauthorizedException("Datos Incorrectos");
       }
 
       if (!bcrypt.compareSync(password, user.password)) {
          throw new UnauthorizedException("Datos Incorrectos")
+      }
+
+      if(user.empresa.isSubscriptionPaid === false) {
+         throw new UnauthorizedException('Cuenta Suspendida, Por favor hable con su administrador')
       }
 
       if(user.ruta  && rol !== 'ADMIN') {
