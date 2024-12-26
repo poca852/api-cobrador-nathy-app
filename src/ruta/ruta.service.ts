@@ -6,6 +6,7 @@ import { Ruta } from './entities/ruta.entity';
 import { Model } from 'mongoose';
 import { AuthService } from '../auth/auth.service';
 import { User } from '../auth/entities/user.entity';
+import { CronJob } from 'cron';
 import { Credito } from '../credito/entities/credito.entity';
 import { Cliente } from '../cliente/entities/cliente.entity';
 import { Inversion } from '../inversion/entities/inversion.entity';
@@ -54,7 +55,21 @@ export class RutaService {
     private readonly cajaService: CajaService,
 
     private moment: MomentService
-  ) {}
+  ) {
+    const closeRutas = CronJob.from({
+          cronTime: '00 00 4 * * 1-7',
+          onTick: this.checkRutas,
+          start: true,
+          timeZone: 'America/sao_paulo'
+        });
+    
+        const openRutas = CronJob.from({
+          cronTime: '00 00 9 * * 1-6',
+          onTick: this.checkOpenRutas,
+          start: true,
+          timeZone: 'America/sao_paulo'
+        });
+  }
 
   async create(createRutaDto: CreateRutaDto, user: User) {
 
@@ -251,6 +266,38 @@ export class RutaService {
       this.handleExceptions(error);
 
     }
+
+  }
+
+   //Esta funcion busca las rutas abiertas y las cierra
+   private checkRutas = async () => {
+    
+    await this.processRuta({status: true}, this.closeRuta.bind(this))
+
+  }
+
+  //Esta funcion se encarga de abrir las rutas
+  private checkOpenRutas = async () => {
+    
+    await this.processRuta({autoOpen: true, status: false}, this.openRuta.bind(this))
+
+  }
+
+  private async processRuta(
+    filter: Record<string, any>,
+    action: (rutaId: string) => Promise<void>
+  ): Promise<void>  {
+    const rutas = await this.rutaModel.find(filter);
+    
+    await Promise.all(
+      rutas.map( async (ruta) => {
+        try {
+          await action(ruta._id);
+        } catch (error) {
+          this.handleExceptions(error)
+        }
+      })
+    )
 
   }
 
