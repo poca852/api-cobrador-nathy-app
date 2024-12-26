@@ -79,17 +79,17 @@ export class AuthService {
          throw new UnauthorizedException("Datos Incorrectos")
       }
 
-      if(user.empresa.isSubscriptionPaid === false) {
-         throw new UnauthorizedException('Cuenta Suspendida, Por favor hable con su administrador')
-      }
-
-      if(user.ruta  && rol !== 'ADMIN') {
+      if(user.ruta  && rol === 'COBRADOR') {
          if (!user.ruta.status) {   
             throw new UnauthorizedException("Ruta cerrada hable con su administrador")
          }
 
          if(user.ruta.isLocked) {
             throw new UnauthorizedException('Su ruta se encuentra bloqueada, por favor ponganse en contacto con su supervisor')
+         }
+
+         if(user.empresa.isSubscriptionPaid === false) {
+            throw new UnauthorizedException('Cuenta Suspendida, Por favor hable con su administrador')
          }
       }
 

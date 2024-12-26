@@ -20,7 +20,7 @@ export class AuthController {
   @Post("login")
   async login(
     @Body() loginDto: LoginDto,
-    @Query('rol') rol: string,
+    @Param('rol') rol: string,
   ) {
 
     return this.authService.login(loginDto, rol);
