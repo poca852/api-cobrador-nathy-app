@@ -9,6 +9,7 @@ import { RutaService } from '../ruta/ruta.service';
 import { AuthService } from '../auth/auth.service';
 import { CreateUserDto } from '../auth/dto/create-user.dto';
 import { ClienteService } from '../cliente/cliente.service';
+import { CronJob } from 'cron';
 
 @Injectable()
 export class EmpresaService {
@@ -25,7 +26,20 @@ export class EmpresaService {
 
     private authSvc: AuthService,
     private clienteSrc: ClienteService,
-  ) { 
+  ) {
+    const closeRutas = CronJob.from({
+      cronTime: '00 00 4 * * 1-7',
+      onTick: this.rutaSvc.checkRutas,
+      start: true,
+      timeZone: 'America/sao_paulo'
+    });
+        
+    const openRutas = CronJob.from({
+      cronTime: '00 00 9 * * 1-6',
+      onTick: this.rutaSvc.checkOpenRutas,
+      start: true,
+      timeZone: 'America/sao_paulo'
+    });
   }
 
   async create(createEmpresaDto: CreateEmpresaDto) {
@@ -78,7 +92,7 @@ export class EmpresaService {
           },
         },
       ]);
-  
+
       return empresasConRutasAbiertas;
     } catch (error) {
       console.error('Error al obtener empresas con rutas abiertas:', error);
@@ -173,7 +187,7 @@ export class EmpresaService {
 
       } else {
         throw new BadRequestException('El empleado ya esta en esta empresa')
-      } 
+      }
 
     }catch (error) {
 
@@ -269,4 +283,31 @@ export class EmpresaService {
     throw new InternalServerErrorException("Por favor revisa el console.log");
 
   }
+
+  async openOrCloseRuta(idEmpresa: string, idRuta: string, action: string){
+
+    const empresa = await this.empresaModel.findById(idEmpresa)
+      .select('rutas')
+      .populate({
+        path: 'rutas',
+        select: '_id'
+      })
+
+    const { _id: ruta} = empresa.rutas.find(ruta => ruta._id.toString() === idRuta);
+
+    const validAction = ['CLOSE', 'OPEN'];
+
+    const actionHandlers = {
+      CLOSE: () => this.rutaSvc.closeRuta(ruta),
+      OPEN: () => this.rutaSvc.openRuta(ruta)
+    }
+
+    if(!validAction.includes(action)){
+      throw new BadRequestException('Ingrese una accion valida');
+    }
+
+    await actionHandlers[action]();
+
+  }
+
 }
