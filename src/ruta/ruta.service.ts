@@ -91,6 +91,10 @@ export class RutaService {
 
   }
 
+  async findAll(): Promise<Ruta[]> {
+    return await this.rutaModel.find()
+  }
+
   async findByFilter(filter: any): Promise<Ruta[]> {
 
     return await this.rutaModel.find(filter)

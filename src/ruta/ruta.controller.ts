@@ -39,7 +39,7 @@ export class RutaController {
   async findAll(
     @GetUser() user: User
   ) {
-    return [];
+    return this.rutaService.findAll();
   }
 
 
