@@ -4,9 +4,9 @@ import { CreateRutaDto } from './dto/create-ruta.dto';
 import { UpdateRutaDto } from './dto/update-ruta.dto';
 import { Ruta } from './entities/ruta.entity';
 import { Model } from 'mongoose';
+import { getFormattedDate } from './../common/helpers'
 import { AuthService } from '../auth/auth.service';
 import { User } from '../auth/entities/user.entity';
-import { CronJob } from 'cron';
 import { Credito } from '../credito/entities/credito.entity';
 import { Cliente } from '../cliente/entities/cliente.entity';
 import { Inversion } from '../inversion/entities/inversion.entity';
@@ -55,21 +55,7 @@ export class RutaService {
     private readonly cajaService: CajaService,
 
     private moment: MomentService
-  ) {
-    const closeRutas = CronJob.from({
-          cronTime: '00 00 4 * * 1-7',
-          onTick: this.checkRutas,
-          start: true,
-          timeZone: 'America/sao_paulo'
-        });
-    
-        const openRutas = CronJob.from({
-          cronTime: '00 00 9 * * 1-6',
-          onTick: this.checkOpenRutas,
-          start: true,
-          timeZone: 'America/sao_paulo'
-        });
-  }
+  ) {}
 
   async create(createRutaDto: CreateRutaDto, user: User) {
 
@@ -142,12 +128,12 @@ export class RutaService {
   async closeRuta(id: string, fecha?: string): Promise<boolean> {
 
     const ruta = await this.findOne(id);
+    
+    const date = getFormattedDate(ruta.pais);
 
-    const date = new Date().toLocaleDateString('es-CO', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    })
+    if(!ruta.status) {
+      throw new BadRequestException(`La ruta ya fue cerrada el dia ${date}`)
+    }
 
     // POR EL MOMENTO VAMOS A RECIBIR LA FECHA COMO VENGA CON EL FORMATO DD/MM/YYYY MIENTRAS SOLUCIONO, OJO ESTO SE DEBE CAMBIAR
     await this.update(id, {
@@ -167,51 +153,50 @@ export class RutaService {
 
     const ruta: Ruta = await this.findOne(id);
     
-    const date = new Date();
+    const fecha = getFormattedDate(ruta.pais);
 
-    const fecha = date.toLocaleDateString('es-CO', {
-      timeZone: `America/${ruta.pais}`,
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    })
-
-    let caja;
-
-    if (!ruta.ultima_caja) {
-      caja = await this.cajaModel.create({
-        fecha,
-        ruta: id
-      })
+    if(ruta.status) {
+      throw new BadRequestException(`La ruta ya fue abierta el dia ${fecha}`)
     }
 
-    if (ruta.ultima_caja) {
-
-      let creditosDeLaRuta = await this.creditoModel.find({
-        ruta: ruta._id,
-        status: true
-      })
-
-      let pretendido = creditosDeLaRuta.reduce((sum, credito) => sum + credito.valor_cuota, 0)
-
-      caja = await this.cajaModel.create({
-        base: ruta.ultima_caja.caja_final,
-        caja_final: ruta.caja_actual.caja_final,
-        ruta: id,
-        total_clientes: creditosDeLaRuta.length,
-        clientes_pendientes: creditosDeLaRuta.length,
-        pretendido,
-        fecha
-      })
-    }
+    const caja = ruta.ultima_caja 
+      ? await this.createCajaWithUltimaCaja(ruta, fecha) 
+      : await this.createCajaInicial(id, fecha);
 
     await ruta.updateOne({
       caja_actual: caja._id,
       status: true,
-      ultima_apertura: fecha
+      ultima_apertura: fecha,
     });
 
     return true;
+
+  }
+
+  private async createCajaInicial(rutaId: string, fecha: string): Promise<any> {
+    return this.cajaModel.create({
+      fecha,
+      ruta: rutaId
+    })
+  }
+
+  private async createCajaWithUltimaCaja(ruta: Ruta, fecha: string): Promise<any> {
+    const creditosDeLaRuta = await this.creditoModel.find({
+      ruta: ruta._id,
+      status: true
+    });
+
+    const pretendido = creditosDeLaRuta.reduce((sum, credito) => sum + credito.valor_cuota, 0);
+
+    return this.cajaModel.create({
+      base: ruta.ultima_caja.caja_final,
+      caja_final: ruta.caja_actual.caja_final,
+      ruta: ruta._id,
+      total_clientes: creditosDeLaRuta.length,
+      clientes_pendientes: creditosDeLaRuta.length,
+      pretendido,
+      fecha,
+    });
   }
 
   private handleExceptions(error: any) {
@@ -274,20 +259,20 @@ export class RutaService {
   }
 
    //Esta funcion busca las rutas abiertas y las cierra
-   private checkRutas = async () => {
+   public checkRutas = async () => {
     
     await this.processRuta({status: true}, this.closeRuta.bind(this))
 
   }
 
   //Esta funcion se encarga de abrir las rutas
-  private checkOpenRutas = async () => {
+  public checkOpenRutas = async () => {
     
     await this.processRuta({autoOpen: true, status: false}, this.openRuta.bind(this))
 
   }
 
-  private async processRuta(
+  public async processRuta(
     filter: Record<string, any>,
     action: (rutaId: string) => Promise<void>
   ): Promise<void>  {
@@ -298,6 +283,7 @@ export class RutaService {
         try {
           await action(ruta._id);
         } catch (error) {
+          console.log(error)
           this.handleExceptions(error)
         }
       })

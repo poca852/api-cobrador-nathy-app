@@ -6,6 +6,7 @@ import { ParseMongoIdPipe } from 'src/common/pipes/parse-mongo-id.pipe';
 import { Auth } from 'src/auth/decorators';
 import { ValidRoles } from 'src/auth/interfaces';
 import { CreateUserDto } from 'src/auth/dto';
+import { ToUpperCasePipe } from '../common/pipes/to-upper-case.pipe';
 
 @Controller('empresa')
 export class EmpresaController {
@@ -87,5 +88,16 @@ export class EmpresaController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.empresaService.remove(+id);
+  }
+
+  //cierres y aperturas de rutas
+  // @Auth()
+  @Get('ruta/openorclose/:idEmpresa/:idRuta')
+  openOrCloseRuta(
+    @Param('idEmpresa', ParseMongoIdPipe) idEmpresa: string,
+    @Param('idRuta', ParseMongoIdPipe) idRuta: string,
+    @Query('action', ToUpperCasePipe) action: string,
+  ){
+    return this.empresaService.openOrCloseRuta(idEmpresa, idRuta, action)
   }
 }
