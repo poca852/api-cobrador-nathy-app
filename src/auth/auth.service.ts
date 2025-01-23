@@ -126,7 +126,6 @@ export class AuthService {
    }
 
    async findAll(user: User, have_empresa: boolean = true) {
-
       if(!have_empresa){
          return this.userModel.find({
             empresa: { $in: [null, undefined] }
@@ -141,8 +140,8 @@ export class AuthService {
       //    empleados.push(...consulta)
       // }
 
-
-      return [];
+      const users = await this.userModel.find();
+      return users.filter(userDb => userDb._id.toString() !== user._id.toString());
 
    }
 

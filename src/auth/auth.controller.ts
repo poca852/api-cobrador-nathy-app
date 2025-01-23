@@ -31,9 +31,9 @@ export class AuthController {
   @Get("users")
   async findAll(
     @GetUser() user: User,
-    @Query('have_empresa', ParseBoolPipe) have_empresa: boolean,
+    // @Query('have_empresa', ParseBoolPipe) have_empresa: boolean,
   ) {
-    return this.authService.findAll(user, have_empresa)
+    return this.authService.findAll(user)
   }
 
   @Auth()
