@@ -79,7 +79,7 @@ export class AuthService {
          throw new UnauthorizedException("Datos Incorrectos")
       }
 
-      if(user.ruta  && rol === 'COBRADOR') {
+      if(user.ruta  && user.rol === 'COBRADOR') {
          if (!user.ruta.status) {   
             throw new UnauthorizedException("Ruta cerrada hable con su administrador")
          }
