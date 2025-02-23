@@ -41,7 +41,7 @@ import { MomentService } from 'src/common/plugins/moment/moment.service';
         return {
           secret: configService.get("SECRETORPRIVATEKEY"),
           signOptions: {
-            expiresIn: "6h"
+            expiresIn: "1h"
           }
         }
       }
