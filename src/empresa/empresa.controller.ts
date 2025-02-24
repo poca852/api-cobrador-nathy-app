@@ -3,7 +3,7 @@ import { EmpresaService } from './empresa.service';
 import { CreateEmpresaDto } from './dto/create-empresa.dto';
 import { UpdateEmpresaDto } from './dto/update-empresa.dto';
 import { ParseMongoIdPipe } from 'src/common/pipes/parse-mongo-id.pipe';
-import { Auth } from 'src/auth/decorators';
+import { Auth, GetUser } from 'src/auth/decorators';
 import { ValidRoles } from 'src/auth/interfaces';
 import { CreateUserDto } from 'src/auth/dto';
 import { ToUpperCasePipe } from '../common/pipes/to-upper-case.pipe';
@@ -33,11 +33,16 @@ export class EmpresaController {
   }
 
   @Auth()
-  @Get(':id')
+  @Get()
   findOne(
-    @Param('id', ParseMongoIdPipe) id: string
+    @GetUser() user: any,
   ) {
-    return this.empresaService.findOne(id);
+    
+    let { empresa } = user;
+    empresa = empresa.toString();
+
+    return this.empresaService.findRutasByEmpresa(empresa);
+
   }
 
   @Auth()

@@ -127,6 +127,15 @@ export class EmpresaService {
 
   }
 
+  async findRutasByEmpresa(idEmpresa: string) {
+    
+    const empresa = await this.empresaModel.findById(idEmpresa)
+      .populate('rutas');
+
+    return empresa.rutas;
+    
+  }
+
   async findOne(id: string) {
 
     const empresa = await this.empresaModel.findById(id)
