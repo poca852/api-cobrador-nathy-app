@@ -17,6 +17,7 @@ import { Caja } from '../caja/entities/caja.entity';
 import { CajaService } from '../caja/caja.service';
 import { LogRuta } from './entities/log-ruta';
 import { MomentService } from '../common/plugins/moment/moment.service';
+import { MessageGateway } from 'src/message/message.gateway';
 
 @Injectable()
 export class RutaService {
@@ -24,6 +25,8 @@ export class RutaService {
   private logger = new Logger("RutaService");
 
   constructor(
+    private socketRuta: MessageGateway,
+
     @InjectModel(Ruta.name)
     private readonly rutaModel: Model<Ruta>,
 
@@ -144,6 +147,8 @@ export class RutaService {
 
     await this.cajaService.actualizarCaja(ruta.caja_actual._id)
     await this.actualizarRuta(id);
+
+    this.socketRuta.wss.emit('close-caja', { ruta: id });
 
     return true;
 

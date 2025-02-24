@@ -14,6 +14,7 @@ import { Caja, CajaSchema } from '../caja/entities/caja.entity';
 import { CajaModule } from '../caja/caja.module';
 import { LogRuta, LogRutaSchema } from './entities/log-ruta';
 import { MomentService } from 'src/common/plugins/moment/moment.service';
+import { MessageModule } from 'src/message/message.module';
 
 @Module({
   imports: [
@@ -54,6 +55,7 @@ import { MomentService } from 'src/common/plugins/moment/moment.service';
         schema: CajaSchema
       }
     ]),
+    MessageModule,
   ],
   controllers: [RutaController],
   providers: [RutaService, MomentService],

@@ -1,10 +1,9 @@
 import { Module } from '@nestjs/common';
 import { MessageService } from './message.service';
 import { MessageGateway } from './message.gateway';
-import { AuthModule } from '../auth/auth.module';
 
 @Module({
-  imports: [AuthModule],
-  providers: [MessageGateway, MessageService]
+  providers: [MessageGateway, MessageService],
+  exports: [MessageService, MessageGateway]
 })
 export class MessageModule {}
