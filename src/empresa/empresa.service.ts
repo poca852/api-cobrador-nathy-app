@@ -57,6 +57,24 @@ export class EmpresaService {
     }
 
   }
+  
+  async getEmpresaById(id: string) {
+
+    try {
+
+      const empresa = await this.empresaModel.findById(id)
+        .populate('employes')
+        .populate('rutas');
+    
+      return empresa;
+
+    } catch (error) {
+      
+      this.handleExceptions(error);
+
+    }
+
+  }
 
   mundo() {
     this.findEmpresaWithRutasOpened().then(console.log)

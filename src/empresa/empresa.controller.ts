@@ -46,6 +46,20 @@ export class EmpresaController {
   }
 
   @Auth()
+  @Get(':id')
+  findById(
+    @GetUser() user: any,
+    @Param('id', ParseMongoIdPipe) id: string, 
+  ) {
+    
+    let { empresa } = user;
+    empresa = empresa.toString();
+
+    return this.empresaService.getEmpresaById(id);
+
+  }
+
+  @Auth()
   @Patch('update/:id')
   update(
     @Param('id', ParseMongoIdPipe) id: string, 
