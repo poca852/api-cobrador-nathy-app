@@ -337,4 +337,8 @@ export class EmpresaService {
 
   }
 
+  getAllEmpresas() {
+    return this.empresaModel.find();
+  }
+
 }

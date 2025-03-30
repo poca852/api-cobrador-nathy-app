@@ -46,6 +46,12 @@ export class EmpresaController {
   }
 
   @Auth()
+  @Get('all')
+  findAllEmpresas(){
+    return this.empresaService.getAllEmpresas();
+  }
+
+  @Auth()
   @Get(':id')
   findById(
     @GetUser() user: any,
