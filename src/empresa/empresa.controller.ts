@@ -7,6 +7,7 @@ import { Auth, GetUser } from 'src/auth/decorators';
 import { ValidRoles } from 'src/auth/interfaces';
 import { CreateUserDto } from 'src/auth/dto';
 import { ToUpperCasePipe } from '../common/pipes/to-upper-case.pipe';
+import { CreateRutaDto } from '../ruta/dto/create-ruta.dto';
 
 @Controller('empresa')
 export class EmpresaController {
@@ -94,10 +95,10 @@ export class EmpresaController {
   @Auth(ValidRoles.admin, ValidRoles.superAdmin)
   @Patch('add-ruta')
   addRuta(
-    @Query('empresa', ParseMongoIdPipe) empresa: string,
-    @Query('ruta', ParseMongoIdPipe) ruta: string
+    @Query('empresa', ParseMongoIdPipe) empresaID: string,
+    @Body() rutaDto: CreateRutaDto,
   ) {
-    return this.empresaService.addRuta(empresa, ruta)
+    return this.empresaService.addRuta(empresaID, rutaDto)
   }
 
   @Auth()

@@ -10,6 +10,7 @@ import { AuthService } from '../auth/auth.service';
 import { CreateUserDto } from '../auth/dto/create-user.dto';
 import { ClienteService } from '../cliente/cliente.service';
 import { CronJob } from 'cron';
+import { CreateRutaDto } from '../ruta/dto/create-ruta.dto';
 
 @Injectable()
 export class EmpresaService {
@@ -245,14 +246,16 @@ export class EmpresaService {
   }
 
 
-  async addRuta(idEmpresa: string, idRuta: string) {
+  async addRuta(idEmpresa: string, rutaDto: CreateRutaDto) {
 
     const empresa = await this.empresaModel.findById(idEmpresa).populate('rutas');
-    const ruta = await this.rutaSvc.findOne(idRuta);
-
+    // const ruta = await this.rutaSvc.findOne(idRuta);
+    
     if (!empresa) {
       throw new NotFoundException('La empresa no existe');
     }
+
+    const ruta = await this.rutaSvc.create(rutaDto);
 
     const existeRuta = empresa.rutas.some(r => r._id.equals(ruta._id));
 

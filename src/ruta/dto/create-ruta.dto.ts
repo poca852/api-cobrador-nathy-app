@@ -87,6 +87,7 @@ export class CreateRutaDto {
    estado: string;
 
    @IsString()
+   @IsOptional()
    senha?: string;
 
    @IsBoolean()

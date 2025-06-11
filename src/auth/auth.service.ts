@@ -60,15 +60,7 @@ export class AuthService {
          username: username.toUpperCase()
       })
          .populate({
-            path: "ruta",
-            populate: {
-               path: 'caja_actual',
-               select: 'fecha', 
-            }
-         })
-         .populate({
-            path: 'empresa',
-            select: ['isSubscriptionPaid']
+            path: "ruta"
          })
       
       if (!user) {
@@ -86,10 +78,6 @@ export class AuthService {
 
          if(user.ruta.isLocked) {
             throw new UnauthorizedException('Su ruta se encuentra bloqueada, por favor ponganse en contacto con su supervisor')
-         }
-
-         if(user.empresa.isSubscriptionPaid === false) {
-            throw new UnauthorizedException('Cuenta Suspendida, Por favor hable con su administrador')
          }
       }
 

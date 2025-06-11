@@ -60,15 +60,11 @@ export class RutaService {
     private moment: MomentService
   ) {}
 
-  async create(createRutaDto: CreateRutaDto, user: User) {
-
-    const admin = await this.authService.findOne(user._id);
+  async create(createRutaDto: CreateRutaDto) {
 
     try {
 
       const ruta = await this.rutaModel.create(createRutaDto);
-
-      await admin.save();
 
       return ruta;
 
