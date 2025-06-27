@@ -11,9 +11,7 @@ export class MessageGateway implements OnGatewayConnection, OnGatewayDisconnect 
     private readonly messageService: MessageService,
   ) {}
 
-  async handleConnection(client: Socket) {
-    
-  }
+  async handleConnection(client: Socket) {}
   
   handleDisconnect(client: Socket) {
   }

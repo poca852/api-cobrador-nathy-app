@@ -1,9 +1,10 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { ExpressAdapter } from '@nestjs/platform-express';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<INestApplication>(AppModule, new ExpressAdapter());
 
   app.setGlobalPrefix("api");
 
@@ -19,6 +20,9 @@ async function bootstrap() {
       // }
     })
   )
+
+  const expressApp = app.getHttpAdapter().getInstance();
+  expressApp.set('trust proxy', true);
 
   await app.listen(+process.env.PORT);
 }

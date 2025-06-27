@@ -12,6 +12,8 @@ import { RutaService } from '../ruta/ruta.service';
 import { CierreCaja } from '../caja/entities/cierre_caja.entity';
 import { LogAuth } from 'src/log-auth/entities/log-auth.entity';
 import { MomentService } from 'src/common/plugins/moment/moment.service';
+import { Request } from 'express';
+import { MessageGateway } from '../message/message.gateway';
 
 @Injectable()
 export class AuthService {
@@ -52,7 +54,7 @@ export class AuthService {
 
    }
 
-   async login(loginDto: LoginDto, rol: string): Promise<LoginResponse> {
+   async login(loginDto: LoginDto, request: Request): Promise<LoginResponse> {
 
       const { username, password } = loginDto;
 
@@ -64,19 +66,54 @@ export class AuthService {
          })
       
       if (!user) {
+
+         await this.logAuth.create({
+            ipAddress: request.ip,
+            userAgent: request.headers['user-agent'],
+            reason: 'User does not exist',
+            isSuccessful: false
+         })
+
          throw new UnauthorizedException("Datos Incorrectos");
       }
 
       if (!bcrypt.compareSync(password, user.password)) {
+
+         await this.logAuth.create({
+            user: user._id,
+            ipAddress: request.ip,
+            userAgent: request.headers['user-agent'],
+            reason: 'Incorrect credentials',
+            isSuccessful: false
+         })
+
          throw new UnauthorizedException("Datos Incorrectos")
       }
 
       if(user.ruta  && user.rol === 'COBRADOR') {
          if (!user.ruta.status) {   
+
+            await this.logAuth.create({
+               user: user._id,
+               ipAddress: request.ip,
+               userAgent: request.headers['user-agent'],
+               reason: 'Ruta cerrada',
+               isSuccessful: false
+            })
+
             throw new UnauthorizedException("Ruta cerrada hable con su administrador")
          }
 
          if(user.ruta.isLocked) {
+
+            await this.logAuth.create({
+               user: user._id,
+               ipAddress: request.ip,
+               userAgent: request.headers['user-agent'],
+               reason: 'Ruta bloqueada',
+               isSuccessful: false
+            })
+
             throw new UnauthorizedException('Su ruta se encuentra bloqueada, por favor ponganse en contacto con su supervisor')
          }
       }
@@ -94,6 +131,16 @@ export class AuthService {
    }
 
    async checkStatus(user: User): Promise<LoginResponse> {
+
+      const userDB = await this.userModel.findById(user._id)
+         .populate({
+            path: "ruta"
+         })
+
+      if(userDB.ruta.isLocked) {
+         throw new UnauthorizedException("Ruta bloqueada")
+      }
+
       return {
          user,
          token: this.getJwtToken({ id: user._id })

@@ -1,9 +1,10 @@
-import { Body, Controller, Post, Param, Get, Patch, Delete, Query, ParseBoolPipe } from '@nestjs/common';
+import { Body, Controller, Post, Param, Get, Patch, Delete, Query, ParseBoolPipe, Req } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto, UpdateUserDto, CreateUserDto } from './dto';
 import { Auth, GetUser } from './decorators';
 import { ValidRoles } from './interfaces';
 import { User } from './entities/user.entity';
+import { Request } from 'express';
 
 @Controller('auth')
 export class AuthController {
@@ -20,11 +21,9 @@ export class AuthController {
   @Post("login")
   async login(
     @Body() loginDto: LoginDto,
-    @Param('rol') rol: string,
+    @Req() request: Request,
   ) {
-
-    return this.authService.login(loginDto, rol);
-    
+    return this.authService.login(loginDto, request);
   }
 
   @Auth()
